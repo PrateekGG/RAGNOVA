@@ -142,7 +142,22 @@ With 2 members: merge Track C into A and B (each owns half the UI).
       and fixed during verification — see Ch7's framing note and §2.3/§5.3)
 - [ ] Ch 8 — Image Pipeline
 - [ ] Ch 9 — Audio Pipeline
-- [ ] Ch 10 — RAG Core
-- [ ] Ch 11 — UI
-- [ ] Ch 12 — Integration & Feedback
+- [x] Ch 10 — RAG Core (docs + real, tested code written — src/core/llm.py, src/pipelines/rag/{prompt,answer}.py,
+      scripts/{ask,evaluate_answers}.py, tests/test_rag_core.py, ADR-009; real end-to-end answers with
+      citations against the Ch6/7 text_index via real Ollama (llama3.2:3b) — see Ch10 §5 for captured
+      output. Deliberately text-only for now: image_index/audio have no write path into ChromaDB yet
+      (Ch8/9), so ADR-007's cross-modal merge has nothing to merge with — the retrieval interface is
+      shaped so wiring in a second collection later is additive, not a redesign. Answer-quality check run
+      against 7 gold questions (T1-T5, N1-N2), self-rated 4.71/5 average — see data/README.md's Results log)
+- [ ] Ch 11 — UI (docs + real, tested code written for the non-drawing half — streaming answers
+      (`generate_stream()`, `stream_answer()`), per-citation display rules (`src/ui/citations.py`),
+      uploads / voice / image-query plumbing (`src/ui/backend.py`, `transcribe_query()`,
+      `index_document_file()`). The page itself is Task 4's scaffold in PR #4; still open: merge PR #4,
+      then wire its `process_query()` TODO as Ch11 §5.6 shows)
+- [ ] Ch 12 — Integration & Feedback (docs + real, tested code written — image and audio write paths into
+      ChromaDB, `search_images()`, rank-merged `retrieve()` across both collections (ADR-007), per-collection
+      relevance floors (ADR-010), `build_index.py` indexing all three folders, `tests/test_integration.py`
+      (28 passing, with fakes for the models), feedback log + `summarize_feedback.py` + `docs/feedback-log.md`.
+      Two real seam bugs found (Ch12 §5.3). Still open: outside-tester sessions, measuring the image floor
+      and cross-modal Recall@5 with real CLIP, the ablations, the offline demo — Ch12 §7.3)
 - [ ] Ch 13 — Mid-Term Report

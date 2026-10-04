@@ -7,10 +7,10 @@ Run with:  python scripts/evaluate_retrieval.py
 (after scripts/build_index.py has built the real index at least once)
 
 KNOWN LIMITATION, stated plainly rather than hidden: the questions below
-are a manual copy of data/README.md's T1-T3 rows, not a parse of that
+are a manual copy of data/README.md's T1-T13 rows, not a parse of that
 file. data/README.md is written for humans (prose, a callout box, a table
-meant to be edited by hand) and three rows isn't enough to justify a
-markdown-table parser. If you add or change a gold-set row in
+meant to be edited by hand) and thirteen rows still isn't enough to
+justify a markdown-table parser. If you add or change a gold-set row in
 data/README.md, update GOLD_QUESTIONS below to match — nothing enforces
 that the two stay in sync automatically. A future chapter could promote
 the gold set to a small machine-readable file (JSON/CSV) that
@@ -34,7 +34,7 @@ if hasattr(sys.stdout, "reconfigure"):
 
 from src.pipelines.documents.search import search_text
 
-# Mirrors data/README.md's "Text -> text/document queries" table, T1-T3.
+# Mirrors data/README.md's "Text -> text/document queries" table, T1-T13.
 # Each entry: the question, and the (source, page) that should appear
 # somewhere in the top-K results for the question to count as a hit.
 GOLD_QUESTIONS = [
@@ -53,6 +53,66 @@ GOLD_QUESTIONS = [
     {
         "id": "T3",
         "question": "What happens the first time someone gets caught sharing their login with a friend?",
+        "expected_source": "data/documents/it_onboarding.docx",
+        "expected_page": 2,
+    },
+    {
+        "id": "T4",
+        "question": "What software must students set up if they want to read digital journals from home?",
+        "expected_source": "data/documents/it_onboarding.docx",
+        "expected_page": 1,
+    },
+    {
+        "id": "T5",
+        "question": "Where will the guide allotment list be announced?",
+        "expected_source": "data/documents/notice.pdf",
+        "expected_page": 1,
+    },
+    {
+        "id": "T6",
+        "question": "How many people are allowed to work together on this project, at most?",
+        "expected_source": "data/documents/notice.pdf",
+        "expected_page": 1,
+    },
+    {
+        "id": "T7",
+        "question": "Is there a maximum length for the synopsis, not counting the cover page or references?",
+        "expected_source": "data/documents/notice.pdf",
+        "expected_page": 1,
+    },
+    {
+        "id": "T8",
+        "question": "If someone misses their individual viva without approval beforehand, what mark do they get for that part?",
+        "expected_source": "data/documents/notice.pdf",
+        "expected_page": 2,
+    },
+    {
+        "id": "T9",
+        "question": "What happens if part of our submission turns out to be copied from somewhere else, even just a small section?",
+        "expected_source": "data/documents/notice.pdf",
+        "expected_page": 2,
+    },
+    {
+        "id": "T10",
+        "question": "On a Sunday, what time does the library close?",
+        "expected_source": "data/documents/library_hours.pdf",
+        "expected_page": 1,
+    },
+    {
+        "id": "T11",
+        "question": "Can I extend my library loan if nobody else wants that book?",
+        "expected_source": "data/documents/library_hours.pdf",
+        "expected_page": 1,
+    },
+    {
+        "id": "T12",
+        "question": "Before I can start using my new institute email account, what do I need to do first?",
+        "expected_source": "data/documents/it_onboarding.docx",
+        "expected_page": 1,
+    },
+    {
+        "id": "T13",
+        "question": "Am I allowed to download movies or paid software through the campus network without a license?",
         "expected_source": "data/documents/it_onboarding.docx",
         "expected_page": 2,
     },

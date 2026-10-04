@@ -24,3 +24,6 @@ Thumbs.db
 
 # Editor
 .vscode/settings.json
+
+# Local diagnostic / test analysis reports
+reports/analysis_errors_and_warnings.md

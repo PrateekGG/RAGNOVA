@@ -38,26 +38,34 @@ def index_documents_directory(directory: str | Path, client=None) -> int:
     docstring describes.
     """
     client = client or get_client()
-    collection = get_text_collection(client)
     directory = Path(directory)
 
     total_chunks = 0
     for path in sorted(directory.iterdir()):
         if path.suffix.lower() not in _SUPPORTED_EXTENSIONS:
             continue
-
-        chunks = ingest_document(_relative_to_cwd(path))
-        if not chunks:
-            # A real, if unlikely, case: every page of this file produced
-            # zero extractable text (Chapter 6 §1.4). Nothing to embed or
-            # store, and not an error — move on to the next file.
-            continue
-
-        vectors = embed_texts([c.text for c in chunks])
-        add_chunks(collection, chunks, vectors)
-        total_chunks += len(chunks)
+        total_chunks += index_document_file(path, client=client)
 
     return total_chunks
+
+
+def index_document_file(path: str | Path, client=None) -> int:
+    """Ingest, embed and upsert ONE document; returns its chunk count.
+    Split out of index_documents_directory() in Chapter 11 so the UI can
+    index a single uploaded file without re-embedding the whole folder."""
+    client = client or get_client()
+    collection = get_text_collection(client)
+
+    chunks = ingest_document(_relative_to_cwd(Path(path)))
+    if not chunks:
+        # A real, if unlikely, case: every page of this file produced
+        # zero extractable text (Chapter 6 §1.4). Nothing to embed or
+        # store, and not an error.
+        return 0
+
+    vectors = embed_texts([c.text for c in chunks])
+    add_chunks(collection, chunks, vectors)
+    return len(chunks)
 
 
 def _relative_to_cwd(path: Path) -> Path:

@@ -32,11 +32,13 @@ RAGNova/
 ├── docs/
 │   ├── ROADMAP.md         ← chapter breakdown + 14-day timeline + team split
 │   ├── GLOSSARY.md        ← every jargon term, explained simply
-│   ├── decisions/         ← Architecture Decision Records (ADR-001 … 007)
+│   ├── decisions/         ← Architecture Decision Records (ADR-001 … 010)
+│   ├── feedback-log.md    ← human feedback + what we changed (Ch12)
 │   └── chapters/          ← one teaching doc per chapter (read in order)
 ├── src/
 │   ├── core/              ← SHARED — schemas.py, config.py (Ch4 §1.3, Ch5 §3)
-│   └── pipelines/         ← per-track code, from Chapter 6 onward
+│   ├── pipelines/         ← per-track code, from Chapter 6 onward (rag/ = Ch10 + Ch12 cross-modal retrieval)
+│   └── ui/                ← Ch11: the chat page's non-drawing half (uploads, citations, feedback)
 ├── tests/                 ← test_contract.py — the interface contract, enforced (Ch4 §1.6)
 ├── scripts/               ← verify_setup.py and other one-off setup scripts
 ├── data/                  ← sample corpus + gold-standard eval set (documents/images/audio)
