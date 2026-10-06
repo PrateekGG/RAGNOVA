@@ -1,0 +1,8 @@
+shipped defaults: CHUNK_SIZE_WORDS=300, CHUNK_OVERLAP_WORDS=50, TOP_K=5, LLM_NUM_CTX=4096, RRF_K=60
+
+=== ABLATION 3: cross-modal merge policy (the 22 cross-modal gold rows, real index) ===
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 2245.30it/s]
+  rank-based RRF, k=60 (shipped)     18/22 hit   (text_to_image 10/14, image_to_doc 4/4, audio_topic 4/4)
+  raw-score merge (rejected, ADR-007) 14/22 hit   (text_to_image 6/14, image_to_doc 4/4, audio_topic 4/4)
+  rows whose rank changed (RRF -> score): I1 2->4, I4 2->None, I5 2->None, I6 2->3, I7 4->None, I9 2->3, I12 4->None
+  I3 is the question to watch: it misses because its image is outranked by text chunks in the merged top 5.

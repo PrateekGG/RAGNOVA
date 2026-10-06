@@ -1,0 +1,42 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 28.12,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 3.41,
+   "start": 0.0,
+   "text": " Welcome to the Central Library orientation."
+  },
+  {
+   "end": 9.25,
+   "start": 3.41,
+   "text": " Effective this semester, our working hours are 8 in the morning until 10 at night on working days,"
+  },
+  {
+   "end": 13.23,
+   "start": 9.25,
+   "text": " and 9 in the morning until 6 in the evening on weekends."
+  },
+  {
+   "end": 18.58,
+   "start": 13.23,
+   "text": " Undergraduate students may check out up to four books at a time for 14 days."
+  },
+  {
+   "end": 24.14,
+   "start": 18.58,
+   "text": " Overdue fines are 2 rupees per day, capped at 200 rupees per title."
+  },
+  {
+   "end": 28.12,
+   "start": 24.14,
+   "text": " The Digital Resource Center is located on the second floor."
+  }
+ ],
+ "sha256": "7fdb13f8a0b14690505656c41702aae9a9c6404b7b0811db5e92ab64dc87fd2e",
+ "source_name": "library_orientation_excerpt.wav"
+}

@@ -1,0 +1,57 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 69.6,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 10.01,
+   "start": 0.86,
+   "text": " section 1.3 approaches. Common activities in bioinformatics include mapping and analyzing DNA"
+  },
+  {
+   "end": 16.26,
+   "start": 10.01,
+   "text": " and protein sequences, aligning different DNA and protein sequences to compare them,"
+  },
+  {
+   "end": 22.63,
+   "start": 16.26,
+   "text": " and creating and viewing 3D models of protein structures. There are two fundamental ways of"
+  },
+  {
+   "end": 30.49,
+   "start": 22.63,
+   "text": " modeling a biological system, i.e. a living cell, both coming under bioinformatic approaches."
+  },
+  {
+   "end": 39.53,
+   "start": 30.49,
+   "text": " 1. Static Sequences Proteins, nucleic acids and peptides"
+  },
+  {
+   "end": 45.77,
+   "start": 39.53,
+   "text": " Interaction data among the above entities including microarray data and networks of proteins"
+  },
+  {
+   "end": 55.69,
+   "start": 45.77,
+   "text": " and metabolites. 2. Dynamic Structures Proteins, nucleic acids, ligands,"
+  },
+  {
+   "end": 62.36,
+   "start": 55.69,
+   "text": " including metabolites and drugs and peptides. Structures studied with bioinformatics tools"
+  },
+  {
+   "end": 68.28,
+   "start": 62.36,
+   "text": " are not considered static anymore, and their dynamics is often the core of these structural studies."
+  }
+ ],
+ "sha256": "314cc077a6003627e12d2810ceb6c956472cfe5e3f2dac95a07250174fa1b2e7",
+ "source_name": "spoken_wikipedia_bioinformatics.wav"
+}

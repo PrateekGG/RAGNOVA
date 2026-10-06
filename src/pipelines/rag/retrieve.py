@@ -15,6 +15,7 @@ from dataclasses import replace
 from PIL import Image
 
 from src.core.config import settings
+from src.core.embeddings import embed_text
 from src.core.schemas import Chunk
 from src.pipelines.documents.search import search_text
 
@@ -56,6 +57,46 @@ def filter_by_floor(chunks: list[Chunk], floor: float) -> list[Chunk]:
     return [c for c in chunks if c.score is not None and c.score >= floor]
 
 
+def _ocr_agreement(query: str, chunk: Chunk) -> float:
+    """MiniLM cosine similarity between the question and the text read from
+    an image (its OCR). Vectors are unit length, so a dot product is the
+    cosine. Only ever called for an image that CLIP alone did not convince."""
+    return sum(a * b for a, b in zip(embed_text(query), embed_text(chunk.text)))
+
+
+def filter_images(chunks: list[Chunk], query: str, agreement=None) -> list[Chunk]:
+    """ADR-011's gate for text -> image results.
+
+    CLIP's score alone cannot tell "the right image" from "the least wrong
+    image": measured on this corpus, correct images score 0.216-0.346 while
+    the top image for a question the corpus cannot answer scores up to
+    0.291 (ADR-010's measurement update, repeated in ADR-011). So an image
+    must clear MIN_IMAGE_RELEVANCE_SCORE *and* either
+
+      - reach IMAGE_CONFIDENT_SCORE on CLIP alone, or
+      - have OCR text whose MiniLM similarity to the question reaches
+        MIN_IMAGE_TEXT_AGREEMENT: two independent models agreeing.
+
+    An image with no readable text (a photo) cannot be corroborated, so it
+    is kept only when CLIP alone is confident; that is the price of the
+    rule, and it is stated rather than hidden. `agreement(query, chunk)`
+    defaults to the MiniLM cosine above; tests inject a fake so they need
+    no model weights.
+    """
+    agreement = agreement or _ocr_agreement
+    kept = []
+    for chunk in filter_by_floor(chunks, settings.MIN_IMAGE_RELEVANCE_SCORE):
+        if chunk.score >= settings.IMAGE_CONFIDENT_SCORE:
+            kept.append(chunk)
+        elif (
+            query.strip()
+            and chunk.text.strip()
+            and agreement(query, chunk) >= settings.MIN_IMAGE_TEXT_AGREEMENT
+        ):
+            kept.append(chunk)
+    return kept
+
+
 def retrieve(
     query: str,
     top_k: int | None = None,
@@ -63,6 +104,7 @@ def retrieve(
     include_images: bool = False,
     query_image: Image.Image | None = None,
     image_search=None,
+    image_agreement=None,
 ) -> list[Chunk]:
     """The one retrieval call the RAG core makes: relevant chunks from
     every enabled collection, merged into one ranked list of at most
@@ -76,15 +118,19 @@ def retrieve(
       `query_image` if the user uploaded one (image -> image), else by
       the question text (text -> image, even if that text is blank —
       unlike text_index, an image search with nothing typed is still a
-      meaningful "show me relevant images" action) — and gated on
-      MIN_IMAGE_RELEVANCE_SCORE.
+      meaningful "show me relevant images" action). Text -> image results
+      go through filter_images() (ADR-011: a CLIP floor plus OCR
+      corroboration); image -> image results, whose scores are far higher
+      and which have no question text to corroborate with, are gated on
+      MIN_IMAGE_RELEVANCE_SCORE alone.
 
     With include_images=False and query_image=None, this returns exactly
     what Chapter 10's answer_query() used to compute inline, so the CLI
     and every existing test behave identically.
 
-    `image_search` defaults to search_images(); tests inject a fake so
-    they don't need CLIP's weights.
+    `image_search` defaults to search_images() and `image_agreement` to the
+    MiniLM OCR-agreement scorer; tests inject fakes so they don't need
+    CLIP's or MiniLM's weights.
     """
     top_k = top_k or settings.TOP_K
     # An empty question happens for real in the UI: someone uploads a
@@ -116,8 +162,9 @@ def retrieve(
 
     if query_image is not None:
         raw_image_hits = image_search(query_image=query_image, top_k=top_k, client=client)
+        image_hits = filter_by_floor(raw_image_hits, settings.MIN_IMAGE_RELEVANCE_SCORE)
     else:
         raw_image_hits = image_search(query_text=query, top_k=top_k, client=client)
-    image_hits = filter_by_floor(raw_image_hits, settings.MIN_IMAGE_RELEVANCE_SCORE)
+        image_hits = filter_images(raw_image_hits, query, image_agreement)
 
     return rrf_merge([text_hits, image_hits])[:top_k]

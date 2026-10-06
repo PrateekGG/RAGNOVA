@@ -1,0 +1,47 @@
+Ranking 631 chunks (text_index: documents + audio transcripts) for 25 questions.
+
+id   overlap    dense   bm25 hybrid   (rank of the expected chunk, '-' = not in the top 50)
+T1       33%        1      8      2
+T2       50%        2      5      2
+T3       56%        1      1      1
+T4       50%        1      1      1
+T5       50%        2      1      1
+T6       40%        1     11      2
+T7       57%        1      1      1
+T8       50%        1      1      1
+T9       50%        1      1      1
+T10      50%        2      1      1
+T11      43%        1      1      1
+T12      86%        1      1      1
+T13      38%        1      4      2
+T14      33%        5      9      9
+T15      31%        1      1      1
+T16      33%        2      6      1
+T17      50%        1      3      1
+T18      80%        1      3      2
+T19      85%        1      1      1
+T20      71%        3      2      2
+T21      27%        1      2      1
+T22      88%        2      1      1
+T23      70%        3      1      2
+T24      71%        1      1      1
+T25      50%        1      2      1
+
+ALL QUESTIONS (n=25)
+   dense   Recall@5 1.00   MRR 0.81
+   bm25    Recall@5 0.84   MRR 0.66
+   hybrid  Recall@5 0.96   MRR 0.82
+
+LOWER wording overlap (<= 50% of the question's words appear in its answer chunk) (n=16)
+   dense   Recall@5 1.00   MRR 0.82
+   bm25    Recall@5 0.75   MRR 0.55
+   hybrid  Recall@5 0.94   MRR 0.81
+
+HIGHER wording overlap (> 50%) (n=9)
+   dense   Recall@5 1.00   MRR 0.80
+   bm25    Recall@5 1.00   MRR 0.87
+   hybrid  Recall@5 1.00   MRR 0.83
+
+Head to head over 25 questions: dense ranks the answer higher on 10, BM25 on 5, tied on 10.
+
+One question moves any figure above by 0.04; read differences smaller than that as noise.

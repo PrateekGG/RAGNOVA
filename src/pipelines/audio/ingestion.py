@@ -32,6 +32,9 @@ except ImportError as exc:
         "Ensure src.core.schemas and src.core.config are available."
     ) from exc
 
+from src.pipelines.audio import transcript_cache
+from src.pipelines.audio.formats import SUPPORTED_EXTENSIONS as _AUDIO_FORMATS
+
 logger: logging.Logger = logging.getLogger(__name__)
 
 TARGET_WORDS: int = getattr(
@@ -54,11 +57,8 @@ DEFAULT_DEVICE: str = getattr(settings, "WHISPER_DEVICE", "cpu")
 DEFAULT_COMPUTE_TYPE: str = getattr(settings, "WHISPER_COMPUTE_TYPE", "int8")
 MAX_FILE_SIZE_BYTES: int = 2 * 1024 * 1024 * 1024
 
-SUPPORTED_EXTENSIONS: frozenset[str] = frozenset({
-    ".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac",
-    ".opus", ".mpeg", ".mp4", ".webm", ".wma", ".mka",
-    ".3gp", ".amr",
-})
+# The list lives in formats.py (no heavy imports) so the UI can use it too.
+SUPPORTED_EXTENSIONS: frozenset[str] = _AUDIO_FORMATS
 
 DEFAULT_VAD_PARAMETERS: Dict[str, Any] = getattr(
     settings, 
@@ -105,6 +105,25 @@ class OverlapSegment:
                 "word_count",
                 len(_WORD_PATTERN.findall(self.text)),
             )
+
+
+@dataclass(frozen=True, slots=True)
+class _Segment:
+    """One transcribed segment as the rest of this module consumes it. Both a
+    fresh transcription and a cache hit yield THIS type, with timestamps
+    rounded to 2 decimals the same way, so a cached run and an uncached run
+    produce identical chunks."""
+
+    text: str
+    start: float
+    end: float
+
+
+def _transcript_cache_dir() -> Optional[Path]:
+    """The configured transcript cache folder, or None when caching is off
+    (WHISPER_TRANSCRIPT_CACHE_DIR set to an empty string)."""
+    configured = getattr(settings, "WHISPER_TRANSCRIPT_CACHE_DIR", "")
+    return Path(configured) if configured else None
 
 
 class AudioIngestor:
@@ -163,11 +182,19 @@ class AudioIngestor:
         self._progress_callback = progress_callback
         self._closed = False
 
-        self._model = WhisperModel(
-            self._model_size,
-            device=self._device,
-            compute_type=self._compute_type,
-        )
+        # Loaded on first use, not here: a transcript served from the cache
+        # (transcript_cache.py) never needs Whisper at all, and loading its
+        # weights costs seconds and ~150 MB for nothing.
+        self._model = None
+
+    def _ensure_model(self):
+        if self._model is None:
+            self._model = WhisperModel(
+                self._model_size,
+                device=self._device,
+                compute_type=self._compute_type,
+            )
+        return self._model
 
     @staticmethod
     def _sanitize_stem(stem: str) -> str:
@@ -361,11 +388,25 @@ class AudioIngestor:
             logger.debug("Progress callback raised; ignoring it.", exc_info=True)
 
     def _transcribe_with_retry(self, file_path: Path) -> Iterator[AudioSegment]:
+        cache_dir = _transcript_cache_dir()
+        digest = None
+        if cache_dir is not None:
+            digest = transcript_cache.file_sha256(file_path)
+            cached = transcript_cache.load(cache_dir, digest, self._model_size)
+            if cached is not None:
+                for seg in cached["segments"]:
+                    yield _Segment(seg["text"], seg["start"], seg["end"])
+                duration = float(cached.get("duration") or 0.0)
+                if duration > 0:
+                    self._report_progress(duration, duration)
+                return
+
         last_yielded_start: float = -1.0
-        
+        collected: List[Dict[str, Any]] = []
+
         for attempt in range(self._max_retries):
             try:
-                segments, info = self._model.transcribe(
+                segments, info = self._ensure_model().transcribe(
                     str(file_path),
                     vad_filter=True,
                     vad_parameters=self._vad_parameters,
@@ -376,12 +417,30 @@ class AudioIngestor:
                     if segment.start <= last_yielded_start + 1e-4:
                         continue
                     last_yielded_start = segment.start
+                    # A segment can never end after the audio does. A garbled
+                    # decode once reported a clip's last segment ending at
+                    # 80.6 s on a 72.6 s file, which would put a nonexistent
+                    # timestamp in a citation.
+                    end = min(segment.end, duration) if duration > 0 else segment.end
+                    start = min(segment.start, end)
+                    clean = _Segment(segment.text, round(start, 2), round(end, 2))
+                    collected.append({"text": clean.text, "start": clean.start, "end": clean.end})
                     if duration > 0:
                         self._report_progress(segment.end, duration)
-                    yield segment
+                    yield clean
 
                 if duration > 0:
                     self._report_progress(duration, duration)
+                if cache_dir is not None and digest is not None:
+                    try:
+                        transcript_cache.store(
+                            cache_dir, digest, self._model_size, file_path.name, duration,
+                            self._compute_type, collected,
+                        )
+                    except OSError:
+                        # A transcript that could not be cached is still a good
+                        # transcript: warn, and do NOT retry the transcription.
+                        logger.warning("could not write the transcript cache for %s", file_path.name, exc_info=True)
                 return
 
             except Exception:

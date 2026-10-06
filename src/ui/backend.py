@@ -20,9 +20,15 @@ from PIL import Image
 
 from src.core.config import settings
 
-DOCUMENT_EXTS = {".pdf", ".docx"}
-IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tiff", ".tif", ".gif"}
-AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".webm"}
+# What the upload gate accepts is exactly what each pipeline can read: derived
+# from the pipelines' own lists, never copied (the audio copy had drifted to 6
+# formats while the pipeline read 14). Only light modules are imported here, so
+# the UI still starts fast and never loads CLIP or Whisper to check a file name.
+from src.pipelines.audio.formats import SUPPORTED_EXTENSIONS as AUDIO_EXTS
+from src.pipelines.documents.ingest import SUPPORTED_EXTENSIONS as DOCUMENT_EXTS
+from src.pipelines.images.ingest import SUPPORTED_EXTENSIONS as _IMAGE_EXTENSIONS
+
+IMAGE_EXTS = frozenset(_IMAGE_EXTENSIONS)
 
 # Where an uploaded file lands, by kind — the same flat folders
 # data/README.md defines and scripts/build_index.py reads.

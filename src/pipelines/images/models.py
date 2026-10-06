@@ -10,6 +10,16 @@ from typing import Any, Dict, List, Optional
 from src.core.schemas import Chunk
 
 
+def _get_clip_model() -> str:
+    from src.core.config import settings
+    return settings.CLIP_MODEL
+
+
+def _get_clip_pretrained() -> str:
+    from src.core.config import settings
+    return settings.CLIP_PRETRAINED
+
+
 @dataclass
 class ImageIngestionConfig:
     """Configuration for ImageIngestionPipeline."""
@@ -25,8 +35,8 @@ class ImageIngestionConfig:
 
     # OpenCLIP Embedding Settings
     embedding_enabled: bool = True
-    model_name: str = "ViT-B-32"
-    pretrained: str = "laion2b_s34b_b79k"
+    model_name: str = field(default_factory=_get_clip_model)
+    pretrained: str = field(default_factory=_get_clip_pretrained)
     device: Optional[str] = None  # None = auto-detect ('cuda', 'mps', 'cpu')
     normalize_embeddings: bool = True
 

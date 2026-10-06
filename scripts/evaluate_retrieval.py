@@ -6,16 +6,12 @@ when we first measure Recall@5 and MRR").
 Run with:  python scripts/evaluate_retrieval.py
 (after scripts/build_index.py has built the real index at least once)
 
-KNOWN LIMITATION, stated plainly rather than hidden: the questions below
-are a manual copy of data/README.md's T1-T13 rows, not a parse of that
-file. data/README.md is written for humans (prose, a callout box, a table
-meant to be edited by hand) and thirteen rows still isn't enough to
-justify a markdown-table parser. If you add or change a gold-set row in
-data/README.md, update GOLD_QUESTIONS below to match — nothing enforces
-that the two stay in sync automatically. A future chapter could promote
-the gold set to a small machine-readable file (JSON/CSV) that
-data/README.md renders from instead of hand-duplicating; noted here as
-real, deferred future work, not silently worked around.
+The questions are NOT defined here: they come from data/gold_set.json via
+src/core/gold.py, the single source every evaluation script and
+tests/test_retrieval.py share. (They used to be a hand-copied list per
+file, and the copies drifted: one held 3 of 13 questions, another 5 of
+13.) A hit means the expected source appears in the top K on any of the
+row's expected pages.
 """
 
 from __future__ import annotations
@@ -32,91 +28,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
+from src.core.gold import load_gold_set
 from src.pipelines.documents.search import search_text
 
-# Mirrors data/README.md's "Text -> text/document queries" table, T1-T13.
-# Each entry: the question, and the (source, page) that should appear
-# somewhere in the top-K results for the question to count as a hit.
-GOLD_QUESTIONS = [
-    {
-        "id": "T1",
-        "question": "If I don't get my system actually running by evaluation day, how many marks am I giving up?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 2,
-    },
-    {
-        "id": "T2",
-        "question": "As an undergrad, how many items can I check out from the library at once, and for how long?",
-        "expected_source": "data/documents/library_hours.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T3",
-        "question": "What happens the first time someone gets caught sharing their login with a friend?",
-        "expected_source": "data/documents/it_onboarding.docx",
-        "expected_page": 2,
-    },
-    {
-        "id": "T4",
-        "question": "What software must students set up if they want to read digital journals from home?",
-        "expected_source": "data/documents/it_onboarding.docx",
-        "expected_page": 1,
-    },
-    {
-        "id": "T5",
-        "question": "Where will the guide allotment list be announced?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T6",
-        "question": "How many people are allowed to work together on this project, at most?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T7",
-        "question": "Is there a maximum length for the synopsis, not counting the cover page or references?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T8",
-        "question": "If someone misses their individual viva without approval beforehand, what mark do they get for that part?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 2,
-    },
-    {
-        "id": "T9",
-        "question": "What happens if part of our submission turns out to be copied from somewhere else, even just a small section?",
-        "expected_source": "data/documents/notice.pdf",
-        "expected_page": 2,
-    },
-    {
-        "id": "T10",
-        "question": "On a Sunday, what time does the library close?",
-        "expected_source": "data/documents/library_hours.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T11",
-        "question": "Can I extend my library loan if nobody else wants that book?",
-        "expected_source": "data/documents/library_hours.pdf",
-        "expected_page": 1,
-    },
-    {
-        "id": "T12",
-        "question": "Before I can start using my new institute email account, what do I need to do first?",
-        "expected_source": "data/documents/it_onboarding.docx",
-        "expected_page": 1,
-    },
-    {
-        "id": "T13",
-        "question": "Am I allowed to download movies or paid software through the campus network without a license?",
-        "expected_source": "data/documents/it_onboarding.docx",
-        "expected_page": 2,
-    },
-]
+GOLD_QUESTIONS = load_gold_set()["text"]
 
 TOP_K = 5
 
@@ -130,7 +45,7 @@ def evaluate() -> tuple[float, float]:
         results = search_text(item["question"], top_k=TOP_K)
         rank = None
         for i, chunk in enumerate(results, start=1):
-            if chunk.source == item["expected_source"] and chunk.page == item["expected_page"]:
+            if chunk.source == item["expected_source"] and chunk.page in item["expected_pages"]:
                 rank = i
                 break
 
@@ -142,7 +57,7 @@ def evaluate() -> tuple[float, float]:
         else:
             reciprocal_ranks.append(0.0)
             top1 = f"{results[0].source} p{results[0].page}" if results else "(no results)"
-            print(f"[{item['id']}] MISS (expected {item['expected_source']} p{item['expected_page']}, "
+            print(f"[{item['id']}] MISS (expected {item['expected_source']} p{item['expected_pages']}, "
                   f"top hit was {top1})  — {item['question']}")
 
     recall_at_k = hits / len(GOLD_QUESTIONS)
@@ -156,7 +71,7 @@ def main() -> None:
     print(f"\nRecall@{TOP_K}: {recall_at_k:.2f}")
     print(f"MRR:       {mrr:.2f}")
     print(f"\nAdd a row to data/README.md's Results log:")
-    print(f"| {date.today().isoformat()} | Ch7 | {recall_at_k:.2f} | {mrr:.2f} | N/A (no images/audio yet) | first real semantic search, {len(GOLD_QUESTIONS)} text queries |")
+    print(f"| {date.today().isoformat()} | Ch12 | {recall_at_k:.2f} | {mrr:.2f} | N/A (text only) | text retrieval, {len(GOLD_QUESTIONS)} gold questions |")
 
 
 if __name__ == "__main__":

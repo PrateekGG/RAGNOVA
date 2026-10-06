@@ -1,0 +1,77 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 72.58,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 7.3,
+   "start": 0.82,
+   "text": " In a neural network model, simple nodes, which can be called by a number of names, including neurons,"
+  },
+  {
+   "end": 14.82,
+   "start": 7.3,
+   "text": " neurodes, processing elements, PE, and units, are connected together to form a network of nodes,"
+  },
+  {
+   "end": 21.64,
+   "start": 14.82,
+   "text": " hence the term neural network. While a neural network does not have to be adaptive per say,"
+  },
+  {
+   "end": 26.12,
+   "start": 21.64,
+   "text": " its practical use comes with algorithms designed to alter the strength,"
+  },
+  {
+   "end": 31.93,
+   "start": 26.12,
+   "text": " weights of the connections in the network to produce a desired signal flow."
+  },
+  {
+   "end": 36.09,
+   "start": 31.93,
+   "text": " In modern software implementations of artificial neural networks,"
+  },
+  {
+   "end": 40.49,
+   "start": 36.09,
+   "text": " the approach inspired by biology has more or less been abandoned,"
+  },
+  {
+   "end": 45.13,
+   "start": 40.49,
+   "text": " for a more practical approach based on statistics and signal processing."
+  },
+  {
+   "end": 50.34,
+   "start": 45.62,
+   "text": " In some of these systems, neural networks, or parts of neural networks,"
+  },
+  {
+   "end": 56.04,
+   "start": 50.34,
+   "text": " such as artificial neurons, are used as components in larger systems that combine"
+  },
+  {
+   "end": 60.06,
+   "start": 56.04,
+   "text": " both adaptive and non-adaptive elements."
+  },
+  {
+   "end": 65.02,
+   "start": 60.06,
+   "text": " The concept of a neural network appears to have first been proposed by Alan Turing."
+  },
+  {
+   "end": 72.23,
+   "start": 65.02,
+   "text": " It has 1948 paper intelligent machinery. Section 3.1.2"
+  }
+ ],
+ "sha256": "ddefd0ce8121a739404de22bc34bab2b3fb16b0acfe3bbcc5de869a2820a98ce",
+ "source_name": "spoken_wikipedia_neural_network_b.wav"
+}

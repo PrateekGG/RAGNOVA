@@ -140,24 +140,53 @@ With 2 members: merge Track C into A and B (each owns half the UI).
       corpus (6 chunks), first real semantic search, Recall@5=1.00/MRR=1.00 on 3 gold questions
       (see Ch7 §3.3 for why that's promising but not yet strong evidence); two real bugs found
       and fixed during verification — see Ch7's framing note and §2.3/§5.3)
-- [ ] Ch 8 — Image Pipeline
-- [ ] Ch 9 — Audio Pipeline
+- [x] Ch 8 — Image Pipeline (docs + real, tested code written — src/pipelines/images/{models,ocr,embedding,
+      ingest,index,search,cli}.py; Tesseract OCR + OpenCLIP ViT-B/32 into `image_index`, text->image and
+      image->image `search_images()`, portable relative sources, `ImageIngestionConfig` bound to
+      `settings.CLIP_MODEL`, 15-image corpus in data/images/, tests/test_image_pipeline.py (5 tests), teaching
+      doc ch08. The image CLI now indexes into `image_index` and refuses a CLIP model that differs from the
+      settings (PR #8))
+- [x] Ch 9 — Audio Pipeline (docs + real, tested code written — src/pipelines/audio/{ingestion,index,
+      transcribe}.py; faster-whisper `base` transcription with VAD, word-count sliding-window chunks carrying
+      timestamp ranges, written into `text_index` (ADR-005), voice-query `transcribe_query()`, 4 spoken clips
+      in data/audio/, tests/test_audio_pipeline.py (16 tests, 13 of them run the real `AudioIngestor` with only
+      Whisper faked; transcripts are cached by the audio's sha256 so every machine indexes the same text), teaching doc ch09. The former limitation (storage only upserted, so a file that now yielded fewer chunks
+      left its old trailing chunks behind) was closed on 2026-10-05 in the storage layer for all three modalities:
+      `replace_source_chunks()` + `prune_missing_sources()` in src/core/vector_store.py)
 - [x] Ch 10 — RAG Core (docs + real, tested code written — src/core/llm.py, src/pipelines/rag/{prompt,answer}.py,
       scripts/{ask,evaluate_answers}.py, tests/test_rag_core.py, ADR-009; real end-to-end answers with
       citations against the Ch6/7 text_index via real Ollama (llama3.2:3b) — see Ch10 §5 for captured
       output. Deliberately text-only for now: image_index/audio have no write path into ChromaDB yet
       (Ch8/9), so ADR-007's cross-modal merge has nothing to merge with — the retrieval interface is
       shaped so wiring in a second collection later is additive, not a redesign. Answer-quality check run
-      against 7 gold questions (T1-T5, N1-N2), self-rated 4.71/5 average — see data/README.md's Results log)
+      against 7 gold questions (T1-T5, N1-N2), self-rated 4.71/5 average, then re-run on the grown corpus
+      with 29 questions (self-rated 4.21/5; transcripts in data/eval/) — see data/README.md's Results log)
 - [ ] Ch 11 — UI (docs + real, tested code written for the non-drawing half — streaming answers
       (`generate_stream()`, `stream_answer()`), per-citation display rules (`src/ui/citations.py`),
       uploads / voice / image-query plumbing (`src/ui/backend.py`, `transcribe_query()`,
-      `index_document_file()`). The page itself is Task 4's scaffold in PR #4; still open: merge PR #4,
-      then wire its `process_query()` TODO as Ch11 §5.6 shows)
+      `index_document_file()`). The page itself, `src/app.py` (PR #4, merged), is still the scaffold:
+      `process_query()` returns canned keyword-matched answers with fake citations. Still open: wire it to the
+      real backend as Ch11 §5.6 shows)
 - [ ] Ch 12 — Integration & Feedback (docs + real, tested code written — image and audio write paths into
       ChromaDB, `search_images()`, rank-merged `retrieve()` across both collections (ADR-007), per-collection
-      relevance floors (ADR-010), `build_index.py` indexing all three folders, `tests/test_integration.py`
-      (28 passing, with fakes for the models), feedback log + `summarize_feedback.py` + `docs/feedback-log.md`.
-      Two real seam bugs found (Ch12 §5.3). Still open: outside-tester sessions, measuring the image floor
-      and cross-modal Recall@5 with real CLIP, the ablations, the offline demo — Ch12 §7.3)
+      relevance floors (ADR-010) plus an OCR-corroboration gate for images (ADR-011), `build_index.py` indexing
+      all three folders, `tests/test_integration.py` (32 passing, with fakes for the models), feedback log +
+      `summarize_feedback.py` + `docs/feedback-log.md`. Two real seam bugs found (Ch12 §5.3). The corpus grew
+      from 3 synthetic files to 19 documents / 25 images / 8 audio clips with 30 openly-licensed files downloaded
+      (data/SOURCES.md, Git LFS); one gold set (data/gold_set.json: 25 text, 22 cross-modal, 8 negatives).
+      Measured on the grown corpus (2026-10-05, data/README.md's Results log): text Recall@5 = 1.00 / MRR =
+      0.81 (reproducible: audio transcripts are cached by sha256, data/transcripts/; two earlier builds with
+      different transcripts gave 0.75), cross-modal Recall@5 = 0.82 (18/22; text-to-image 10/14; the four misses I3, I8, I10, I14 recorded, not tuned).
+      Image floor settled by the ADR-011 gate, re-measured on 14 positives / 10 negatives (11/14 kept, 9/10 refused,
+      thresholds held); the text floor was
+      measured and deliberately left unchanged (ADR-009 update). The pinned requirements.txt was verified in a
+      fresh Python 3.13 environment, which exposed and fixed three defects (unpinned `av` broke real
+      transcription; chromadb 0.5.23's HNSW search missed the best chunk for ~1 in 3 questions, ADR-012;
+      telemetry); performance measured (data/eval/performance_2026-10-05.txt). Real measured data is dumped
+      into reports/methodology-draft.md's appendix. Ablations done (chunk size, top-K, merge policy: shipped values hold,
+      ADR-006/007 amended). Offline verification done without the UI (RAGNOVA_OFFLINE switch;
+      scripts/verify_offline.py). PDF table extraction was measured and rejected (T14/T20 refusals are generator limits, not
+      parsing defects: ADR-009 follow-up). Still open: outside-tester sessions, the real network-off demo through
+      the UI, wiring the UI, a Python 3.11 check — Ch12 §7.3). CPU-only measured: end-to-end latency misses the
+      15 s target (median 29 s; 14 s with TOP_K=3), answer quality unchanged)
 - [ ] Ch 13 — Mid-Term Report

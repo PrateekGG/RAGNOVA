@@ -15,10 +15,35 @@
 #
 # Install with:  pip install -r requirements.txt
 # (inside an activated virtual environment — Chapter 0 §A.4 / Chapter 5 §1)
+#
+# VERIFIED 2026-10-05 (and what that does NOT cover): this file, installed
+# exactly as written into a fresh Python 3.13.14 virtual environment on
+# Windows 11, resolves (`pip check` clean) and passes the full test suite
+# (114 passed, 1 expected failure that needs Ollama). With a real index built in
+# that environment (real Whisper, CLIP, OCR), text Recall@5 / MRR and the 16
+# cross-modal hits and ranks were identical to the newer-library runs; only the
+# similarity scores of the audio chunks differed in the second decimal, because
+# the two Whisper builds transcribe slightly differently. Python 3.11, which the
+# docs name as the target, has NOT been tested. Things the install does not
+# tell you, found by that verification:
+#   - chroma-hnswlib 0.7.6 has no prebuilt wheel for Python 3.13 on Windows,
+#     so pip compiles it from source and needs the Microsoft C++ Build Tools.
+#   - chromadb 0.5.23's approximate search missed the best chunk for ~1 in 3
+#     questions at its default settings; src/core/vector_store.py raises the
+#     HNSW effort (ADR-012). Rebuild chroma_db/ after pulling that change.
+#   - On one Windows machine, Smart App Control blocked torch 2.14.1's DLLs.
+#     If `import torch` fails, install `torch==2.14.0 torchvision==0.29.0`
+#     first (that is what was verified), then this file.
 
 # --- Core: chunk validation, retrieval, generation --------------------------
 sentence-transformers==3.3.1      # text embeddings (all-MiniLM-L6-v2)
 chromadb==0.5.23                  # vector database (ADR-004)
+posthog==5.4.0                   # chromadb's telemetry client; chromadb 0.5.23 does not pin it, and posthog 6+
+                                   # changed capture()'s signature, so unpinned every ChromaDB call logs
+                                   # "Failed to send telemetry event ... capture() takes 1 positional
+                                   # argument but 3 were given". Nothing is sent either way (see
+                                   # src/core/vector_store.py: telemetry is switched off); this just
+                                   # stops the error spam. Found 2026-10-05.
 ollama==0.4.4                     # Python client for the local LLM API (ADR-002)
 
 # --- Vision pipeline (Track B, Chapter 8) -----------------------------------
@@ -29,6 +54,11 @@ Pillow==11.0.0                    # image loading, used by both CLIP and OCR pat
 
 # --- Audio pipeline (Track B, Chapter 9) ------------------------------------
 faster-whisper==1.1.0             # speech-to-text (ADR-005)
+av==18.1.0                        # audio decoding for faster-whisper. faster-whisper 1.1.0 does NOT
+                                   # pin it, so unpinned pip picks av 19.x and real transcription then
+                                   # fails with "open() got an unexpected keyword argument
+                                   # 'metadata_errors'". The test suite fakes Whisper, so it cannot see
+                                   # this; found 2026-10-05 by running real transcription.
 
 # --- Document pipeline (Track A, Chapter 6) ---------------------------------
 PyMuPDF==1.25.1                   # PDF parsing (imported as `fitz`)

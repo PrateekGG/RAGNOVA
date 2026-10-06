@@ -83,3 +83,18 @@ performs poorly enough to justify the added complexity of semantic chunking.
 see Chapter 3 §3.3.2 for why, and Chapter 3A for the sources that do exist (RAPTOR, late
 chunking, LumberChunker), which describe hierarchical and embedding-aware alternatives
 rather than settling the fixed-size question this ADR addresses.*
+
+## Measurement update (2026-10-05): the 150 / 300 / 600 ablation
+
+`scripts/run_ablations.py`, throwaway index per variant from the real documents, the 8 audio chunks copied from the real index, overlap held at one sixth of the size so size is the only variable, 25 gold text questions plus 6 out-of-corpus questions through the real model (`llama3.2:3b`, one run each). Transcript: `data/eval/ablations_2026-10-05.txt`.
+
+| Size / overlap | Text chunks | Recall@5 | MRR | Answered (of 25) | Expected chunk reached the prompt | Largest prompt |
+|---|---|---|---|---|---|---|
+| 150 / 25 | 1199 | 0.92 | 0.69 | 18 | 23 / 25 | ~1,180 tokens |
+| **300 / 50 (shipped)** | **631** | **1.00** | **0.81** | **22** | **25 / 25** | ~2,170 tokens |
+| 600 / 100 | 335 | 0.96 | 0.83 | 23 (22 with the window raised to 8192) | 24 / 25 | ~4,150 tokens: **2 of 25 prompts overflow the 4096-token window** |
+
+**The default stands.** 150 words is worse on every column (smaller chunks lose the surrounding sentences that make a fact answerable). 600 words has the highest MRR, but by 0.02, which is one question, and it answered no more questions at the correct window; its prompts also reach the model's context limit, where Ollama truncates silently. 300 has the best Recall@5 and the expected chunk reached the prompt every time. Caveats: one run of a stochastic model per variant (a one-question difference is noise), "answered" means it did not refuse, not that it was right, and n = 25. The choice of 300 was a starting point (this ADR's own words); it is now a measured one.
+
+**A hazard this exposed:** a bigger chunk size (or TOP_K) can push a prompt past `LLM_NUM_CTX` with no error. `src/pipelines/rag/answer.py` now logs a warning when a prompt comes within 90% of the window.
+

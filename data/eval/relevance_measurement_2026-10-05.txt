@@ -1,0 +1,74 @@
+floors in effect: text=0.3  image=0.2  top_k=5
+
+=== TEXT (text_index, MiniLM) ===
+Top-5 per question, best first: E=expected, N=noise, n=neutral, with the cosine score:
+  T1   E0.424  n0.412  N0.383  N0.367  n0.334
+  T2   n0.591  E0.475  N0.312  N0.304  n0.293
+  T3   E0.458  n0.277  N0.256  n0.200  N0.194
+  T4   E0.366  N0.363  N0.362  n0.358  N0.337
+  T5   N0.376  E0.374  n0.365  n0.338  N0.316
+  T6   E0.380  n0.371  N0.325  N0.325  n0.321
+  T7   E0.383  n0.366  N0.320  N0.313  N0.303
+  T8   E0.439  n0.309  N0.235  N0.232  N0.215
+  T9   E0.391  n0.269  N0.229  N0.225  N0.218
+  T10  n0.552  E0.415  N0.293  n0.288  N0.269
+  T11  E0.506  n0.365  N0.255  n0.211  N0.208
+  T12  E0.592  n0.373  n0.372  n0.259  N0.228
+  T13  E0.645  n0.451  n0.435  n0.344  N0.343
+  T14  n0.576  n0.555  n0.527  N0.520  E0.519
+  T15  E0.584  n0.561  n0.534  E0.525  n0.519
+  T16  n0.580  E0.578  n0.568  E0.563  n0.546
+  T17  E0.619  E0.582  N0.577  n0.549  N0.549
+  T18  E0.625  n0.625  E0.571  N0.567  N0.566
+  T19  E0.627  N0.617  E0.602  N0.594  n0.590
+  T20  n0.672  n0.666  E0.666  n0.646  n0.645
+  T21  E0.540  N0.498  N0.483  n0.465  N0.461
+  T22  n0.644  E0.583  E0.577  n0.556  n0.506
+  T23  n0.705  n0.665  E0.651  E0.580  n0.537
+  T24  E0.601  E0.571  E0.542  E0.540  E0.523
+  T25  E0.591  n0.572  n0.564  n0.535  n0.533
+  negatives: top score per control = [0.267, 0.24, 0.362, 0.215, 0.285, 0.223, 0.313, 0.325, 0.315, 0.165]
+
+rule                               recall  noise/q  qs w/ noise    refused
+floor 0.30 (current)                25/25     1.00        12/25      6/10
+floor 0.35                          25/25     0.60         8/25      9/10
+floor 0.40                          20/25     0.40         5/25     10/10
+floor 0.45                          17/25     0.40         5/25     10/10
+floor 0.50                          15/25     0.28         4/25     10/10
+floor 0.30 + within 0.03 of top     20/25     0.20         3/25      6/10
+floor 0.30 + within 0.05 of top     20/25     0.36         6/25      6/10
+floor 0.30 + within 0.08 of top     23/25     0.84        10/25      6/10
+floor 0.30 + within 0.10 of top     23/25     0.88        10/25      6/10
+floor 0.40 + within 0.05 of top     15/25     0.16         3/25     10/10
+floor 0.40 + within 0.10 of top     18/25     0.40         5/25     10/10
+
+=== IMAGES (image_index, CLIP; 'agree' = MiniLM similarity of the query to the image's OCR text) ===
+  I1   expected clip=0.341 agree=0.580  best_noise clip=0.310
+  I2   expected clip=0.236 agree=0.301  best_noise clip=0.254
+  I3   expected clip=0.251 agree=0.341  best_noise clip=0.306
+  I4   expected clip=0.300 agree=0.394  best_noise clip=0.286
+  I5   expected clip=0.299 agree=0.480  best_noise clip=0.273
+  I6   expected clip=0.346 agree=0.414  best_noise clip=0.281
+  I7   expected clip=0.327 agree=0.295  best_noise clip=0.328
+  I8   expected clip=0.216 no OCR text  best_noise clip=0.229
+  I9   expected clip=0.273 agree=0.437  best_noise clip=0.240
+  I10  expected NOT IN TOP 5  best_noise clip=0.229
+  I11  expected clip=0.369 agree=0.479  best_noise clip=0.291
+  I12  expected clip=0.264 agree=0.563  best_noise clip=0.273
+  I13  expected clip=0.327 agree=0.341  best_noise clip=0.305
+  I14  expected clip=0.267 no OCR text  best_noise clip=0.231
+  negatives, top image per control: 0.272, 0.228, 0.291, 0.209, 0.105, 0.178, 0.216, 0.218, 0.237, 0.134
+  ...and that top image's 'agree': 0.094, 0.292, 0.130, 0.070, 0.204, 0.071, 0.014, 0.177, 0.175, 0.079
+
+rule                                       recall  noise/q  qs w/ noise    refused
+clip >= 0.20 (current)                      13/14     3.29        14/14      3/10
+clip >= 0.25                                11/14     1.14        10/14      8/10
+clip >= 0.30                                 5/14     0.29         4/14     10/10
+clip >= 0.20 & (agree >= 0.20 or clip >= 0.30)    11/14     1.86        11/14      7/10
+clip >= 0.20 & (agree >= 0.20)              11/14     1.86        11/14      7/10
+clip >= 0.20 & (agree >= 0.25 or clip >= 0.30)    11/14     1.50         9/14      7/10
+clip >= 0.20 & (agree >= 0.25)              11/14     1.43         8/14      7/10
+clip >= 0.20 & (agree >= 0.30 or clip >= 0.30)    11/14     1.07         8/14      9/10
+clip >= 0.20 & (agree >= 0.30)              10/14     1.00         7/14      9/10
+clip >= 0.20 & (agree >= 0.35 or clip >= 0.30)     9/14     0.71         7/14     10/10
+clip >= 0.20 & (agree >= 0.35)               7/14     0.57         5/14     10/10

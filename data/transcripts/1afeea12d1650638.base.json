@@ -1,0 +1,42 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 33.26,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 5.63,
+   "start": 0.0,
+   "text": " Good morning final year students. This is an important announcement regarding your B.Tex"
+  },
+  {
+   "end": 12.93,
+   "start": 5.63,
+   "text": " CSEIML project evaluation. Please remember that the working prototype demonstrated on evaluation"
+  },
+  {
+   "end": 19.71,
+   "start": 12.93,
+   "text": " day carries 40 percent of your total marks. The written project report carries 35 percent,"
+  },
+  {
+   "end": 25.46,
+   "start": 19.71,
+   "text": " and the individual Viva Vocchi with each team member carries the remaining 25 percent."
+  },
+  {
+   "end": 31.54,
+   "start": 25.46,
+   "text": " Every member must attend the Viva in person. Do not miss the synopsis submission deadline on August"
+  },
+  {
+   "end": 33.26,
+   "start": 31.54,
+   "text": " 21st"
+  }
+ ],
+ "sha256": "1afeea12d16506387139a119bde01a9ebbc7cd2f314092cd382af57cd9a2d657",
+ "source_name": "hod_project_announcement.wav"
+}

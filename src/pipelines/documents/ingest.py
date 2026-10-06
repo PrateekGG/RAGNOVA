@@ -47,6 +47,10 @@ _PARSERS = {
     ".docx": ("docx", extract_docx_pages),
 }
 
+# The file types this pipeline can read. Exported so the indexer and the UI's
+# upload gate read the same list instead of each keeping a copy.
+SUPPORTED_EXTENSIONS: frozenset[str] = frozenset(_PARSERS)
+
 
 def ingest_document(path: str | Path) -> list[Chunk]:
     """Parse, normalize, and chunk one PDF or DOCX file into real `Chunk`s.

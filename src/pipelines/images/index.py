@@ -15,7 +15,7 @@ from pathlib import Path
 
 from src.core.schemas import Chunk
 from src.core.text_normalize import normalize_text
-from src.core.vector_store import add_chunks, get_client, get_image_collection
+from src.core.vector_store import get_client, get_image_collection, replace_source_chunks
 from src.pipelines.images.ingest import SUPPORTED_EXTENSIONS, ImageIngestionPipeline
 from src.pipelines.images.models import ImageChunk
 
@@ -43,7 +43,15 @@ def index_image_files(paths: list[str | Path], client=None, pipeline=None) -> in
         return 0
 
     chunks = [_to_index_chunk(c) for c in image_chunks]
-    add_chunks(collection, chunks, [c.embedding for c in image_chunks])
+    # One replace per image file, so a re-index also drops any chunk that file no
+    # longer produces (vector_store.replace_source_chunks).
+    by_source: dict[str, tuple[list[Chunk], list[list[float]]]] = {}
+    for chunk, image_chunk in zip(chunks, image_chunks):
+        group_chunks, group_vectors = by_source.setdefault(chunk.source, ([], []))
+        group_chunks.append(chunk)
+        group_vectors.append(image_chunk.embedding)
+    for source, (group_chunks, group_vectors) in by_source.items():
+        replace_source_chunks(collection, source, group_chunks, group_vectors)
     return len(chunks)
 
 
@@ -51,7 +59,7 @@ def index_images_directory(
     directory: str | Path,
     client=None,
     pipeline=None,
-    recursive: bool = True,
+    recursive: bool = False,
 ) -> int:
     """Index every supported image under `directory`.
 
@@ -64,7 +72,12 @@ def index_images_directory(
     pipeline:
         ImageIngestionPipeline instance.
     recursive:
-        Whether to search subdirectories recursively (default True).
+        Whether to search subdirectories too. Defaults to False (flat):
+        scripts/build_index.py and the UI index data/images/ this way, and
+        index_documents_directory() / index_audio_directory() are flat for
+        the same reason — one folder per modality, nothing nested is
+        indexed by accident. The image CLI opts in with recursive=True,
+        which is the behaviour its old ingest_directory() call had.
     """
     directory = Path(directory)
     if not directory.is_dir():

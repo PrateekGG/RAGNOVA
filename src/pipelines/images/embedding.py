@@ -28,11 +28,6 @@ from src.pipelines.images.models import ImageIngestionConfig
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Canonical embedding model identifier used across the pipeline
-# ---------------------------------------------------------------------------
-DEFAULT_MODEL_NAME = "ViT-B-32"
-DEFAULT_PRETRAINED = "laion2b_s34b_b79k"
 
 
 class OpenCLIPEmbedder:

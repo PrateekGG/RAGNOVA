@@ -1,5 +1,5 @@
 """
-Run the cross-modal gold-set (I1-I4, M1-M2, A1-A2 from data/README.md)
+Run the cross-modal gold-set (the I, M and A rows of data/gold_set.json)
 against the real indexed corpus and report Recall@5 per category and
 overall — this project's first real measurement of cross-modal
 retrieval, closing the gap ADR-010 names as still open ("provisional...
@@ -21,12 +21,12 @@ isn't one API call that covers all three:
   - A1-A2 (audio topic -> anything): the audio clips are already indexed
     as ordinary text_index chunks at build time (ADR-005) — these rows
     document a spoken clip's *content*, not a live microphone query.
-    Each gets a real, freshly-written question about that content (same
-    paraphrase spirit as T1-T5), checked against either of its two
-    acceptable expected sources (the clip's own topic overlaps a
-    document AND an image).
+    Each gets a real question about that content (same paraphrase spirit
+    as the text rows), checked against its acceptable expected sources: for
+    the synthetic clips the topic overlaps a document AND an image; for the
+    real Spoken Wikipedia clips the expected source is the clip itself.
 
-KNOWN LIMITATION, stated plainly: 8 questions is fragile evidence — one
+KNOWN LIMITATION, stated plainly: a dozen-odd questions is fragile evidence — one
 miss moves any category's Recall@5 by a lot (Chapter 7 §3.3 already
 made this exact point for the 3-question text-only case). Measuring for
 the first time is still worth doing; reporting it as a strong result
@@ -46,42 +46,18 @@ if hasattr(sys.stdout, "reconfigure"):
 
 from PIL import Image
 
+from src.core.gold import cross_modal_rows, load_gold_set
 from src.pipelines.rag.retrieve import retrieve
 from src.ui.backend import ocr_image
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 TOP_K = 5
 
-# Mirrors data/README.md's three cross-modal tables (a manual copy, not a
-# parse — same tradeoff scripts/evaluate_retrieval.py's docstring already
-# names: update both by hand if a gold-set row changes). expected_sources
-# is a list because A1/A2 each accept either of two sources.
-GOLD_QUESTIONS = [
-    {"id": "I1", "kind": "text_to_image",
-     "query": "Where can I see the Wi-Fi authentication screen for campus wireless?",
-     "expected_sources": ["data/images/screenshot_wifi_setup.png"]},
-    {"id": "I2", "kind": "text_to_image",
-     "query": "Find the diagram showing how ChromaDB and OpenCLIP connect together",
-     "expected_sources": ["data/images/diagram_rag_architecture.png"]},
-    {"id": "I3", "kind": "text_to_image",
-     "query": "What poster shows the upcoming AI and Machine Learning seminar venue?",
-     "expected_sources": ["data/images/notice_seminar_poster.png"]},
-    {"id": "I4", "kind": "text_to_image",
-     "query": "Where is the AI & Machine Learning Research Laboratory located and who heads it?",
-     "expected_sources": ["data/images/photo_lab_door_sign.png"]},
-    {"id": "M1", "kind": "image_to_doc",
-     "query_image": "data/images/screenshot_synopsis_portal.png",
-     "expected_sources": ["data/documents/notice.pdf"]},
-    {"id": "M2", "kind": "image_to_doc",
-     "query_image": "data/images/screenshot_wifi_setup.png",
-     "expected_sources": ["data/documents/it_onboarding.docx"]},
-    {"id": "A1", "kind": "audio_topic",
-     "query": "What did the announcement say about how the prototype demo and viva are weighted?",
-     "expected_sources": ["data/documents/notice.pdf", "data/images/notice_midterm_schedule.png"]},
-    {"id": "A2", "kind": "audio_topic",
-     "query": "What did the orientation talk say about library hours and overdue fines?",
-     "expected_sources": ["data/documents/library_hours.pdf", "data/images/notice_library_fines.png"]},
-]
+# The I/M/A rows live in data/gold_set.json (src/core/gold.py), shared with
+# every other evaluation script. expected_sources is a list because an A row
+# can accept more than one source (a spoken topic can overlap a document AND
+# an image).
+GOLD_QUESTIONS = cross_modal_rows(load_gold_set())
 
 
 def _hit_rank(chunks, expected_sources: list[str]) -> int | None:

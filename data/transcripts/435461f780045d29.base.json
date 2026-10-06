@@ -1,0 +1,57 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 67.1,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 9.62,
+   "start": 0.34,
+   "text": " Section 2. History of the Neural Network analogy. Section 3. The Brain, Neural Networks, and Computers."
+  },
+  {
+   "end": 20.74,
+   "start": 9.62,
+   "text": " Section 4. Neural Networks, and Neuroscience. Section 5. Architecture. Section 6. Criticism."
+  },
+  {
+   "end": 29.7,
+   "start": 20.74,
+   "text": " Section 1. Overview. A biological neural network is composed of a group or groups of chemically"
+  },
+  {
+   "end": 36.57,
+   "start": 29.7,
+   "text": " connected or functionally associated neurons. A single neuron may be connected to many other"
+  },
+  {
+   "end": 42.09,
+   "start": 36.57,
+   "text": " neurons, and the total number of neurons and connections in a network may be extensive."
+  },
+  {
+   "end": 48.55,
+   "start": 42.09,
+   "text": " Connections, called synapses, are usually formed from axons to dendrites,"
+  },
+  {
+   "end": 55.32,
+   "start": 48.55,
+   "text": " though dendritic microcircuits and other connections are possible. Apart from the electrical"
+  },
+  {
+   "end": 60.68,
+   "start": 55.32,
+   "text": " signaling, there are other forms of signaling that arise from neural transmitter diffusion,"
+  },
+  {
+   "end": 67.1,
+   "start": 60.68,
+   "text": " which have an effect on electrical signaling. As such, neural networks are extremely complex."
+  }
+ ],
+ "sha256": "435461f780045d2983441e5bbbad91bc4fa3809bf984857afcbf451787ffc70e",
+ "source_name": "spoken_wikipedia_neural_network_a.wav"
+}

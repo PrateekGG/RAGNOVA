@@ -1,0 +1,68 @@
+{
+  "_comment": "The gold-standard evaluation set. SINGLE SOURCE OF TRUTH: scripts/evaluate_*.py and tests/test_retrieval.py read this file via src/core/gold.py, and tests/test_gold_set.py fails if the human-readable tables in data/README.md drift from it. Edit both together. Rows T1-T13 were written against the synthetic Ch6 starter corpus, T14-T25 against the downloaded study materials (data/SOURCES.md); every row was written before it was measured.",
+  "text": [
+    {"id": "T1", "question": "If I don't get my system actually running by evaluation day, how many marks am I giving up?", "expected_source": "data/documents/notice.pdf", "expected_pages": [2]},
+    {"id": "T2", "question": "As an undergrad, how many items can I check out from the library at once, and for how long?", "expected_source": "data/documents/library_hours.pdf", "expected_pages": [1]},
+    {"id": "T3", "question": "What happens the first time someone gets caught sharing their login with a friend?", "expected_source": "data/documents/it_onboarding.docx", "expected_pages": [2]},
+    {"id": "T4", "question": "What software must students set up if they want to read digital journals from home?", "expected_source": "data/documents/it_onboarding.docx", "expected_pages": [1]},
+    {"id": "T5", "question": "Where will the guide allotment list be announced?", "expected_source": "data/documents/notice.pdf", "expected_pages": [1]},
+    {"id": "T6", "question": "How many people are allowed to work together on this project, at most?", "expected_source": "data/documents/notice.pdf", "expected_pages": [1]},
+    {"id": "T7", "question": "Is there a maximum length for the synopsis, not counting the cover page or references?", "expected_source": "data/documents/notice.pdf", "expected_pages": [1]},
+    {"id": "T8", "question": "If someone misses their individual viva without approval beforehand, what mark do they get for that part?", "expected_source": "data/documents/notice.pdf", "expected_pages": [2]},
+    {"id": "T9", "question": "What happens if part of our submission turns out to be copied from somewhere else, even just a small section?", "expected_source": "data/documents/notice.pdf", "expected_pages": [2]},
+    {"id": "T10", "question": "On a Sunday, what time does the library close?", "expected_source": "data/documents/library_hours.pdf", "expected_pages": [1]},
+    {"id": "T11", "question": "Can I extend my library loan if nobody else wants that book?", "expected_source": "data/documents/library_hours.pdf", "expected_pages": [1]},
+    {"id": "T12", "question": "Before I can start using my new institute email account, what do I need to do first?", "expected_source": "data/documents/it_onboarding.docx", "expected_pages": [1]},
+    {"id": "T13", "question": "Am I allowed to download movies or paid software through the campus network without a license?", "expected_source": "data/documents/it_onboarding.docx", "expected_pages": [2]},
+    {"id": "T14", "question": "When only the twenty best passages are kept, how much more often does a learned dense retriever surface the answer than a classic keyword ranker on Natural Questions?", "expected_source": "data/documents/acl_dense_passage_retrieval.pdf", "expected_pages": [5]},
+    {"id": "T15", "question": "Why is it impractical to find the closest pair among ten thousand sentences by pushing every pair through a cross-encoder, and roughly how long would it take?", "expected_source": "data/documents/acl_sentence_bert.pdf", "expected_pages": [1]},
+    {"id": "T16", "question": "How many trainable parameters does the smaller of the two main BERT configurations have?", "expected_source": "data/documents/acl_bert.pdf", "expected_pages": [3]},
+    {"id": "T17", "question": "Where in a long prompt do language models make the best use of a relevant fact, and where does their accuracy fall off?", "expected_source": "data/documents/acl_lost_in_the_middle.pdf", "expected_pages": [1, 2]},
+    {"id": "T18", "question": "How many question-answer pairs are in the Stanford reading-comprehension dataset, and how many Wikipedia articles do they come from?", "expected_source": "data/documents/acl_squad.pdf", "expected_pages": [2]},
+    {"id": "T19", "question": "How does the simple retrieval-augmented approach give a language model access to retrieved documents without changing its architecture or training it again?", "expected_source": "data/documents/acl_in_context_ralm.pdf", "expected_pages": [1]},
+    {"id": "T20", "question": "Among the open CLIP models trained on the two-billion-image dataset, which size reaches the best ImageNet zero-shot accuracy, and what is it?", "expected_source": "data/documents/arxiv_openclip_scaling_laws.pdf", "expected_pages": [2]},
+    {"id": "T21", "question": "Which greedy method builds an optimal prefix code by repeatedly merging the two rarest symbols, and who devised it?", "expected_source": "data/documents/algorithms_ch04_greedy.pdf", "expected_pages": [8]},
+    {"id": "T22", "question": "Why can't I just replace each undirected edge by two opposite directed edges when some edge weights are negative?", "expected_source": "data/documents/algorithms_ch08_shortest_paths.pdf", "expected_pages": [3]},
+    {"id": "T23", "question": "How does the running time of the naive recursive Fibonacci algorithm compare to the size of the Fibonacci number it computes?", "expected_source": "data/documents/algorithms_ch03_dynamic_programming.pdf", "expected_pages": [3]},
+    {"id": "T24", "question": "Do I need to install one program or two before I can start writing R code in the course?", "expected_source": "data/documents/zenodo_first_steps_to_r.docx", "expected_pages": [1]},
+    {"id": "T25", "question": "If I want participants to agree to share their data later, should I promise them that I will delete it afterwards?", "expected_source": "data/documents/zenodo_learning_data_ethics.docx", "expected_pages": [1]}
+  ],
+  "text_to_image": [
+    {"id": "I1", "query": "Where can I see the Wi-Fi authentication screen for campus wireless?", "expected_sources": ["data/images/screenshot_wifi_setup.png"]},
+    {"id": "I2", "query": "Find the diagram showing how ChromaDB and OpenCLIP connect together", "expected_sources": ["data/images/diagram_rag_architecture.png"]},
+    {"id": "I3", "query": "What poster shows the upcoming AI and Machine Learning seminar venue?", "expected_sources": ["data/images/notice_seminar_poster.png"]},
+    {"id": "I4", "query": "Where is the AI & Machine Learning Research Laboratory located and who heads it?", "expected_sources": ["data/images/photo_lab_door_sign.png"]},
+    {"id": "I5", "query": "Which diagram shows the encoder and decoder stacks with multi-head attention and positional encoding?", "expected_sources": ["data/images/commons_diagram_transformer_architecture.png"]},
+    {"id": "I6", "query": "Find the flowchart that explains repeatedly halving a sorted array to look up a key", "expected_sources": ["data/images/commons_diagram_binary_search_flowchart.png"]},
+    {"id": "I7", "query": "Which screenshot shows a statistical programming environment with a spreadsheet-style data viewer?", "expected_sources": ["data/images/commons_screenshot_rstudio_ide.png"]},
+    {"id": "I8", "query": "Show me a photo of a free Wi-Fi hotspot sign outdoors", "expected_sources": ["data/images/commons_photo_wifi_hotspot_sign.jpg"]},
+    {"id": "I9", "query": "Which picture shows how much a student pays per day for returning a library book late?", "expected_sources": ["data/images/notice_library_fines.png", "data/images/photo_library_desk_sign.png"]},
+    {"id": "I10", "query": "Find the screenshot of a page telling me I am not allowed to open something", "expected_sources": ["data/images/screenshot_error_403.png"]},
+    {"id": "I11", "query": "Show me the secure remote-access client window that is connected to the library network", "expected_sources": ["data/images/screenshot_vpn_client.png"]},
+    {"id": "I12", "query": "Which picture is the schedule that splits project marks between the demo, the report and the viva?", "expected_sources": ["data/images/notice_midterm_schedule.png"]},
+    {"id": "I13", "query": "Find the screenshot of a Python script open in an editor next to a plot window", "expected_sources": ["data/images/commons_screenshot_python_matplotlib_code.jpg", "data/images/commons_screenshot_matplotlib_figures_code.png"]},
+    {"id": "I14", "query": "Show me a photograph of the building where an early university computer was kept", "expected_sources": ["data/images/commons_photo_former_computer_laboratory_tower.jpg", "data/images/commons_photo_digital_computer_laboratory.jpg"]}
+  ],
+  "image_to_doc": [
+    {"id": "M1", "query_image": "data/images/screenshot_synopsis_portal.png", "expected_sources": ["data/documents/notice.pdf"]},
+    {"id": "M2", "query_image": "data/images/screenshot_wifi_setup.png", "expected_sources": ["data/documents/it_onboarding.docx"]},
+    {"id": "M3", "query_image": "data/images/commons_screenshot_rstudio_ide.png", "expected_sources": ["data/documents/zenodo_first_steps_to_r.docx"]},
+    {"id": "M4", "query_image": "data/images/commons_diagram_transformer_architecture.png", "expected_sources": ["data/documents/acl_bert.pdf"]}
+  ],
+  "audio_topic": [
+    {"id": "A1", "clip": "data/audio/hod_project_announcement.wav", "query": "What did the announcement say about how the prototype demo and viva are weighted?", "expected_sources": ["data/documents/notice.pdf", "data/images/notice_midterm_schedule.png"]},
+    {"id": "A2", "clip": "data/audio/library_orientation_excerpt.wav", "query": "What did the orientation talk say about library hours and overdue fines?", "expected_sources": ["data/documents/library_hours.pdf", "data/images/notice_library_fines.png"]},
+    {"id": "A3", "clip": "data/audio/spoken_wikipedia_neural_network_a.wav", "query": "What does the spoken article say a biological neural network is composed of?", "expected_sources": ["data/audio/spoken_wikipedia_neural_network_a.wav"]},
+    {"id": "A4", "clip": "data/audio/spoken_wikipedia_bioinformatics.wav", "query": "What common activities does the spoken article list for bioinformatics?", "expected_sources": ["data/audio/spoken_wikipedia_bioinformatics.wav"]}
+  ],
+  "negatives": [
+    {"id": "N1", "question": "What is the hostel mess menu for Wednesday lunch?"},
+    {"id": "N2", "question": "How do I apply for a refund on tuition fees?"},
+    {"id": "N3", "question": "Which sorting algorithm does Python's built-in sort use?"},
+    {"id": "N4", "question": "What is the boiling point of ethanol?"},
+    {"id": "N5", "question": "Show me a photo of a cat sitting on a sofa"},
+    {"id": "N6", "question": "What does the Eiffel Tower look like at night?"},
+    {"id": "N7", "question": "What is the fee for the hostel laundry service?"},
+    {"id": "N8", "question": "Who won the Turing Award in 2018?"}
+  ]
+}

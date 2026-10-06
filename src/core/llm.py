@@ -24,6 +24,20 @@ import ollama
 from src.core.config import settings
 
 
+def generation_options() -> dict:
+    """The Ollama `options` for every generation call, in one place (generate()
+    and generate_stream() used to each spell them out). `num_gpu` is included
+    only when OLLAMA_NUM_GPU is set, so by default Ollama chooses as before."""
+    options = {
+        "temperature": settings.LLM_TEMPERATURE,
+        "num_predict": settings.LLM_MAX_TOKENS,
+        "num_ctx": settings.LLM_NUM_CTX,
+    }
+    if settings.OLLAMA_NUM_GPU is not None:
+        options["num_gpu"] = settings.OLLAMA_NUM_GPU
+    return options
+
+
 def generate(prompt: str) -> str:
     """Send `prompt` to the configured Ollama model and return its response
     text.
@@ -48,11 +62,7 @@ def generate(prompt: str) -> str:
             model=settings.OLLAMA_MODEL,
             prompt=prompt,
             stream=False,
-            options={
-                "temperature": settings.LLM_TEMPERATURE,
-                "num_predict": settings.LLM_MAX_TOKENS,
-                "num_ctx": settings.LLM_NUM_CTX,
-            },
+            options=generation_options(),
         )
     except Exception as exc:
         raise RuntimeError(
@@ -84,11 +94,7 @@ def generate_stream(prompt: str) -> Iterator[str]:
             model=settings.OLLAMA_MODEL,
             prompt=prompt,
             stream=True,
-            options={
-                "temperature": settings.LLM_TEMPERATURE,
-                "num_predict": settings.LLM_MAX_TOKENS,
-                "num_ctx": settings.LLM_NUM_CTX,
-            },
+            options=generation_options(),
         ):
             yield part["response"]
     except Exception as exc:

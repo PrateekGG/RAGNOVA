@@ -1,0 +1,77 @@
+################ python scripts/verify_offline.py 
+Offline verification WITH NO OFFLINE SETTINGS
+Network guard: all non-loopback traffic is blocked and recorded.
+
+  [PASS] 1. ingest a NEW document (an upload) and index it   (49.3s)
+          1 chunk(s) indexed from new_policy.pdf
+  [PASS] 2. answer a text question about it (embedding + search + local LLM)   (2.8s)
+          answered: 'The campus cafeteria opens at 7:45 on Mondays [1].'
+  [PASS] 3. answer an IMAGE query (CLIP search by an uploaded picture + OCR of it)   (5.2s)
+          nearest image screenshot_wifi_setup.png; OCR read 617 characters
+  [PASS] 4. transcribe a SPOKEN query (Whisper)   (3.8s)
+          transcript: 'Welcome to the Central Library Orientation. Effective this semester, our working'
+  [PASS] 5. build the citations the UI renders   (0.0s)
+          1 citation view(s); first: [1] new_policy.pdf, page 1
+
+Blocked network attempts: 31
+     31 x dns lookup huggingface.co
+
+RESULT: all steps completed; 31 connection attempt(s) were made and blocked.
+
+################ python scripts/verify_offline.py --hf-offline
+Offline verification WITH HF_HUB_OFFLINE=1 / TRANSFORMERS_OFFLINE=1 set by hand
+Network guard: all non-loopback traffic is blocked and recorded.
+
+  [PASS] 1. ingest a NEW document (an upload) and index it   (0.6s)
+          1 chunk(s) indexed from new_policy.pdf
+  [PASS] 2. answer a text question about it (embedding + search + local LLM)   (2.7s)
+          answered: 'The campus cafeteria opens at 7:45 on Mondays [1].'
+  [PASS] 3. answer an IMAGE query (CLIP search by an uploaded picture + OCR of it)   (5.2s)
+          nearest image screenshot_wifi_setup.png; OCR read 617 characters
+  [PASS] 4. transcribe a SPOKEN query (Whisper)   (3.6s)
+          transcript: 'Welcome to the Central Library Orientation. Effective this semester, our working'
+  [PASS] 5. build the citations the UI renders   (0.0s)
+          1 citation view(s); first: [1] new_policy.pdf, page 1
+
+Blocked network attempts: 0
+
+RESULT: all steps completed; 0 connection attempt(s) were made and blocked.
+
+################ python scripts/verify_offline.py --offline-switch
+Offline verification WITH RAGNOVA_OFFLINE=1 (the project's own switch)
+Network guard: all non-loopback traffic is blocked and recorded.
+
+  [PASS] 1. ingest a NEW document (an upload) and index it   (0.6s)
+          1 chunk(s) indexed from new_policy.pdf
+  [PASS] 2. answer a text question about it (embedding + search + local LLM)   (2.6s)
+          answered: 'The campus cafeteria opens at 7:45 on Mondays [1].'
+  [PASS] 3. answer an IMAGE query (CLIP search by an uploaded picture + OCR of it)   (5.3s)
+          nearest image screenshot_wifi_setup.png; OCR read 617 characters
+  [PASS] 4. transcribe a SPOKEN query (Whisper)   (3.6s)
+          transcript: 'Welcome to the Central Library Orientation. Effective this semester, our working'
+  [PASS] 5. build the citations the UI renders   (0.0s)
+          1 citation view(s); first: [1] new_policy.pdf, page 1
+
+Blocked network attempts: 0
+
+RESULT: all steps completed; 0 connection attempt(s) were made and blocked.
+
+################ PINNED env (Python 3.13, chromadb 0.5.23): python scripts/verify_offline.py --offline-switch
+Number of requested results 5 is greater than number of elements in index 1, updating n_results = 1
+Offline verification WITH RAGNOVA_OFFLINE=1 (the project's own switch)
+Network guard: all non-loopback traffic is blocked and recorded.
+
+  [PASS] 1. ingest a NEW document (an upload) and index it   (0.5s)
+          1 chunk(s) indexed from new_policy.pdf
+  [PASS] 2. answer a text question about it (embedding + search + local LLM)   (2.7s)
+          answered: 'The campus cafeteria opens at 7:45 on Mondays [1].'
+  [PASS] 3. answer an IMAGE query (CLIP search by an uploaded picture + OCR of it)   (5.5s)
+          nearest image screenshot_wifi_setup.png; OCR read 617 characters
+  [PASS] 4. transcribe a SPOKEN query (Whisper)   (4.4s)
+          transcript: 'Welcome to the Central Library Orientation. Effective this semester, our working'
+  [PASS] 5. build the citations the UI renders   (0.0s)
+          1 citation view(s); first: [1] new_policy.pdf, page 1
+
+Blocked network attempts: 0
+
+RESULT: all steps completed; 0 connection attempt(s) were made and blocked.

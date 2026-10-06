@@ -17,7 +17,7 @@ from pathlib import Path
 from src.core.embeddings import embed_texts
 from src.core.schemas import Chunk, validate_chunk
 from src.core.text_normalize import normalize_text
-from src.core.vector_store import add_chunks, get_client, get_text_collection
+from src.core.vector_store import get_client, get_text_collection, replace_source_chunks
 from src.pipelines.audio.ingestion import SUPPORTED_EXTENSIONS
 
 
@@ -63,9 +63,11 @@ def index_audio_file(path: str | Path, client=None, ingestor=None) -> int:
         if chunk.text:
             chunks.append(chunk)
 
-    if not chunks:
-        return 0
-    add_chunks(collection, chunks, embed_texts([c.text for c in chunks]))
+    # Replace, not just add: a re-transcription that yields fewer chunks must not
+    # leave the old trailing ones in the index (vector_store.replace_source_chunks).
+    replace_source_chunks(
+        collection, source.as_posix(), chunks, embed_texts([c.text for c in chunks]) if chunks else []
+    )
     return len(chunks)
 
 

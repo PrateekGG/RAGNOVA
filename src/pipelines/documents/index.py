@@ -14,13 +14,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.core.embeddings import embed_texts
-from src.core.vector_store import add_chunks, get_client, get_text_collection
+from src.core.vector_store import get_client, get_text_collection, replace_source_chunks
+from src.pipelines.documents.ingest import SUPPORTED_EXTENSIONS as _SUPPORTED_EXTENSIONS
 from src.pipelines.documents.ingest import ingest_document
-
-# Kept in sync with ingest.py's own _PARSERS — duplicating just the set of
-# supported extensions here (not the parser functions themselves) avoids
-# this module needing to know anything about *how* a file is parsed.
-_SUPPORTED_EXTENSIONS = {".pdf", ".docx"}
 
 
 def index_documents_directory(directory: str | Path, client=None) -> int:
@@ -56,15 +52,15 @@ def index_document_file(path: str | Path, client=None) -> int:
     client = client or get_client()
     collection = get_text_collection(client)
 
-    chunks = ingest_document(_relative_to_cwd(Path(path)))
-    if not chunks:
-        # A real, if unlikely, case: every page of this file produced
-        # zero extractable text (Chapter 6 §1.4). Nothing to embed or
-        # store, and not an error.
-        return 0
-
-    vectors = embed_texts([c.text for c in chunks])
-    add_chunks(collection, chunks, vectors)
+    relative = _relative_to_cwd(Path(path))
+    # Ingest and embed FIRST: if the file is corrupt or embedding fails, this
+    # raises before anything in the index is touched, so the old chunks survive.
+    chunks = ingest_document(relative)
+    vectors = embed_texts([c.text for c in chunks]) if chunks else []
+    # Replace, not just add: a re-ingest that now yields fewer chunks (a shortened
+    # file, or one whose pages all lost their text, Chapter 6 §1.4) must not leave
+    # the old trailing chunks behind. replace_source_chunks() documents why.
+    replace_source_chunks(collection, relative.as_posix(), chunks, vectors)
     return len(chunks)
 
 

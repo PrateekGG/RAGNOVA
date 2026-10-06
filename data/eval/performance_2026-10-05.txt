@@ -1,0 +1,28 @@
+X:\RAGNova\.venv-pinned313\Lib\site-packages\PIL\Image.py:1054: UserWarning: Palette images with Transparency expressed in bytes should be converted to RGBA images
+  warnings.warn(
+MACHINE
+  Windows-11-10.0.26300-SP0  |  Python 3.13.14  |  Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+  RAM 15.7 GiB
+  Check `ollama ps` for CPU vs GPU inference before quoting the end-to-end figure.
+
+RETRIEVAL LATENCY (warm)
+  text_index search, top 5, MiniLM:    median       38 ms   p90       39 ms   worst       40 ms   (n=25)
+  retrieve(include_images=True):       median      232 ms   p90      254 ms   worst      254 ms   (n=8)
+  (the second includes CLIP's text encoder, the image search, the ADR-011 gate and the merge)
+
+END-TO-END LATENCY (retrieve + prompt + generate, warm)
+  answer_query, text only:             median     2877 ms   p90     3329 ms   worst     3354 ms   (n=13)
+
+INDEXING THROUGHPUT (throw-away index; includes first-use model loading)
+  PDF: 44 pages / 95 chunks in 2.8 s  ->  15.93 pages/s   (target >= 1 page/s)
+  images: 25 images in 9.2 s  ->  2.72 images/s   (CLIP + OCR)
+  audio: 8 clips, 394 s of speech in 41.3 s  ->  9.5x real time (Whisper `base`, CPU)
+
+WHISPER WORD ERROR RATE (4 synthetic clips with a known script; see the caveats at the top)
+  hod_project_announcement.wav         WER  20.8%   (72 words in the script)
+  library_orientation_excerpt.wav      WER  13.3%   (75 words in the script)
+  it_helpdesk_wifi_instructions.wav    WER   0.0%   (73 words in the script)
+  lab_assistant_briefing.wav           WER   3.0%   (65 words in the script)
+  mean 9.3%, worst 20.8%   (target < 15%)
+
+benchmark exit=0

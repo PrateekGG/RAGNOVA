@@ -8,6 +8,7 @@ import logging
 import sys
 from pathlib import Path
 
+from src.core.config import settings
 from src.pipelines.images import ImageIngestionPipeline
 from src.pipelines.images.index import index_image_files, index_images_directory
 from src.pipelines.images.models import ImageIngestionConfig
@@ -43,14 +44,16 @@ def main() -> None:
     parser.add_argument(
         "--model",
         type=str,
-        default="ViT-B-32",
-        help="OpenCLIP model architecture (default: ViT-B-32).",
+        default=settings.CLIP_MODEL,
+        help="OpenCLIP model architecture. Must equal settings.CLIP_MODEL "
+             f"(currently {settings.CLIP_MODEL}): search embeds queries with that model.",
     )
     parser.add_argument(
         "--pretrained",
         type=str,
-        default="laion2b_s34b_b79k",
-        help="OpenCLIP pretrained weights tag (default: laion2b_s34b_b79k).",
+        default=settings.CLIP_PRETRAINED,
+        help="OpenCLIP pretrained weights tag. Must equal settings.CLIP_PRETRAINED "
+             f"(currently {settings.CLIP_PRETRAINED}).",
     )
     parser.add_argument(
         "--device",
@@ -89,6 +92,19 @@ def main() -> None:
         )
         sys.exit(1)
 
+    # This CLI now writes into the shared image_index, and search_images()
+    # always embeds queries with settings.CLIP_MODEL / CLIP_PRETRAINED. Vectors
+    # from any other model either fail Chroma's dimension check or, worse
+    # (same dimension, different model), silently rank nonsense.
+    if (args.model, args.pretrained) != (settings.CLIP_MODEL, settings.CLIP_PRETRAINED):
+        sys.stderr.write(
+            f"Error: --model/--pretrained ({args.model}/{args.pretrained}) differ from "
+            f"settings.CLIP_MODEL/CLIP_PRETRAINED ({settings.CLIP_MODEL}/{settings.CLIP_PRETRAINED}). "
+            "image_index must be built with the same model that search uses; "
+            "change CLIP_MODEL / CLIP_PRETRAINED in .env (and re-index everything) instead.\n"
+        )
+        sys.exit(1)
+
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -115,7 +131,7 @@ def main() -> None:
         # every ImageChunk with a non-None embedding to add_chunks() —
         # skipping unreadable files with a logged warning, same policy as
         # before.
-        count = index_images_directory(target, pipeline=pipeline)
+        count = index_images_directory(target, pipeline=pipeline, recursive=True)
     else:
         # A single explicitly-named file — wrap in a list for index_image_files().
         # Validate that the file can be loaded so corrupt/non-image files are

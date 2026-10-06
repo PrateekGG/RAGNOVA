@@ -1,0 +1,35 @@
+shipped defaults: CHUNK_SIZE_WORDS=300, CHUNK_OVERLAP_WORDS=50, TOP_K=5, LLM_NUM_CTX=4096, RRF_K=60
+
+=== ABLATION 1: chunk size (overlap held at one sixth of it) ===
+
+  150 words / overlap 25: 1199 text chunks (documents + 8 audio), built in 38s
+     retrieval  Recall@5 0.92   MRR 0.69
+     end to end  answered 18/25, refused 6/6, expected chunk in context 23/25, largest prompt ~1179 tokens (window 4096)
+
+  300 words / overlap 50: 631 text chunks (documents + 8 audio), built in 18s
+     retrieval  Recall@5 1.00   MRR 0.81
+     end to end  answered 22/25, refused 6/6, expected chunk in context 25/25, largest prompt ~2168 tokens (window 4096)
+
+  600 words / overlap 100: 335 text chunks (documents + 8 audio), built in 11s
+     retrieval  Recall@5 0.96   MRR 0.83
+     end to end  answered 23/25, refused 6/6, expected chunk in context 24/25, largest prompt ~4148 tokens (window 4096)  <-- 2 of 25 prompts filled >=95% of the 4096-token window (likely truncated)
+     end to end  answered 22/25, refused 6/6, expected chunk in context 24/25, largest prompt ~4148 tokens (window 8192)   [window raised to 8192]
+
+=== ABLATION 2: top-K, on the shipped 300-word index ===
+
+  K = 3: retrieval Recall@3 0.96   MRR@3 0.81
+     end to end  answered 23/25, refused 6/6, expected chunk in context 24/25, largest prompt ~1404 tokens (window 4096)
+
+  K = 5: retrieval Recall@5 1.00   MRR@5 0.81
+     end to end  answered 23/25, refused 6/6, expected chunk in context 25/25, largest prompt ~2168 tokens (window 4096)
+
+  K = 10: retrieval Recall@10 1.00   MRR@10 0.81
+     end to end  answered 25/25, refused 6/6, expected chunk in context 25/25, largest prompt ~4110 tokens (window 4096)  <-- 2 of 27 prompts filled >=95% of the 4096-token window (likely truncated)
+     end to end  answered 23/25, refused 6/6, expected chunk in context 25/25, largest prompt ~4110 tokens (window 8192)   [window raised to 8192]
+
+=== ABLATION 3: cross-modal merge policy (the 16 cross-modal gold rows, real index) ===
+  rank-based RRF, k=60 (shipped)     14/16 hit   (text_to_image 6/8, image_to_doc 4/4, audio_topic 4/4)
+  raw-score merge (rejected, ADR-007) 11/16 hit   (text_to_image 3/8, image_to_doc 4/4, audio_topic 4/4)
+  rows whose rank changed (RRF -> score): I1 2->4, I4 2->None, I5 2->None, I6 2->3, I7 4->None
+  I3 is the question to watch: it misses because its image is outranked by text chunks in the merged top 5.
+exit=0

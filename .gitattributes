@@ -1,2 +1,16 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Force LF line endings for Python files
+*.py text eol=lf
+
+# Downloaded open-licence corpus (data/SOURCES.md, scripts/fetch_corpus.py) lives in Git LFS.
+# Scoped by filename prefix on purpose: the Chapter 6 synthetic starter files were committed as
+# ordinary blobs and stay that way (converting them would rewrite history or show them as modified).
+# Anyone cloning needs `git lfs install` first, or these arrive as small text pointers.
+data/documents/acl_*       filter=lfs diff=lfs merge=lfs -text
+data/documents/arxiv_*     filter=lfs diff=lfs merge=lfs -text
+data/documents/algorithms_* filter=lfs diff=lfs merge=lfs -text
+data/documents/zenodo_*    filter=lfs diff=lfs merge=lfs -text
+data/images/commons_*      filter=lfs diff=lfs merge=lfs -text
+data/audio/spoken_*        filter=lfs diff=lfs merge=lfs -text

@@ -94,3 +94,25 @@ Modality Gap in Multi-modal Contrastive Representation Learning," NeurIPS 2022 â
 source cited in ADR-003. [RRF] Cormack, Clarke and Buettcher, "Reciprocal Rank Fusion
 Outperforms Condorcet and Individual Rank Learning Methods," SIGIR 2009. **Verify both
 before use.***
+
+## Measurement update (2026-10-05): rank-based against score-based merging, measured
+
+The 16 cross-modal gold rows on the real index, merged by reciprocal rank fusion (k = 60, shipped) and by raw score (the rejected alternative), `scripts/run_ablations.py`:
+
+| Merge policy | All 16 | text-to-image | image-to-document | audio-topic |
+|---|---|---|---|---|
+| **Rank-based RRF (shipped)** | **14 / 16** | **6 / 8** | 4 / 4 | 4 / 4 |
+| Raw-score merge | 11 / 16 | 3 / 8 | 4 / 4 | 4 / 4 |
+
+Score merging loses three correct images outright (I4, I5, I7 fall out of the top 5) and drops two others a rank or two (I1 2 -> 4, I6 2 -> 3). The mechanism is the modality gap this ADR was written about: a text chunk's cosine (about 0.3 to 0.65) outscores a correct image's CLIP score (about 0.2 to 0.35), so every text chunk sorts above every image. The decision is no longer an argument from the literature; on this corpus it is worth 3 of 8 text-to-image questions. I3 misses under both policies: its image is CLIP's third choice, which is a ranking limit of the image model, not of the merge. n = 16; one row is 0.0625.
+
+### Same measurement on all 22 cross-modal rows (later the same day)
+
+Six text-to-image rows (I9-I14) were added after the table above (see ADR-011's second update); the merge ablation was re-run on all 22 (`data/eval/ablations_merge_22rows_2026-10-05.txt`):
+
+| Merge policy | All 22 | text-to-image | image-to-document | audio-topic |
+|---|---|---|---|---|
+| **Rank-based RRF (shipped)** | **18 / 22** | **10 / 14** | 4 / 4 | 4 / 4 |
+| Raw-score merge | 14 / 22 | 6 / 14 | 4 / 4 | 4 / 4 |
+
+The case for rank merging got stronger with the larger sample, not weaker: it is now worth 4 of 14 text-to-image questions (raw score loses I4, I5, I7 and I12 outright and pushes I1, I6 and I9 down a rank or two). **The four rows RRF misses (I3, I8, I10, I14) are missed by the score merge too**, so none of them is a merge-policy problem: I3 is CLIP ranking its image third, I8 and I14 are text-free photos the ADR-011 gate drops, and I10 is an image CLIP never ranks in its top 5. n = 22; one row is 0.045.

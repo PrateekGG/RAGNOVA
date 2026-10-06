@@ -61,6 +61,30 @@ def extract_citation_numbers(text: str) -> set[int]:
     return {int(n) for n in _CITATION_RE.findall(text)}
 
 
+def check_prompt_fits(prompt: str) -> bool:
+    """Warn (never raise) when a prompt is close to Ollama's context window.
+
+    Ollama silently truncates a prompt that does not fit in `num_ctx`
+    (settings.LLM_NUM_CTX), and the part it cuts is not the part anyone would
+    choose to lose. Measured 2026-10-05 (data/eval/ablations_2026-10-05.txt):
+    at the shipped 4096 tokens, 600-word chunks or TOP_K=10 produced prompts
+    of about 4100 tokens, and 2 of 25 prompts overflowed with no error. This
+    makes that visible. The size is ESTIMATED at 1.3 tokens per word, the same
+    ratio src/core/config.py's comment uses, so the 90% threshold leaves room
+    for the estimate being off. Returns True if the prompt looks safe.
+    """
+    estimated = int(len(prompt.split()) * 1.3)
+    limit = settings.LLM_NUM_CTX
+    if estimated >= 0.9 * limit:
+        logger.warning(
+            "prompt is about %d tokens against a %d-token context window (LLM_NUM_CTX); Ollama "
+            "will silently truncate it. Lower TOP_K / CHUNK_SIZE_WORDS or raise LLM_NUM_CTX.",
+            estimated, limit,
+        )
+        return False
+    return True
+
+
 def _filter_relevant(chunks: list[Chunk]) -> list[Chunk]:
     """Drop chunks scoring below settings.MIN_RELEVANCE_SCORE (ADR-009).
     A pure function over already-retrieved Chunks, deliberately factored
@@ -100,7 +124,9 @@ def answer_query(
             query=query, answer=NOT_ENOUGH_INFO, citations=[], model=settings.OLLAMA_MODEL
         )
 
-    answer_text = generate(build_prompt(query or IMAGE_ONLY_QUESTION, relevant))
+    prompt = build_prompt(query or IMAGE_ONLY_QUESTION, relevant)
+    check_prompt_fits(prompt)
+    answer_text = generate(prompt)
     check_citations(answer_text, relevant, query)
 
     return RagAnswer(
@@ -131,7 +157,9 @@ def stream_answer(
     )
     if not relevant:
         return [], iter([NOT_ENOUGH_INFO])
-    return relevant, generate_stream(build_prompt(query or IMAGE_ONLY_QUESTION, relevant))
+    prompt = build_prompt(query or IMAGE_ONLY_QUESTION, relevant)
+    check_prompt_fits(prompt)
+    return relevant, generate_stream(prompt)
 
 
 def check_citations(answer_text: str, chunks: list[Chunk], query: str) -> set[int]:

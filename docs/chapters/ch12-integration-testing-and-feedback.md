@@ -1,6 +1,6 @@
 # Chapter 12 — Integration, Testing & Human Feedback (Days 12–13)
 
-> **Deliverables today:** the missing write paths from Chapters 8–9 into ChromaDB (`src/pipelines/images/index.py`, `src/pipelines/audio/index.py`); image search (`src/pipelines/images/search.py`); one retrieval call that searches both collections and merges them by rank (`src/pipelines/rag/retrieve.py`, ADR-007); a separate relevance floor for images ([ADR-010](../decisions/adr-010-per-collection-relevance-floors.md)); `scripts/build_index.py` indexing all three folders; `tests/test_integration.py`; and the human-feedback loop (`src/ui/feedback.py`, `scripts/summarize_feedback.py`, [`docs/feedback-log.md`](../feedback-log.md)).
+> **Deliverables today:** the missing write paths from Chapters 8–9 into ChromaDB (`src/pipelines/images/index.py`, `src/pipelines/audio/index.py`); image search (`src/pipelines/images/search.py`); one retrieval call that searches both collections and merges them by rank (`src/pipelines/rag/retrieve.py`, ADR-007); a separate relevance floor for images ([ADR-010](../decisions/adr-010-per-collection-relevance-floors.md)) and, once real scores existed, a corroboration gate on top of it ([ADR-011](../decisions/adr-011-image-corroboration-gate.md)); `scripts/build_index.py` indexing all three folders; `tests/test_integration.py`; and the human-feedback loop (`src/ui/feedback.py`, `scripts/summarize_feedback.py`, [`docs/feedback-log.md`](../feedback-log.md)).
 >
 > **Prerequisites:** [Chapter 10](ch10-rag-core-retrieval-and-generation.md) (`answer_query()`, ADR-009), [Chapter 11](ch11-unified-query-interface.md), [ADR-003](../decisions/adr-003-two-vector-collections.md) and [ADR-007](../decisions/adr-007-rank-based-merge.md).
 >
@@ -65,9 +65,40 @@ It returns chunks with their **original** `.score`, not the fused number. The fu
 
 ADR-009 gates every chunk on `MIN_RELEVANCE_SCORE = 0.3` before it reaches the prompt. That number was measured on **text** scores. Apply it to CLIP scores and a correct image at 0.25 gets dropped. Same bug as §2.1, one step earlier.
 
-So images get their own floor, `MIN_IMAGE_RELEVANCE_SCORE = 0.2` ([ADR-010](../decisions/adr-010-per-collection-relevance-floors.md)). Said honestly: 0.2 is **not measured** on this project's corpus yet. It's a starting point from CLIP's commonly reported range, to be replaced by a table like Ch10 §3.2's once the I1–I3 gold questions run against real CLIP (§7.3).
+So images get their own floor, `MIN_IMAGE_RELEVANCE_SCORE = 0.2` ([ADR-010](../decisions/adr-010-per-collection-relevance-floors.md)). That is the right *shape*. When it was written, 0.2 was only a starting point from CLIP's commonly reported range; §3.2 below is what happened when it was finally measured.
 
-`test_retrieve_uses_a_separate_floor_for_images` pins the behaviour: a text chunk and an image both scoring 0.25 → the text one is dropped, the image one kept.
+`test_retrieve_uses_a_separate_floor_for_images` pins the behaviour: a text chunk and an image both scoring 0.25 → the text one is dropped, the image one kept (the test's fake OCR text agrees with the question, so §3.2's gate lets it through; without that the image would be dropped too).
+
+## 3.2 Measured on 25 real images, and why a floor alone was not enough
+
+Once the corpus grew, the table ADR-010 asked for could be built. For each of the 8 text-to-image gold questions, take the CLIP score of the *correct* image. For each of 6 questions the corpus **cannot** answer, take the score of the best image anyway, because `image_index.query()` always returns its nearest neighbours:
+
+| | CLIP scores |
+|---|---|
+| Correct image, 8 questions | 0.341, 0.236, 0.251, 0.300, 0.299, 0.346, 0.327, 0.216 |
+| Best image for a question the corpus cannot answer, 6 questions | 0.272, 0.228, 0.291, 0.209, 0.237, 0.134 |
+
+The two ranges overlap everywhere between 0.216 and 0.291. A floor is a single number, so it has to pick a side. At 0.20 it keeps all 8 correct images and **refuses only 1 of 6** unanswerable questions. At 0.30 it refuses all 6 but keeps only **3 of 8** correct images. Concretely: asked *"What is the hostel mess menu for Wednesday lunch?"*, CLIP's nearest image is a photo of programmers' notes taped to an old Cambridge computer, at 0.272, which clears 0.2. Asked *"Which sorting algorithm does Python's built-in sort use?"*, the nearest image is a screenshot of Python code in an editor, at 0.291, plausible-looking and wrong. Before the gate, both would be handed to the model as context. (On the earlier 15-image corpus the hostel question's nearest image was the library-fines poster at 0.214, which also cleared the floor: ADR-010.)
+
+> **Misconception to drop:** "nearest" is not "relevant". Nearest-neighbour search always returns neighbours. A score threshold can only filter if the scores of relevant and irrelevant results *separate*. When they overlap, no threshold, however carefully tuned, will work, and the fix is a second, independent signal, not a better number.
+
+The second signal is already in the index. Every image's OCR text is stored with it, and MiniLM (the text model that works well, ADR-003) can score that text against the question. Call this the **agreement**. On the hostel-menu question the programmers'-notes photo's agreement is **0.094**, and the Python-sort screenshot's is **0.130**: CLIP says "plausible", the text says "nothing to do with it". For the correct image of *"Where can I see the Wi-Fi authentication screen?"* CLIP says 0.341 and the agreement is **0.580**: they agree. The rule ([ADR-011](../decisions/adr-011-image-corroboration-gate.md), `filter_images()`): keep an image if it clears the 0.2 floor **and** either CLIP alone reaches 0.30 or its agreement reaches 0.30.
+
+| Measured on the same questions | Before (CLIP ≥ 0.2) | After (the gate) |
+|---|---|---|
+| Correct images kept | 8 / 8 | 7 / 8 |
+| Unanswerable questions refused | 1 / 6 | **6 / 6** |
+| Cross-modal Recall@5 (16 questions) | 15 / 16 | 14 / 16 |
+
+What the rule costs, said plainly: the one correct image lost, I8, is a photo of a Wi-Fi sign with **no readable text** (CLIP 0.216), so there is nothing to corroborate it with. Anything answerable only by what a picture *looks like* is where this rule is weakest. And the margins are thin: I2's correct image passes at agreement 0.301 against a threshold of 0.30, and the sample is 14 questions. Both new numbers (`MIN_IMAGE_TEXT_AGREEMENT`, `IMAGE_CONFIDENT_SCORE`) are provisional.
+
+**Re-measured later the same day on a larger sample** (14 positives, 10 negatives; the new rows were written and committed before they were measured): the rule keeps 11 of 14 correct images and refuses 9 of 10 out-of-corpus questions, against 13/14 and 3/10 for the floor alone. The thresholds were not changed. Two of the three lost images are text-free photos (the named cost), the third is one CLIP never ranks in its top 5, and a lower threshold for text-free photos cannot work because the nearest *wrong* image for the hostel-menu question (a photograph of programmers' notes) scores CLIP 0.272, higher than the wanted I14 photo's 0.267. See ADR-011's second measurement update.
+
+Tests that pin it (`tests/test_integration.py`): a CLIP-confident image is kept without ever consulting the agreement; a weak image is kept only when its text agrees; a weak photo with no text is dropped; both boundaries are inclusive; and an end-to-end case where only uncorroborated images match, in which `answer_query()` refuses **without calling the model**. Mutation-checked: disabling the agreement test fails three of them, making the CLIP boundary exclusive fails one.
+
+## 3.3 The same question for text, and why the answer there is "change nothing"
+
+The same measurement on the text side (ADR-009, "Measurement update 2026-10-05") found the same overlap: the weakest correct chunk (0.366) scores below the strongest noise chunk (0.383). It also tried the obvious remedies end to end through the real model: a higher floor, a prompt that says "ignore unrelated passages", both together, and fewer chunks. **None beat the current settings** (22–23 of 25 questions answered, against 23), so they stay as they were. Knowing that a tuning knob does *not* help, with the numbers, is a result worth recording; the step beyond these knobs is a cross-encoder reranker (ADR-011, alternative 4).
 
 ---
 
@@ -182,16 +213,17 @@ tests/test_integration.py::test_audio_chunks_that_break_the_contract_are_refused
 1. Why would sorting text and image results by score hide every image? → §2.1; modality gap.
 2. RRF with k=60: an item ranked 1st in one list and 3rd in another. Its score? → 1/61 + 1/63 ≈ 0.0323.
 3. Why does `rrf_merge()` return the original score, not the fused one? → §2.3.
-4. A text chunk and an image both score 0.25. Which reaches the prompt, and why? → §3; the image only (0.25 ≥ 0.2, but < 0.3).
+4. A text chunk and an image both score 0.25. Which reaches the prompt, and why? → §3; the text chunk never does (0.25 < 0.3). The image does only if its OCR text also agrees with the question (§3.2: 0.25 is below CLIP's confident score of 0.30, so CLIP alone is not enough).
 5. What exactly is faked in the integration tests, and what is real? → §4.
 6. Why did the audio `embedding_model=None` bug never crash anything? → §5.3; nothing called `validate_chunk()` on audio output.
+7. The correct image scores 0.216 and a wrong question's best image scores 0.291. Why can no floor fix that, and what did the project add instead? → §3.2; overlapping ranges, so add an independent signal (OCR agreement).
 
 ## 7.3 Still open after today (named, not hidden)
 
-- **Measure `MIN_IMAGE_RELEVANCE_SCORE`** with real CLIP against the I1–I3 gold questions (arrive with PR #4's corpus), the same way Ch10 §3.2 measured 0.3.
-- **Cross-modal Recall@5** in `data/README.md`'s results log: needs real CLIP + the corpus.
-- **The ablations** Chapter 3 committed to (chunk size 150/300/600, rank vs. score merge): the code now supports both collections, so the merge ablation is runnable once real image scores exist.
-- **The offline demonstration** from Chapter 1 §1.9.3: run the full app with the network disabled and record it.
+- ~~Measure `MIN_IMAGE_RELEVANCE_SCORE`~~ **Done 2026-10-05** (§3.2, ADR-011): the ranges overlap, so a corroboration gate was added. Its two numbers are provisional; re-measured on 24 questions, they held (11/14 kept, 9/10 refused) and were not changed.
+- ~~Cross-modal Recall@5~~ **Done**: 14 / 16 = 0.88 on the grown corpus, then 18 / 22 = 0.82 (text-to-image 10 / 14 = 0.71) after six more text-to-image rows were added (`data/README.md`'s results log). The four misses (I3, I8, I10, I14) are **recorded, not tuned**: I3 is CLIP's own ranking, I8 and I14 are the gate's named cost on text-free photos, I10 is an image CLIP never ranks in its top 5; the score-merge alternative misses the same four.
+- ~~The ablations~~ **Done 2026-10-05** (chunk size 150/300/600, top-K 3/5/10, rank vs score merge; `scripts/run_ablations.py`, ADR-006 and ADR-007 amended): the shipped values hold, rank merge is worth 3 of 8 text-to-image questions (4 of 14 once the gold set grew), and 600-word chunks or K = 10 overflow the 4096-token window.
+- **The offline demonstration** from Chapter 1 §1.9.3, **half done 2026-10-05**: `scripts/verify_offline.py` runs the methodology 8.5 checklist (ingest a new file, text query, image query, spoken query, citations) behind a guard that blocks every non-loopback connection: all steps pass, but loading the embedding model made 31 Hugging Face Hub attempts and stalled the first question ~49 s until `RAGNOVA_OFFLINE=1` (new, `src/__init__.py`, `.env.example`) took that to 0 attempts and 0.6 s. **Still open:** the real run (network adapter off, through the Streamlit page), which needs the wired UI.
 - **Wire PR #4's scaffold** to `stream_answer()` and the feedback form (Chapter 11 §5.6).
 
 ---

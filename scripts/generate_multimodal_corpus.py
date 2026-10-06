@@ -672,45 +672,49 @@ def _generate_synthetic_speech_wav(filepath: Path, text: str) -> None:
     )
 
 
+# (filename, the exact text the speech was synthesised from). Module-level so
+# scripts/benchmark_performance.py can score Whisper's transcript of each clip
+# against the real script (word error rate) without keeping a second copy.
+AUDIO_CLIPS = [
+    (
+        "hod_project_announcement.wav",
+        "Good morning final year students. This is an important announcement regarding your B.Tech CSE-AIML "
+        "project evaluation. Please remember that the working prototype demonstrated on evaluation day carries "
+        "forty percent of your total marks. The written project report carries thirty-five percent, and the "
+        "individual viva voce with each team member carries the remaining twenty-five percent. Every member must "
+        "attend the viva in person. Do not miss the synopsis submission deadline on August twenty-first."
+    ),
+    (
+        "library_orientation_excerpt.wav",
+        "Welcome to the Central Library orientation. Effective this semester, our working hours are eight in the "
+        "morning until ten at night on working days, and nine in the morning until six in the evening on weekends. "
+        "Undergraduate students may check out up to four books at a time for fourteen days. Overdue fines are two "
+        "rupees per day, capped at two hundred rupees per title. The digital resource centre is located on the "
+        "second floor."
+    ),
+    (
+        "it_helpdesk_wifi_instructions.wav",
+        "Hello students. If you are experiencing difficulty connecting to the campus wireless network named "
+        "RAGNOVA-STUDENT, please follow these steps. Enter your full institute email address and the password set "
+        "during account activation. Ensure your device validates server certificates using domain ragnova.edu. If the connection fails, restart your wireless adapter before visiting the help "
+        "desk. Remember that sharing your credentials with any other student is strictly prohibited and results in a "
+        "two-week network suspension."
+    ),
+    (
+        "lab_assistant_briefing.wav",
+        "Attention students in the AI and Machine Learning laboratory. If you need remote access to academic journal "
+        "databases while working from home, please install the institute VPN client available on the self-service "
+        "portal. Downloading copyrighted movies or commercial software over the campus network is strictly barred. "
+        "The IT help desk is open Monday to Friday from nine in the morning until five in the evening."
+    ),
+]
+
+
 def generate_all_audio():
     """Generates 4 campus audio clips (.wav) corresponding to the academic topics."""
     AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 
-    audio_clips = [
-        (
-            "hod_project_announcement.wav",
-            "Good morning final year students. This is an important announcement regarding your B.Tech CSE-AIML "
-            "project evaluation. Please remember that the working prototype demonstrated on evaluation day carries "
-            "forty percent of your total marks. The written project report carries thirty-five percent, and the "
-            "individual viva voce with each team member carries the remaining twenty-five percent. Every member must "
-            "attend the viva in person. Do not miss the synopsis submission deadline on August twenty-first."
-        ),
-        (
-            "library_orientation_excerpt.wav",
-            "Welcome to the Central Library orientation. Effective this semester, our working hours are eight in the "
-            "morning until ten at night on working days, and nine in the morning until six in the evening on weekends. "
-            "Undergraduate students may check out up to four books at a time for fourteen days. Overdue fines are two "
-            "rupees per day, capped at two hundred rupees per title. The digital resource centre is located on the "
-            "second floor."
-        ),
-        (
-            "it_helpdesk_wifi_instructions.wav",
-            "Hello students. If you are experiencing difficulty connecting to the campus wireless network named "
-            "RAGNOVA-STUDENT, please follow these steps. Enter your full institute email address and the password set "
-            "during account activation. Ensure your device validates server certificates using domain ragnova.edu. If the connection fails, restart your wireless adapter before visiting the help "
-            "desk. Remember that sharing your credentials with any other student is strictly prohibited and results in a "
-            "two-week network suspension."
-        ),
-        (
-            "lab_assistant_briefing.wav",
-            "Attention students in the AI and Machine Learning laboratory. If you need remote access to academic journal "
-            "databases while working from home, please install the institute VPN client available on the self-service "
-            "portal. Downloading copyrighted movies or commercial software over the campus network is strictly barred. "
-            "The IT help desk is open Monday to Friday from nine in the morning until five in the evening."
-        ),
-    ]
-
-    for filename, text in audio_clips:
+    for filename, text in AUDIO_CLIPS:
         filepath = AUDIO_DIR / filename
         _generate_synthetic_speech_wav(filepath, text)
 

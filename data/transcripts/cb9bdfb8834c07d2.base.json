@@ -1,0 +1,42 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 34.33,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 6.22,
+   "start": 0.0,
+   "text": " Hello students, if you are experiencing difficulty connecting to the campus wireless network named"
+  },
+  {
+   "end": 12.26,
+   "start": 6.22,
+   "text": " Ragnova student, please follow these steps. Enter your full institute email address and the"
+  },
+  {
+   "end": 18.27,
+   "start": 12.26,
+   "text": " password set during account activation. Ensure your device validates server certificates using"
+  },
+  {
+   "end": 25.33,
+   "start": 18.27,
+   "text": " domain ragnova.edu, if the connection fails, restart your wireless adapter before visiting the"
+  },
+  {
+   "end": 31.23,
+   "start": 25.33,
+   "text": " help desk. Remember that sharing your credentials with any other student is strictly prohibited and"
+  },
+  {
+   "end": 34.33,
+   "start": 31.23,
+   "text": " results in a two-week network suspension."
+  }
+ ],
+ "sha256": "cb9bdfb8834c07d2d8b142d3b63795593693fae8b042a42008ce5efe1472a1bc",
+ "source_name": "it_helpdesk_wifi_instructions.wav"
+}

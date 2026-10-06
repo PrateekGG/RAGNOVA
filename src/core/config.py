@@ -37,11 +37,25 @@ def _get_int(name: str, default: int) -> int:
     return int(os.environ.get(name, default))
 
 
+def _get_optional_int(name: str) -> int | None:
+    """An integer setting that is simply absent unless someone sets it."""
+    raw = os.environ.get(name, "").strip()
+    return int(raw) if raw else None
+
+
 @dataclass(frozen=True)
 class Settings:
     OLLAMA_MODEL: str = os.environ.get("OLLAMA_MODEL", "llama3.2:3b")
     OLLAMA_HOST: str = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
     LLM_TEMPERATURE: float = _get_float("LLM_TEMPERATURE", 0.1)
+
+    # How many of the model's layers Ollama puts on the GPU. Unset (the default)
+    # lets Ollama decide, which on a machine with a GPU means using it. Set 0 to
+    # force CPU-only inference. The project's stated target is a laptop with no
+    # discrete GPU, and until 2026-10-05 every LLM figure was measured on a GPU
+    # machine (llama3.2:3b at "100% GPU" in `ollama ps`), so this exists to measure
+    # the target honestly: OLLAMA_NUM_GPU=0 python scripts/benchmark_performance.py
+    OLLAMA_NUM_GPU: int | None = _get_optional_int("OLLAMA_NUM_GPU")
 
     # Bounds Ollama's num_predict — how many tokens generation is allowed to
     # emit before it's cut off. Not a measured value; a safety cap so a
@@ -56,6 +70,9 @@ class Settings:
     # instructions, provenance headers, the question, and the answer budget
     # (LLM_MAX_TOKENS) are counted. 4096 leaves real headroom; a starting
     # point, not a measured value — revisit if TOP_K or CHUNK_SIZE_WORDS grow.
+    # Measured 2026-10-05: 600-word chunks, or TOP_K=10, give prompts of ~4100
+    # tokens, which overflow this window (2 of 25 prompts); answer.py now warns
+    # when a prompt comes within 90% of it.
     LLM_NUM_CTX: int = _get_int("LLM_NUM_CTX", 4096)
 
     # Cosine-similarity floor a retrieved chunk must clear before it's
@@ -72,11 +89,29 @@ class Settings:
     # (ADR-003/ADR-007): CLIP text-to-image cosine scores for a genuinely
     # correct match sit systematically lower than MiniLM text-to-text
     # scores, so reusing 0.3 here would silently filter out every image.
-    # 0.2 is a starting point from CLIP's commonly reported range for real
-    # caption matches, NOT measured against this project's corpus (which
-    # has no images yet) -- measure it the same way Chapter 10 §3.2 did
-    # once data/images/ and the I1-I3 gold rows exist.
+    # Measured 2026-10-05 on the 25-image corpus (ADR-010/ADR-011): correct
+    # images score 0.216-0.346, but the top image for questions the corpus
+    # CANNOT answer scores 0.134-0.291, so no CLIP score alone separates
+    # them. 0.2 is therefore only the first, weak gate; the real one is the
+    # corroboration rule below.
     MIN_IMAGE_RELEVANCE_SCORE: float = _get_float("MIN_IMAGE_RELEVANCE_SCORE", 0.2)
+
+    # Image corroboration (ADR-011). An image whose CLIP score is below
+    # IMAGE_CONFIDENT_SCORE is only kept if the text read from it (OCR)
+    # also looks relevant to the question: the MiniLM similarity between the
+    # question and the image's OCR text must reach MIN_IMAGE_TEXT_AGREEMENT.
+    # Two independent models agreeing is far stronger evidence than either
+    # alone. Measured on 8 positive and 6 negative questions: this rule kept
+    # 7 of 8 correct images and refused all 6 negatives, where CLIP >= 0.2
+    # alone refused 1 of 6. Re-measured on 14 positives and 10 negatives
+    # without changing either number: 11 of 14 kept, 9 of 10 refused (the floor
+    # alone: 13 of 14, 3 of 10). The margins are THIN (a correct image at 0.301
+    # against a negative at 0.305) and the sample is still small, so treat both
+    # numbers as provisional, like every threshold in this file.
+    # The cost, stated plainly: a photo with no readable text is only kept
+    # when CLIP alone reaches IMAGE_CONFIDENT_SCORE.
+    MIN_IMAGE_TEXT_AGREEMENT: float = _get_float("MIN_IMAGE_TEXT_AGREEMENT", 0.30)
+    IMAGE_CONFIDENT_SCORE: float = _get_float("IMAGE_CONFIDENT_SCORE", 0.30)
 
     # Reciprocal Rank Fusion constant for merging text_index and
     # image_index results by rank (ADR-007): score = sum(1 / (RRF_K + rank)).
@@ -92,6 +127,17 @@ class Settings:
     CLIP_MODEL: str = os.environ.get("CLIP_MODEL", "ViT-B-32")
     CLIP_PRETRAINED: str = os.environ.get("CLIP_PRETRAINED", "laion2b_s34b_b79k")
     WHISPER_MODEL_SIZE: str = os.environ.get("WHISPER_MODEL_SIZE", "base")
+
+    # Where each audio file's transcript is kept, keyed by the file's sha256
+    # (src/pipelines/audio/transcript_cache.py). Whisper's output is not
+    # identical across library versions or machines (measured 2026-10-05: the
+    # pinned and the newer environment transcribed the same clips slightly
+    # differently, and one early build differed on every clip), so without
+    # this the same audio gives a different index, and different retrieval
+    # numbers, depending on where it was built. With it, the transcript is
+    # part of the corpus: committed, identical everywhere, and not recomputed
+    # on every rebuild. Set to an empty string to disable.
+    WHISPER_TRANSCRIPT_CACHE_DIR: str = os.environ.get("WHISPER_TRANSCRIPT_CACHE_DIR", "./data/transcripts")
 
     CHROMA_PERSIST_DIR: str = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_db")
 

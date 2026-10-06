@@ -5,8 +5,8 @@ __pycache__/
 *.egg-info/
 
 # Virtual environment (Chapter 0 §A.4) — never commit this, it's machine-specific
-.venv/
-venv/
+.venv*/
+venv*/
 env/
 
 # Secrets / machine-specific config (Chapter 5 §4) — .env.example IS committed,

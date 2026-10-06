@@ -38,7 +38,9 @@ def test_documents_corpus_present():
 def test_images_corpus_target_reached():
     assert IMAGES_DIR.exists(), "data/images/ directory missing"
     images = list(IMAGES_DIR.glob("*.png")) + list(IMAGES_DIR.glob("*.jpg"))
-    assert 10 <= len(images) <= 15, f"Expected 10-15 images, found {len(images)}"
+    # Lower bound only: the 15 synthetic images are joined by the downloaded
+    # Wikimedia Commons ones (data/SOURCES.md), so the count is expected to grow.
+    assert len(images) >= 10, f"Expected at least 10 images, found {len(images)}"
 
     screenshots = [img for img in images if "screenshot" in img.name.lower()]
     assert len(screenshots) >= 3, f"Expected >=3 screenshots, found {len(screenshots)}"
@@ -69,6 +71,22 @@ def test_audio_corpus_target_reached():
                 assert n_channels == 1, f"Audio {audio_path.name} expected mono (1 channel), got {n_channels}"
                 assert sample_rate == 16000, f"Audio {audio_path.name} expected 16000 Hz, got {sample_rate}"
                 assert duration >= 5.0, f"Audio {audio_path.name} duration {duration:.1f}s is less than 5s"
+
+
+def test_no_corpus_file_is_an_unresolved_git_lfs_pointer():
+    # The downloaded corpus files live in Git LFS (data/SOURCES.md). Without
+    # `git lfs install`, a clone gets ~130-byte text pointers instead, and
+    # every parser fails with a misleading "corrupt file" error. Fail here,
+    # with the real cause, rather than in the middle of an ingest.
+    marker = b"version https://git-lfs.github.com/spec/v1"
+    pointers = [
+        p.name for p in DATA_DIR.rglob("*")
+        if p.is_file() and p.stat().st_size < 300 and p.read_bytes().startswith(marker)
+    ]
+    assert not pointers, (
+        f"{len(pointers)} corpus file(s) are Git LFS pointers, not real files "
+        f"(e.g. {pointers[:3]}). Run: git lfs install && git lfs pull"
+    )
 
 
 def test_app_scaffold_present_and_has_todo():

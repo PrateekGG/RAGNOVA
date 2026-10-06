@@ -1,0 +1,37 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 25.9,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 4.02,
+   "start": 0.0,
+   "text": " Attention students in the AIN machine learning laboratory."
+  },
+  {
+   "end": 8.74,
+   "start": 4.02,
+   "text": " If you need remote access to academic journal databases while working from home,"
+  },
+  {
+   "end": 13.98,
+   "start": 8.74,
+   "text": " please install the Institute VPN client available on the self-service portal,"
+  },
+  {
+   "end": 18.86,
+   "start": 13.98,
+   "text": " downloading copyrighted movies or commercial software over the campus network is strictly"
+  },
+  {
+   "end": 25.9,
+   "start": 18.86,
+   "text": " barred. The IT help desk is open Monday to Friday from 9 in the morning until 5 in the evening."
+  }
+ ],
+ "sha256": "e23ce359c34fcd41f88df1fce52cc9f8247309bdf1d790691ce4a271ccc66aaf",
+ "source_name": "lab_assistant_briefing.wav"
+}

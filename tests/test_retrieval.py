@@ -15,6 +15,7 @@ would be a genuinely bad test suite.
 
 import math
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.core.embeddings import embed_text, embed_texts
+from src.core.gold import load_gold_set
 from src.core.schemas import Chunk, validate_chunk
 from src.core.vector_store import add_chunks, get_client, get_text_collection
 from src.pipelines.documents.index import index_documents_directory
@@ -29,18 +31,9 @@ from src.pipelines.documents.search import search_text
 
 DOCS_DIR = Path(__file__).resolve().parent.parent / "data" / "documents"
 
-# Mirrors scripts/evaluate_retrieval.py's GOLD_QUESTIONS — see that file's
-# own docstring for why this is a manual copy, not a shared import (kept
-# here too, deliberately, so a test failure doesn't depend on the eval
-# script's own correctness).
-GOLD_QUESTIONS = [
-    ("If I don't get my system actually running by evaluation day, how many marks am I giving up?",
-     "data/documents/notice.pdf", 2),
-    ("As an undergrad, how many items can I check out from the library at once, and for how long?",
-     "data/documents/library_hours.pdf", 1),
-    ("What happens the first time someone gets caught sharing their login with a friend?",
-     "data/documents/it_onboarding.docx", 2),
-]
+# The text gold questions come from data/gold_set.json, the same file the
+# evaluation scripts read (src/core/gold.py) — no hand-copied list to drift.
+GOLD_QUESTIONS = load_gold_set()["text"]
 
 
 # ---------------------------------------------------------------------------
@@ -165,16 +158,27 @@ def indexed_client(tmp_path_factory):
     return client
 
 
-def test_index_documents_directory_indexes_every_chunk_from_all_three_files(indexed_client):
+def test_index_documents_directory_indexes_every_chunk_from_all_three_starter_files(indexed_client):
+    # The corpus grew past the three Chapter 6 starter files (the downloaded
+    # study materials, data/SOURCES.md), so the collection's total is no
+    # longer 6 — but each starter file must still contribute exactly the
+    # chunks it always did, and the downloaded files must be indexed too.
     collection = get_text_collection(indexed_client)
-    assert collection.count() == 6  # notice.pdf: 3, library_hours.pdf: 1, it_onboarding.docx: 2
+    sources = Counter(m["source"] for m in collection.get(include=["metadatas"])["metadatas"])
+    assert sources["data/documents/notice.pdf"] == 3
+    assert sources["data/documents/library_hours.pdf"] == 1
+    assert sources["data/documents/it_onboarding.docx"] == 2
+    assert collection.count() > 6, "the downloaded corpus files were not indexed"
 
 
 def test_search_text_finds_the_right_chunk_for_every_gold_question(indexed_client):
-    for question, expected_source, expected_page in GOLD_QUESTIONS:
-        results = search_text(question, top_k=5, client=indexed_client)
-        hit = any(c.source == expected_source and c.page == expected_page for c in results)
-        assert hit, f"'{question}' did not retrieve {expected_source} page {expected_page} in top 5"
+    # Every T row must land in the top 5 against the WHOLE grown corpus, so
+    # this also guards against new documents crowding out an old answer.
+    for row in GOLD_QUESTIONS:
+        results = search_text(row["question"], top_k=5, client=indexed_client)
+        hit = any(c.source == row["expected_source"] and c.page in row["expected_pages"] for c in results)
+        assert hit, (f"{row['id']} '{row['question']}' did not retrieve "
+                     f"{row['expected_source']} page {row['expected_pages']} in top 5")
 
 
 def test_search_results_are_sorted_by_descending_score(indexed_client):
@@ -191,3 +195,32 @@ def test_search_results_satisfy_the_contract(indexed_client):
     for chunk in results:
         assert validate_chunk(chunk) == []
         assert chunk.score is not None
+
+
+def test_approximate_search_returns_the_same_top_five_as_exact_search(indexed_client):
+    # HNSW is an APPROXIMATE index. With chromadb's default effort settings, the
+    # version requirements.txt pins (0.5.23) returned a different top 5 from
+    # exact search for ~1 in 3 of these questions on this very corpus, and
+    # sometimes a wrong top 1 (src/core/vector_store.py explains the numbers).
+    # Real embeddings, the real corpus: brute-force every stored vector and
+    # require the index to agree for every text gold question and negative.
+    collection = get_text_collection(indexed_client)
+    stored = collection.get(include=["embeddings"])
+    gold = load_gold_set()
+    questions = [r["question"] for r in gold["text"]] + [r["question"] for r in gold["negatives"]]
+    disagreements = []
+    for question in questions:
+        query = embed_text(question)
+        exact = sorted(
+            ((sum(a * b for a, b in zip(query, vec)), cid) for vec, cid in zip(stored["embeddings"], stored["ids"])),
+            reverse=True,
+        )
+        approximate = collection.query(query_embeddings=[query], n_results=5)["ids"][0]
+        if {cid for _, cid in exact[:5]} != set(approximate):
+            disagreements.append(question[:60])
+    assert not disagreements, f"approximate search differs from exact search for {len(disagreements)} question(s): {disagreements}"
+
+
+def test_client_does_not_send_anonymous_telemetry(tmp_path):
+    # The project is offline by design (Objective O6): it must not report usage to a third party.
+    assert get_client(persist_dir=tmp_path / "chroma_telemetry").get_settings().anonymized_telemetry is False

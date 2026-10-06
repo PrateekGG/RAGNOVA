@@ -1,0 +1,67 @@
+{
+ "compute_type": "int8",
+ "created": "2026-10-05",
+ "duration": 63.38,
+ "faster_whisper_version": "1.2.1",
+ "model_size": "base",
+ "schema": 1,
+ "segments": [
+  {
+   "end": 6.12,
+   "start": 0.12,
+   "text": " Sometimes, session login is requested to acquire a whiskey signature cookie for auto-signing edits."
+  },
+  {
+   "end": 11.12,
+   "start": 6.12,
+   "text": " Many edits, however, can be made in real-time and appear almost instantaneously online."
+  },
+  {
+   "end": 13.12,
+   "start": 11.12,
+   "text": " This can lead to abuse of the system."
+  },
+  {
+   "end": 18.12,
+   "start": 13.12,
+   "text": " Private-weekly servers require user authentication to edit, sometimes even to read pages."
+  },
+  {
+   "end": 25.36,
+   "start": 18.12,
+   "text": " Pages and editing, the source format, sometimes known as WikiText, is augmented with a simplified markup language"
+  },
+  {
+   "end": 28.36,
+   "start": 25.36,
+   "text": " to indicate various structural and visual conventions."
+  },
+  {
+   "end": 36.36,
+   "start": 28.36,
+   "text": " An often used example of one such convention is to start a line of text with an asterisk in order to mark it as an item in a bolded list."
+  },
+  {
+   "end": 43.71,
+   "start": 36.36,
+   "text": " Style and syntax can vary a great deal among implementations, some of which also allow HTML tags."
+  },
+  {
+   "end": 50.92,
+   "start": 43.71,
+   "text": " The reasoning behind this design is that HTML, with its many cryptic tags, is not especially human readable."
+  },
+  {
+   "end": 56.92,
+   "start": 50.92,
+   "text": " Making typical HTML source visible makes the actual text content very hard to read and edit for most users."
+  },
+  {
+   "end": 62.92,
+   "start": 56.92,
+   "text": " It is therefore better to promote plain text editing with a few simple conventions for structure and style."
+  }
+ ],
+ "sha256": "70e11af52d601e082f685788f31fce09ea01624b1d02221f2cc9a744fc2e9ea7",
+ "source_name": "spoken_wikipedia_wiki.wav"
+}
