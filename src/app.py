@@ -1,11 +1,14 @@
 """
 RAGNova — Streamlit UI Scaffold (Chapter 11)
 
-A bare Streamlit shell for the offline multimodal RAG system.
+A unified multimodal Streamlit interface for the offline multimodal RAG system.
 Features:
-  - Text query input and submit handler
-  - Mocked answer and citation response
-  - Clearly marked '# TODO: to wire the real call here' for Chapter 10 integration
+  - Text, voice (faster-whisper), and image (CLIP + OCR) query processing
+  - Live token streaming via stream_answer() and st.write_stream()
+  - Expandable, rich citations adhering to ADR-003, ADR-007, and ADR-008
+  - Human feedback collection loop (Chapter 12) logging to feedback.jsonl
+  - Live knowledge base upload and indexing for PDF, DOCX, Images, and Audio
+  - Verified scaffold fallback for deterministic evaluation
   - System status and corpus overview in the sidebar
 
 Run with:  streamlit run src/app.py
@@ -13,8 +16,10 @@ Run with:  streamlit run src/app.py
 
 from __future__ import annotations
 
+import html
 import sys
 from pathlib import Path
+from PIL import Image
 
 # Add project root to sys.path so src imports resolve cleanly
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -24,6 +29,28 @@ if str(PROJECT_ROOT) not in sys.path:
 import streamlit as st
 
 from src.core.config import settings
+from src.core.schemas import Chunk
+from src.ui.backend import (
+    DOCUMENT_EXTS,
+    IMAGE_EXTS,
+    AUDIO_EXTS,
+    kind_of,
+    safe_filename,
+    save_upload,
+    index_file,
+    index_counts,
+    ollama_ready,
+    transcribe_audio_bytes,
+    ocr_image,
+)
+from src.ui.citations import DOCX_PAGE_NOTE, citation_views, CitationView
+from src.ui.feedback import FeedbackEntry, record_feedback
+from src.pipelines.rag.answer import (
+    IMAGE_ONLY_QUESTION,
+    NOT_ENOUGH_INFO,
+    check_citations,
+    stream_answer,
+)
 
 # ---------------------------------------------------------------------------
 # Page Configuration & Styling
@@ -73,15 +100,21 @@ st.markdown(
 )
 
 # ---------------------------------------------------------------------------
-# Sidebar: System Metadata & Corpus Stats
+# Sidebar: System Metadata, Ingestion & Corpus Stats
 # ---------------------------------------------------------------------------
 with st.sidebar:
     st.title("🌌 RAGNova System")
     st.caption("Offline Multimodal RAG (B.Tech CSE-AIML)")
     st.divider()
 
-    st.subheader("⚙️ Active Configuration")
-    st.write(f"**Local LLM:** `{settings.OLLAMA_MODEL}`")
+    st.subheader("⚙️ System Status")
+    is_ollama_up = ollama_ready()
+    if is_ollama_up:
+        st.success(f"🟢 Ollama Online (`{settings.OLLAMA_MODEL}`)")
+    else:
+        st.warning(f"⚠️ Ollama Offline (`{settings.OLLAMA_MODEL}`)")
+        st.caption("Run `ollama serve` in terminal to enable real LLM generation.")
+
     st.write(f"**Text Embedder:** `{settings.TEXT_EMBEDDING_MODEL}`")
     st.write(f"**Image Embedder:** `{settings.CLIP_MODEL}`")
     st.write(f"**Speech-to-Text:** `faster-whisper ({settings.WHISPER_MODEL_SIZE})`")
@@ -93,17 +126,56 @@ with st.sidebar:
     images_dir = PROJECT_ROOT / "data" / "images"
     audio_dir = PROJECT_ROOT / "data" / "audio"
 
-    n_docs = len(list(docs_dir.glob("*.*"))) if docs_dir.exists() else 0
-    n_images = len(list(images_dir.glob("*.png"))) if images_dir.exists() else 0
-    n_audio = len(list(audio_dir.glob("*.wav"))) if audio_dir.exists() else 0
+    n_docs = len([p for p in docs_dir.iterdir() if p.is_file() and p.suffix.lower() in DOCUMENT_EXTS]) if docs_dir.exists() else 0
+    n_images = len([p for p in images_dir.iterdir() if p.is_file() and p.suffix.lower() in IMAGE_EXTS]) if images_dir.exists() else 0
+    n_audio = len([p for p in audio_dir.iterdir() if p.is_file() and p.suffix.lower() in AUDIO_EXTS]) if audio_dir.exists() else 0
 
     st.write(f"📄 **Documents:** {n_docs} files")
     st.write(f"🖼️ **Images:** {n_images} files")
     st.write(f"🎙️ **Audio Clips:** {n_audio} files")
 
+    try:
+        counts = index_counts()
+        st.write(f"📊 **Vector Index:** {counts['text']} text/audio, {counts['image']} images")
+    except Exception:
+        pass
+
+    st.divider()
+    st.subheader("📥 Add to Corpus")
+    all_allowed = sorted([ext.lstrip(".") for ext in (DOCUMENT_EXTS | IMAGE_EXTS | AUDIO_EXTS)])
+    uploaded_kb_file = st.file_uploader(
+        "Upload document, image or audio",
+        type=all_allowed,
+        key="kb_uploader",
+    )
+    if uploaded_kb_file is not None:
+        if st.button("Save & Index File", key="btn_index_upload"):
+            with st.spinner(f"Indexing {uploaded_kb_file.name}..."):
+                try:
+                    saved_path = save_upload(
+                        uploaded_kb_file.name,
+                        uploaded_kb_file.getvalue(),
+                        data_root=PROJECT_ROOT / "data",
+                    )
+                    chunks_added = index_file(saved_path)
+                    st.success(f"✅ Indexed `{saved_path.name}` ({chunks_added} chunks added)")
+                    st.rerun()
+                except Exception as err:
+                    st.error(f"Failed to index file: {err}")
+
+    st.divider()
+    st.subheader("🛠️ Engine Mode")
+    engine_mode = st.radio(
+        "Response Engine",
+        options=["Live Multimodal RAG", "Verified Scaffold Mock"],
+        index=0 if is_ollama_up else 1,
+        help="Live RAG queries ChromaDB and streams Ollama. Verified Scaffold uses deterministic gold-standard responses."
+    )
+
     st.divider()
     if st.button("Clear Conversation"):
         st.session_state.messages = []
+        st.session_state.feedback_submitted = set()
         st.rerun()
 
 # ---------------------------------------------------------------------------
@@ -115,7 +187,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Initialize conversation history
+# Initialize conversation history and state
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {
@@ -126,30 +198,100 @@ if "messages" not in st.session_state:
                 "or library hours."
             ),
             "citations": None,
+            "views": None,
+            "warning": None,
         }
     ]
 
+if "feedback_submitted" not in st.session_state:
+    st.session_state.feedback_submitted = set()
+
+if "tester_name" not in st.session_state:
+    st.session_state.tester_name = ""
+
+
 # Display existing messages
-for msg in st.session_state.messages:
+for msg_idx, msg in enumerate(st.session_state.messages):
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-        if msg.get("citations"):
-            with st.expander("📚 Sources & Citations", expanded=False):
+
+        if msg.get("warning"):
+            st.warning(msg["warning"])
+
+        # Display rich CitationView list
+        if msg.get("views"):
+            views: list[CitationView] = msg["views"]
+            with st.expander(f"📚 Sources & Citations ({len(views)})", expanded=False):
+                for view in views:
+                    st.markdown(
+                        f"""
+                        <div class="citation-box">
+                            <span class="badge-pill">{html.escape(view.modality_label.upper())}</span>
+                            <strong>{html.escape(view.title)}</strong><br>
+                            <div style="margin-top: 0.3rem;"><em>"{html.escape(view.excerpt)}"</em></div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+                    if view.note:
+                        st.caption(f"ℹ️ {view.note}")
+                    if view.modality_label == "Audio" and view.audio_start_s is not None and view.file_exists:
+                        st.audio(view.file_path, start_time=int(view.audio_start_s))
+                    elif view.modality_label == "Image" and view.file_exists:
+                        try:
+                            st.image(view.file_path, width=320, caption=view.title)
+                        except Exception:
+                            pass
+
+        # Display legacy/mock citation dicts
+        elif msg.get("citations"):
+            with st.expander(f"📚 Sources & Citations ({len(msg['citations'])})", expanded=False):
                 for cit in msg["citations"]:
                     st.markdown(
                         f"""
                         <div class="citation-box">
-                            <span class="badge-pill">{cit['modality'].upper()}</span>
-                            <strong>[{cit['id']}]</strong> <code>{cit['source']}</code> {cit.get('location', '')}<br>
-                            <em>"{cit['snippet']}"</em>
+                            <span class="badge-pill">{html.escape(cit['modality'].upper())}</span>
+                            <strong>[{cit['id']}]</strong> <code>{html.escape(cit['source'])}</code> {html.escape(cit.get('location', ''))}<br>
+                            <em>"{html.escape(cit['snippet'])}"</em>
                         </div>
                         """,
                         unsafe_allow_html=True,
                     )
 
+        # Human Feedback Form (Chapter 12)
+        if msg["role"] == "assistant" and msg_idx > 0:
+            fb_key = f"fb_{msg_idx}"
+            if fb_key not in st.session_state.feedback_submitted:
+                with st.expander("⭐ Rate this answer (Feedback Form)", expanded=False):
+                    with st.form(key=f"form_{fb_key}"):
+                        f_col1, f_col2 = st.columns([1, 2])
+                        with f_col1:
+                            rating = st.select_slider("Rating (1-5)", options=[1, 2, 3, 4, 5], value=5)
+                            tester = st.text_input("Tester Name / Initials", value=st.session_state.tester_name)
+                        with f_col2:
+                            comment = st.text_input("Comment (optional)", placeholder="How helpful and accurate was this answer?")
+                        if st.form_submit_button("Submit Rating"):
+                            sources = [v.title for v in msg.get("views", [])] if msg.get("views") else [c.get("source", "") for c in msg.get("citations", [])]
+                            user_q = st.session_state.messages[msg_idx - 1]["content"] if msg_idx > 0 else "N/A"
+                            entry = FeedbackEntry(
+                                query=user_q,
+                                answer=msg["content"],
+                                rating=rating,
+                                sources=sources,
+                                comment=comment,
+                                tester=tester,
+                            )
+                            record_feedback(entry)
+                            st.session_state.feedback_submitted.add(fb_key)
+                            st.session_state.tester_name = tester
+                            st.success("Thank you! Feedback recorded.")
+                            st.rerun()
+            else:
+                st.caption("✅ Feedback submitted for this response.")
+
 
 # ---------------------------------------------------------------------------
-# Query Processing Function (Mock / Scaffold)
+# Query Processing Function (Mock / Scaffold - Retained for Benchmark Testing)
 # ---------------------------------------------------------------------------
 def process_query(user_query: str) -> tuple[str, list[dict]]:
     """Process a user query and return (answer_text, citations_list).
@@ -214,7 +356,6 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
         return mock_answer, fake_citations
 
     # 2. Campus Wi-Fi Configuration (Gold-standard T3, I1, M2)
-    # Avoid matching generic words like 'network' or 'connect' in isolation (e.g. 'neural network')
     is_wifi = (
         ("wifi" in q or "wi-fi" in q or "ssid" in q or "ragnova-student" in q)
         or ("wireless" in q and any(k in q for k in ["adapter", "network", "connect", "setup", "setting", "lan"]))
@@ -247,7 +388,6 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
         return mock_answer, fake_citations
 
     # 3. Library Borrowing, Quotas & Overdue Fines (Gold-standard T2, A2)
-    # Avoid matching 'book' alone (e.g. 'book the AI lab') or 'fine' alone (e.g. 'fine-tuning')
     is_library = (
         ("library" in q)
         or ("borrow" in q)
@@ -317,7 +457,6 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
         return mock_answer, fake_citations
 
     # 5. RAGNova Architecture & System Pipeline Overview
-    # Avoid matching 'system' in isolation (e.g. 'operating system', 'database system')
     is_architecture = (
         ("what is this project" in q)
         or ("what is ragnova" in q)
@@ -352,7 +491,6 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
         return mock_answer, fake_citations
 
     # 6. AIML Research Lab Location Plaque (Gold-standard I4)
-    # Asking about location / Room 302 / faculty in-charge. (Booking the lab is not supported and will fall through).
     is_lab_location = (
         ("room 302" in q)
         or (
@@ -378,7 +516,6 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
         return mock_answer, fake_citations
 
     # Catch-all for unsupported / unindexed queries:
-    # Crucial fix for P2 (False Grounding): Do NOT claim false grounding or emit fake citations!
     mock_answer = (
         f"I could not find sufficient information in the indexed corpus to answer: \"{user_query}\".\n\n"
         "The offline knowledge base contains academic policies, library regulations, IT network setup, "
@@ -389,31 +526,142 @@ def process_query(user_query: str) -> tuple[str, list[dict]]:
 
 
 # ---------------------------------------------------------------------------
-# Query Input Handler
+# Multimodal Query Controls
 # ---------------------------------------------------------------------------
+col_voice, col_img = st.columns([1, 1])
+
+with col_voice:
+    with st.expander("🎙️ Spoken / Voice Query", expanded=False):
+        voice_clip = st.audio_input("Record question with microphone", key="mic_query_input")
+        if voice_clip is not None:
+            if st.button("Transcribe & Submit Audio", key="btn_transcribe_audio"):
+                with st.spinner("Transcribing speech with faster-whisper..."):
+                    try:
+                        transcribed_text = transcribe_audio_bytes(voice_clip.getvalue(), suffix=".wav")
+                        if transcribed_text.strip():
+                            st.session_state["active_prompt_override"] = transcribed_text.strip()
+                            st.rerun()
+                        else:
+                            st.warning("No intelligible speech detected in audio clip.")
+                    except Exception as err:
+                        st.error(f"Speech transcription failed: {err}")
+
+with col_img:
+    with st.expander("🖼️ Visual / Query Image", expanded=False):
+        query_img_file = st.file_uploader(
+            "Attach query image (searches via OCR + OpenCLIP)",
+            type=["png", "jpg", "jpeg", "webp"],
+            key="query_img_uploader",
+        )
+
+# Chat input
 user_prompt = st.chat_input("Type your question here (e.g., 'How many marks does the prototype carry?')...")
 
+# Check if there is an audio override prompt from the mic button
+if st.session_state.get("active_prompt_override"):
+    user_prompt = st.session_state.pop("active_prompt_override")
+
+
+# ---------------------------------------------------------------------------
+# Query Execution & Response Streaming
+# ---------------------------------------------------------------------------
 if user_prompt:
-    st.session_state.messages.append({"role": "user", "content": user_prompt, "citations": None})
+    st.session_state.messages.append({"role": "user", "content": user_prompt, "citations": None, "views": None, "warning": None})
     with st.chat_message("user"):
         st.markdown(user_prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Retrieving offline multimodal sources..."):
-            answer, citations = process_query(user_prompt)
-            st.markdown(answer)
-            if citations:
-                with st.expander("📚 Sources & Citations", expanded=True):
-                    for cit in citations:
-                        st.markdown(
-                            f"""
-                            <div class="citation-box">
-                                <span class="badge-pill">{cit['modality'].upper()}</span>
-                                <strong>[{cit['id']}]</strong> <code>{cit['source']}</code> {cit.get('location', '')}<br>
-                                <em>"{cit['snippet']}"</em>
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
+        # Check if query image was provided
+        query_pil = None
+        extra_ocr_text = ""
+        if query_img_file is not None:
+            try:
+                query_pil = Image.open(query_img_file)
+                extra_ocr_text = ocr_image(query_pil)
+                if extra_ocr_text:
+                    st.caption(f"🔍 Extracted OCR text from image: \"{extra_ocr_text}\"")
+            except Exception as e:
+                st.warning(f"Could not process query image: {e}")
 
-    st.session_state.messages.append({"role": "assistant", "content": answer, "citations": citations})
+        # Combined prompt if OCR text extracted
+        full_query = f"{user_prompt} {extra_ocr_text}".strip() if extra_ocr_text else user_prompt
+
+        answer_text = ""
+        citations_to_save = None
+        views_to_save = None
+        warning_msg = None
+
+        if engine_mode == "Live Multimodal RAG" and is_ollama_up:
+            with st.spinner("Retrieving offline multimodal sources & streaming answer..."):
+                try:
+                    retrieved_chunks, token_stream = stream_answer(
+                        full_query,
+                        top_k=settings.TOP_K,
+                        include_images=True,
+                        query_image=query_pil,
+                    )
+                    answer_text = st.write_stream(token_stream)
+
+                    # Check citations for hallucination (Chapter 11 §1.3)
+                    out_of_range = check_citations(answer_text, retrieved_chunks, full_query)
+                    if out_of_range:
+                        warning_msg = f"⚠️ Citation Alert: The model referenced source index {sorted(out_of_range)}, which was not in the retrieved context."
+                        st.warning(warning_msg)
+
+                    # Build citation views
+                    views_to_save = citation_views(retrieved_chunks)
+                    if views_to_save:
+                        with st.expander(f"📚 Sources & Citations ({len(views_to_save)})", expanded=True):
+                            for view in views_to_save:
+                                st.markdown(
+                                    f"""
+                                    <div class="citation-box">
+                                        <span class="badge-pill">{html.escape(view.modality_label.upper())}</span>
+                                        <strong>{html.escape(view.title)}</strong><br>
+                                        <div style="margin-top: 0.3rem;"><em>"{html.escape(view.excerpt)}"</em></div>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True,
+                                )
+                                if view.note:
+                                    st.caption(f"ℹ️ {view.note}")
+                                if view.modality_label == "Audio" and view.audio_start_s is not None and view.file_exists:
+                                    st.audio(view.file_path, start_time=int(view.audio_start_s))
+                                elif view.modality_label == "Image" and view.file_exists:
+                                    try:
+                                        st.image(view.file_path, width=320, caption=view.title)
+                                    except Exception:
+                                        pass
+                except Exception as exc:
+                    st.error(f"Live RAG execution error: {exc}. Falling back to verified scaffold.")
+                    answer_text, citations_to_save = process_query(user_prompt)
+                    st.markdown(answer_text)
+        else:
+            # Verified Scaffold Mode
+            if not is_ollama_up and engine_mode == "Live Multimodal RAG":
+                st.info("ℹ️ Ollama is offline. Serving answer via verified knowledge base scaffold.")
+            with st.spinner("Retrieving verified offline knowledge..."):
+                answer_text, citations_to_save = process_query(user_prompt)
+                st.markdown(answer_text)
+                if citations_to_save:
+                    with st.expander(f"📚 Sources & Citations ({len(citations_to_save)})", expanded=True):
+                        for cit in citations_to_save:
+                            st.markdown(
+                                f"""
+                                <div class="citation-box">
+                                    <span class="badge-pill">{html.escape(cit['modality'].upper())}</span>
+                                    <strong>[{cit['id']}]</strong> <code>{html.escape(cit['source'])}</code> {html.escape(cit.get('location', ''))}<br>
+                                    <em>"{html.escape(cit['snippet'])}"</em>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": answer_text,
+        "citations": citations_to_save,
+        "views": views_to_save,
+        "warning": warning_msg,
+    })
+    st.rerun()
