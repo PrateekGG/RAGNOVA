@@ -148,7 +148,7 @@ After indexing completes, all network interfaces are disabled. The system must t
 | **Internal** | Observed retrieval quality may reflect corpus properties rather than model capability | Ablations (§8.4) with the corpus held fixed across comparisons |
 | **External** | Results obtained on 52 English files on one hardware configuration may not generalise to larger, multilingual or noisier corpora | Scope limits stated explicitly; no extrapolation claimed |
 | **Construct** | Recall@5 measures retrieval, not answer usefulness | Both retrieval metrics and human answer ratings reported |
-| **Conclusion** | With 25 text questions, a single item shifts Recall@5 by 0.04 (1/25), and with 22 cross-modal questions by 0.045; small differences are not meaningful | Sample size reported beside every figure; no claims made on differences within one item's width |
+| **Conclusion** | With 25 text questions, a single item shifts Recall@5 by 0.04 (1/25), and with 36 cross-modal questions by 0.028; small differences are not meaningful | Sample size reported beside every figure; no claims made on differences within one item's width |
 | **Bias** | Gold set authored by the system's designers | External participants author additional questions; those results reported separately (§7) |
 
 ---
@@ -184,7 +184,7 @@ Licences used: CC BY 4.0 / 2.0, CC BY-SA 2.0 / 3.0 / 4.0, CC0, public domain. No
 
 ### B. Gold set (`data/gold_set.json`)
 
-25 text questions (T1-T13 on the synthetic corpus, T14-T25 on the downloaded one), 22 cross-modal (14 text-to-image, 4 image-to-document, 4 audio-topic), 8 negative controls (I9-I14 and N5-N8 were committed before they were measured). Wording overlap between a question and its answer chunk: median 50%, range 27-88%, never zero (`scripts/check_gold_set.py`); the earlier claim of "no shared keywords" was corrected. Dense retrieval against a BM25 keyword baseline **was** run (see C2 below).
+25 text questions (T1-T13 on the synthetic corpus, T14-T25 on the downloaded one), 36 cross-modal (28 text-to-image, 4 image-to-document, 4 audio-topic), 16 negative controls (I9-I14 and N5-N8 were committed before they were measured, and so were I15-I28 and N9-N16 together with the six images they use, as a tagged held-out tier). Wording overlap between a question and its answer chunk: median 50%, range 27-88%, never zero (`scripts/check_gold_set.py`); the earlier claim of "no shared keywords" was corrected. Dense retrieval against a BM25 keyword baseline **was** run (see C2 below).
 
 ### C. Retrieval (methodology section 8.1; `scripts/evaluate_retrieval.py`, `scripts/evaluate_cross_modal.py`)
 
@@ -193,7 +193,7 @@ Licences used: CC BY 4.0 / 2.0, CC BY-SA 2.0 / 3.0 / 4.0, CC0, public domain. No
 | Recall@5 (text) | 1.00 | 25 | >= 0.80 |
 | MRR (text) | 0.81 (reproducible; two earlier builds with different audio transcripts gave 0.75) | 25 | >= 0.65 |
 | Cross-modal Recall@5, text-to-image only | **0.71 (10/14)**; 0.75 (6/8) on the first 8 rows | 14 | >= 0.70 (met by one question) |
-| Cross-modal Recall@5, all 22 (text-to-image, image-to-document, audio-topic) | **0.82 (18/22)**; 0.88 (14/16) before I9-I14 were added | 22 | |
+| Cross-modal Recall@5, all 36 (text-to-image, image-to-document, audio-topic) | **0.89 (32/36)**; 0.82 (18/22) before I15-I28 were added; text-to-image alone 0.86 (24/28) | 36 | |
 
 Context: the same 13 starter questions scored MRR 0.81 before the corpus grew and 0.77 after (on the first build); Recall@5 stayed 1.00. **MRR depended on the transcripts, and now does not:** the 8 audio chunks sit in the same index as the documents, and different Whisper transcripts moved 3 of the 25 questions between rank 1 and rank 2 (0.75 against 0.81). Transcripts are now cached by the audio's sha256 and committed (`data/transcripts/`), so any machine builds the same index; a build in each of the two environments gave byte-identical audio chunks. Before the image gate (ADR-011) cross-modal was 15/16; the gate costs one text-free photo and refuses all 6 out-of-corpus questions instead of 1. With 25 questions one item moves Recall@5 by 0.04.
 
@@ -250,19 +250,22 @@ No single text relevance floor separates answers from noise (weakest correct chu
 
 Findings: the shipped chunk size and top-K are at or near the best on this corpus (so they were chosen, not guessed, and the ablation says so); 600-word chunks and K = 10 push prompts past the model's 4096-token window; rank-based merging is worth 3 of 8 text-to-image questions against score-based merging (4 of 14 on the later, larger set; the modality gap, measured), and the four cross-modal rows that miss under rank merging (I3, I8, I10, I14) miss under score merging too, so they are limits of CLIP's ranking and of the image gate, not of the merge. One run of a stochastic model per variant, "answered" means not refused, n = 25. No shipped default changed.
 
+**Images found by their text (ADR-014; `scripts/evaluate_image_channels.py`, `data/eval/image_channels_2026-10-07.txt`).** A second image search over the text read from each image was built and measured against 14 held-out positives and 8 held-out negatives committed before any retrieval was run, with the variants and the adoption rule committed before the script was. The shipped gate keeps 14 of 14 held-out correct images (no room for a variant to win) and refuses 1 of 8 held-out negatives, because six of them are near-misses that ask for a fact an image omits and a relevance gate sees only topic; end to end the model refused all 16 negatives. The channel recovers two older rows (I3, I10) and was not adopted, because the rule only lets held-out rows decide. The finding that matters for the report: **the gate measures topical relevance, and refusal of near-miss questions is the language model's job.**
+
 ### F. System performance (methodology section 8.3; `data/eval/performance_2026-10-05.txt`)
 
 | Measure | Result (median / worst) | Target |
 |---|---|---|
 | Text retrieval latency, warm, n = 25 | 38 ms / 40 ms (19 ms median in an earlier run; one machine, so expect a factor of two) | < 1 s |
 | Retrieval with images (CLIP + gate + merge), n = 8 | 232 ms / 254 ms | < 1 s |
-| End-to-end answer, warm, n = 13 | **GPU: 2.9 s / 3.4 s. CPU-only (`OLLAMA_NUM_GPU=0`): 29.2 s / 47.2 s, target NOT met.** With `TOP_K = 3` on CPU: 14.1 s median / 30.3 s worst (median under the target only) | < 15 s |
+| End-to-end answer, cold prompt, n = 17 (Ollama 0.40.0, after the connection fix) | **GPU: 0.50 s median / 0.97 s worst. CPU-only (`OLLAMA_NUM_GPU=0`): 15.8 s / 25.3 s at the default `TOP_K = 5`, 0.8 s over the target; with the documented profile `TOP_K = 3`: 9.2 s median, 14.9 s p90, 15.5 s worst.** On Ollama 0.20.6 the CPU median had been 29.2 s (14.1 s with `TOP_K = 3`) and the GPU 2.9 s; the difference is most likely the engine (the benchmark's question set also changed) plus a 2.2 s per-call connection cost the app has since stopped paying (ADR-015) | < 15 s |
+| Where the CPU time goes, per answer (Ollama's own timings, default) | model reads the prompt 13.2 s (about 150 tokens per second, 2036 tokens), writes the answer 2.2 s (about 37 tokens), loads 0 s; on the GPU 0.26 s, 0.19 s, 0 s | |
 | PDF indexing | 15.9 pages/s | >= 1 page/s |
 | Image indexing (CLIP + OCR) | 2.7 images/s | |
 | Audio transcription (Whisper `base`, CPU, transcript cache bypassed) | 9.5x to 10.2x real time (two runs) | |
 | Whisper word error rate, 4 synthetic clips | mean 9.3% to 10.7% depending on the environment, worst 20.8% in both | < 15% (mean met, worst case not) |
 
-Caveats that belong with these numbers: the first end-to-end figure is a GPU figure, and **the project's stated target hardware, a CPU-only laptop, was then measured and misses the 15 s target by about 2x** (retrieval and indexing are unaffected, since embedding, OCR and transcription run on the CPU either way; answer quality on CPU matched the GPU: 23 vs 22 of 25 answered, 8/8 negatives refused on both); the word error rate is on clean synthetic speech (which flatters it) with no number normalisation (which penalises it, "forty percent" heard as "40%"); peak memory was not measured; indexing figures include first-use model loading.
+Caveats that belong with these numbers: the first end-to-end figure is a GPU figure, and **the project's stated target hardware, a CPU-only laptop, was then measured: on Ollama 0.20.6 it missed the 15 s target by about 2x (29.2 s); after an engine update and a fix to a 2.2 s connection cost it misses it by 0.8 s at the defaults (15.8 s) and meets it with the documented profile `TOP_K = 3` (median 9.2 s, p90 14.9 s, worst 15.5 s)**, on a desktop CPU, not a laptop (retrieval and indexing are unaffected, since embedding, OCR and transcription run on the CPU either way; answer quality on CPU matched the GPU on 2026-10-05: 23 vs 22 of 25 answered, 8/8 negatives refused on both; and "answered" proved too weak a measure, see ADR-015: the evaluation now also counts bare citation-only answers); the word error rate is on clean synthetic speech (which flatters it) with no number normalisation (which penalises it, "forty percent" heard as "40%"); peak memory was not measured; indexing figures include first-use model loading.
 
 ### G. Environment and reproducibility
 
@@ -274,4 +277,4 @@ Caveats that belong with these numbers: the first end-to-end figure is a GPU fig
 - External testers and the feedback loop (they need the wired UI, which is still a scaffold).
 - The ablations of section 8.4 (segment size, TOP_K = 10, merge policy).
 - The offline verification of section 8.5 *through the UI with the network adapter off*. **Done without the UI** (`scripts/verify_offline.py`, `data/eval/offline_2026-10-05.txt`): ingest a new file, text query, image query, spoken query and citations all pass with every non-loopback connection blocked. It found that, with no offline setting, loading the embedding model makes 31 Hugging Face Hub attempts and stalls the first question about 49 s; `RAGNOVA_OFFLINE=1` removes both (0 attempts, 0.6 s).
-- Peak memory, and a Python 3.11 check. (CPU-only latency was measured: see F; it misses the target.)
+- Peak memory, and a Python 3.11 check. (CPU-only latency was measured: see F; the default misses the target by 0.8 s, the `TOP_K = 3` profile meets it on this desktop CPU. A real laptop has not been measured.)

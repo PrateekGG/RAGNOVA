@@ -75,8 +75,16 @@ The problem statement's first pillar asks for one interface that takes text, fil
 |---|---|---|
 | Typed text | a question | used as-is |
 | Voice (mic or a clip) | a question | `transcribe_audio_bytes()` → `transcribe_query()` (Whisper) |
-| A query image | a question (its OCR text) **plus** an image to search image_index with | `ocr_image()`; the image goes to `stream_answer(query_image=...)` |
-| An uploaded PDF / DOCX / image / audio | a new indexed file | `save_upload()` → `index_file()` |
+| An attached image | **context [1]** (the text read from it, bounded to 400 words) **plus** an image to search image_index with | `ocr_image()` → `image_attachment()`; `stream_answer(attachments=..., query_image=...)` (ADR-016) |
+| An uploaded PDF / DOCX / image / audio | a new indexed file, which then becomes the **scope** of the next questions | `add_to_corpus()` → `save_upload()` → `index_file()` (ADR-016) |
+
+## 3.0 Answering from the files you picked, and from an attached picture (2026-10-10, ADR-016)
+
+The page was first a closed-world search: every question searched everything, and a relevance floor (ADR-009) refused whatever scored under 0.3. That is right for the evaluated corpus and wrong for the first thing a person does with a notebook-style tool, which is to add their own file and ask about it. A two-page CV was indexed correctly and still could not be asked about: "who is this person?" scores below the floor against a long chunk.
+
+Two changes, neither touching a shipped threshold. **The scope:** `retrieve(sources=[...])` limits the search to chosen files and applies no floor inside them, because the user has said where the answer is; the model's own refusal rule still catches a question the files do not contain (4 of 4 off-topic questions were refused in the check). A file that indexes becomes the scope automatically, a banner says so, and **Use everything** undoes it. **The attachment:** a picture is no longer only a search key. The text read from it is context [1], and the prompt says which block it is, because with several images in the context the model could not tell what "this image" meant (3 of 5 such questions went to the wrong image before that line existed).
+
+What it still cannot do: describe a photo (the model reads text, not pictures), and answer "what does this image say?" in full every time (often only the headline). ADR-016 has the measurements and the failures.
 
 ## 3.1 Voice: why not reuse `AudioIngestor`
 

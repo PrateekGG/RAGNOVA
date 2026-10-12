@@ -45,6 +45,14 @@ Never delete an ADR. A superseded decision plus its replacement tells a better s
 | [008](adr-008-docx-pagination-via-explicit-breaks.md) | DOCX pages tracked from explicit breaks only | `w:lastRenderedPageBreak` — looks like a solution, absent from our own generated files and non-reproducible even in real ones | |
 | [009](adr-009-relevance-threshold-before-generation.md) | Gate chunks on a relevance-score floor before generation | No threshold, trust the LLM's own judgment — makes negative controls non-deterministic and still risks hallucination on stuffed-in irrelevant context | |
 | [010](adr-010-per-collection-relevance-floors.md) | A separate relevance floor per collection | One shared 0.3 — silently filters out every image (modality gap) | |
+| [011](adr-011-image-corroboration-gate.md) | Keep a weak CLIP image only if its OCR text corroborates it | CLIP floor alone: refuses 3 of 10 out-of-corpus questions | ✅ |
+| [012](adr-012-hnsw-search-effort.md) | Higher HNSW search effort (ef 200, construction 400, M 32) | ChromaDB defaults: missed the best chunk for about 1 question in 3 on the pinned version | ✅ |
+| [013](adr-013-transcript-cache.md) | Cache each audio file's transcript by the audio's bytes | Hardening Whisper's decoding: it was already deterministic within an environment | ✅ |
+| [014](adr-014-image-text-channel.md) | Find images by their text too: built, measured, **not enabled** | Enabling it on the older rows that tuned the gate | ✅ |
+| [015](adr-015-cpu-only-latency.md) | CPU-only latency: one shared Ollama client on `127.0.0.1` for everyone, `TOP_K=3` as an opt-in CPU profile | Lowering the default `TOP_K`, or trimming each chunk (it returned bare citations) | ✅ |
+| [016](adr-016-answer-from-picked-files-and-attached-images.md) | Answer from the files you pick (no relevance floor inside a scope), and an attached image is context the model can read | Lowering the global relevance floor; gluing the picture's text onto the search; removing look-alike image search | ✅ |
+| [017](adr-017-name-lookups-lexical-admit.md) | Name and identifier lookups: a lexical admit and a who/what-is prompt rule, built and measured, **not enabled** | Switching them on by default (one near-miss negative answered wrongly); lowering the floors | ✅ |
+| [018](adr-018-names-typos-follow-ups-fuller-answers.md) | Names, typos, follow-ups and fuller answers switched on: ADR-017 plus a name-phrase rule, a spelling fix, follow-up resolution, a detail rule, cited-only sources. Adopted: V8 26/28 against 18/28, not vetoed on the older rows | An LLM rewrite of follow-ups (a second model call); lowering the floors | ✅ |
 
 **All ten are now written.**
 

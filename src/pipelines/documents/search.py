@@ -21,9 +21,21 @@ from src.core.schemas import Chunk
 from src.core.vector_store import get_client, get_text_collection
 
 
-def search_text(query: str, top_k: int | None = None, client=None) -> list[Chunk]:
+def only_sources(sources: list[str] | None) -> dict | None:
+    """The ChromaDB `where` filter that limits a query to these `source` paths
+    (None = no limit). Shared by every search that takes a `sources` scope."""
+    return {"source": {"$in": list(sources)}} if sources is not None else None
+
+
+def search_text(
+    query: str, top_k: int | None = None, client=None, sources: list[str] | None = None
+) -> list[Chunk]:
     """Return the `top_k` chunks in text_index most similar to `query`,
     best match first.
+
+    `sources` limits the search to those files (their `source` paths, as stored
+    in the index); None searches everything, which is what every caller before
+    2026-10-10 did. An empty list matches nothing.
 
     `top_k` defaults to settings.TOP_K (Chapter 1 §1.10 / .env), so every
     caller doesn't have to independently decide and hardcode a number.
@@ -43,11 +55,15 @@ def search_text(query: str, top_k: int | None = None, client=None) -> list[Chunk
     client = client or get_client()
     collection = get_text_collection(client)
 
+    if sources is not None and not sources:
+        return []
+
     query_vector = embed_text(query)
     results = collection.query(
         query_embeddings=[query_vector],
         n_results=top_k,
         include=["documents", "metadatas", "distances"],
+        where=only_sources(sources),
     )
 
     chunks = []

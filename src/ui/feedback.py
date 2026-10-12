@@ -19,6 +19,18 @@ from pathlib import Path
 from src.core.config import settings
 
 
+# What the `model` field says when the rated answer was the app's canned demo
+# text, not the language model's. Without it such ratings were logged under
+# the real model's name and would have passed for evidence about the system.
+SCAFFOLD_MODEL_LABEL = "scaffold-mock"
+
+
+def model_label(engine: str | None) -> str:
+    """The `model` value to log for an answer produced by `engine`
+    ("scaffold" for canned demo text, anything else for the real pipeline)."""
+    return SCAFFOLD_MODEL_LABEL if engine == "scaffold" else settings.OLLAMA_MODEL
+
+
 @dataclass
 class FeedbackEntry:
     query: str

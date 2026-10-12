@@ -37,7 +37,7 @@ def _readme_rows() -> dict[str, list[str]]:
     """Every gold row of data/README.md's tables: id -> its cells."""
     rows: dict[str, list[str]] = {}
     for line in README.read_text(encoding="utf-8").splitlines():
-        if re.match(r"^\| [TIMAN]\d+ \|", line):
+        if re.match(r"^\| [TIMANE]\d+ \|", line):
             cells = [c.strip() for c in line.strip().strip("|").split("|")]
             rows[cells[0]] = cells
     return rows
@@ -61,12 +61,14 @@ def test_every_expected_file_in_the_gold_set_exists(gold):
         missing += [row["expected_source"]]
     for row in cross_modal_rows(gold):
         missing += row["expected_sources"] + [row.get("query_image"), row.get("clip")]
+    for row in gold["entity"]:
+        missing += row.get("expected_sources", [])
     missing = [p for p in missing if p and not (PROJECT_ROOT / p).exists()]
     assert not missing, f"gold set points at files that do not exist: {sorted(set(missing))}"
 
 
 def test_readme_tables_list_exactly_the_gold_set_rows(gold):
-    in_json = {r["id"] for sec in ("text", "text_to_image", "image_to_doc", "audio_topic", "negatives")
+    in_json = {r["id"] for sec in ("text", "text_to_image", "image_to_doc", "audio_topic", "negatives", "entity")
                for r in gold[sec]}
     in_readme = set(_readme_rows())
     assert in_readme == in_json, (
@@ -104,6 +106,12 @@ def test_readme_tables_carry_the_same_question_text_and_files_as_the_gold_set(go
     for r in gold["negatives"]:
         if rows[r["id"]][1] != r["question"]:
             problems.append(f"{r['id']}: question text differs")
+    for r in gold["entity"]:
+        cells = rows[r["id"]]
+        if cells[1] != r["question"]:
+            problems.append(f"{r['id']}: question text differs")
+        if cells[2] != r["kind"]:
+            problems.append(f"{r['id']}: kind differs")
     assert not problems, "data/README.md drifted from data/gold_set.json:\n  " + "\n  ".join(problems)
 
 
@@ -120,3 +128,39 @@ def test_loader_rejects_a_duplicate_id_and_a_missing_key(tmp_path):
     (tmp_path / "broken.json").write_text(json.dumps(broken), encoding="utf-8")
     with pytest.raises(ValueError, match="missing"):
         load_gold_set(tmp_path / "broken.json")
+
+
+def test_entity_rows_are_positives_with_sources_and_keywords_or_negatives_with_neither(gold):
+    """The entity section is scored by scripts/evaluate_entity_questions.py: a positive needs somewhere to be found and
+    words an answer must contain; a negative must carry neither, or the script would score it as a positive."""
+    for row in gold["entity"]:
+        assert row["kind"] in ("positive", "negative"), row["id"]
+        assert row["tier"].startswith("heldout-entity"), row["id"]
+        if row["kind"] == "positive":
+            assert row["expected_sources"] and row["answer_keywords"], row["id"]
+            assert all(w == w.lower() for w in row["answer_keywords"]), f"{row['id']}: keywords are matched case-insensitively against lower case"
+        else:
+            assert "expected_sources" not in row and "answer_keywords" not in row, row["id"]
+
+
+def test_entity_rows_do_not_leak_into_the_sections_other_scripts_score(gold):
+    """Adding them to text/negatives would have moved the cited Recall@5, MRR and negatives-refused numbers."""
+    entity_ids = {r["id"] for r in gold["entity"]}
+    other_ids = {r["id"] for sec in ("text", "text_to_image", "image_to_doc", "audio_topic", "negatives") for r in gold[sec]}
+    assert not entity_ids & other_ids
+    assert len(gold["entity"]) == 28 and sum(r["kind"] == "positive" for r in gold["entity"]) == 15
+
+
+def test_loader_requires_the_entity_section_and_its_keys(tmp_path):
+    import json
+
+    good = load_gold_set()
+    without = {k: v for k, v in good.items() if k != "entity"}
+    (tmp_path / "no_entity.json").write_text(json.dumps(without), encoding="utf-8")
+    with pytest.raises(ValueError, match="entity"):
+        load_gold_set(tmp_path / "no_entity.json")
+
+    keyless = {**good, "entity": [{"id": "E1", "question": "q"}] + good["entity"][1:]}
+    (tmp_path / "no_kind.json").write_text(json.dumps(keyless), encoding="utf-8")
+    with pytest.raises(ValueError, match="missing"):
+        load_gold_set(tmp_path / "no_kind.json")

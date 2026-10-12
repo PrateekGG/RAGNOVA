@@ -1,0 +1,139 @@
+scripts/check_scoped_sources.py, FOURTH (final) RUN, 2026-10-10: current code (prompt note, no glue, refusals without sources), attachments passed as the page passes them (text as context [1] AND the picture as a search key). Scratch copy of chroma_db without any personal file; llama3.2:3b on GPU.
+Reading the answers, A2 and A7 ('What does this image say?') give only the headline although the dates are in [1]; scripts/probe_attachment_lookalikes.py tests whether the look-alike search causes that.
+
+model llama3.2:3b, TOP_K 5, CV indexed as 1 chunk(s), scope ['maya_cv.pdf']
+
+[PASS] S1 (scoped to the CV; expect maya fernandes)
+  Q: Who is this person?
+  A: Maya Fernandes. [1]
+  cites: ['maya_cv.pdf']
+
+[FAIL] S2 (scoped to the CV; expect python/bike/crop/westbridge)
+  Q: What is in this document?
+  A: The document appears to be a resume or CV, as it includes information about the individual's education, skills, projects, and contact information.
+  cites: ['maya_cv.pdf']
+
+[PASS] S3 (scoped to the CV; expect python)
+  Q: What skills are listed?
+  A: The skills listed are: Python, SQL, Tableau, scikit-learn, Git. [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] S4 (scoped to the CV; expect bike/crop)
+  Q: Which projects are mentioned?
+  A: The two projects mentioned are:
+
+1. Campus Bike Share Analytics (2025)
+2. Crop Disease Classifier (2024)
+  cites: ['maya_cv.pdf']
+
+[PASS] S5 (scoped to the CV; expect maya.fernandes@example.org)
+  Q: What is the email address?
+  A: maya.fernandes@example.org [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] S6 (scoped to the CV; expect westbridge)
+  Q: Where did they study?
+  A: They studied at Westbridge Institute of Technology. [2]
+  cites: ['maya_cv.pdf']
+
+[PASS] SN1 (scoped to the CV; expect refuse)
+  Q: What is the capital of France?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN2 (scoped to the CV; expect refuse)
+  Q: How many marks does the working prototype carry?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN3 (scoped to the CV; expect refuse)
+  Q: What is the campus Wi-Fi network name?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN4 (scoped to the CV; expect refuse)
+  Q: Who won the 2018 football World Cup?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] U1 (NOT scoped, names the person; expect maya fernandes)
+  Q: Who is Maya Fernandes?
+  A: Maya Fernandes is a final-year data science student who builds dashboards and small machine-learning tools. [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] U2 (NOT scoped, names the person; expect python)
+  Q: What skills are listed in Maya Fernandes's CV?
+  A: Maya Fernandes's CV lists the following skills: Python, SQL, Tableau, scikit-learn, and Git. [1]
+  cites: ['maya_cv.pdf', 'acl_in_context_ralm.pdf']
+
+[FAIL] U3 (NOT scoped, says only 'this' (expected to fail); expect maya fernandes)
+  Q: Who is this person?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: []
+
+[PASS] U4 (NOT scoped, says only 'this' (expected to fail); expect python)
+  Q: What skills are listed?
+  A: Python, SQL, Tableau, scikit-learn, Git [1]
+  cites: ['maya_cv.pdf', 'acl_in_context_ralm.pdf', 'acl_squad.pdf', 'acl_bert.pdf', 'acl_squad.pdf']
+
+  (attached notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A1 (attached notice image; expect 9)
+  Q: When does the library reopen?
+  A: The library reopens on October 13 at 9 AM. [1]
+  cites: ['attached image (notice.png)', 'library_orientation_excerpt.wav', 'notice_seminar_poster.png', 'library_hours.pdf', 'notice_sports_day.png', 'notice.pdf']
+
+  (attached notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A2 (attached notice image; expect library)
+  Q: What does this image say?
+  A: The image says "LIBRARY NOTICE".
+  cites: ['attached image (notice.png)', 'notice_seminar_poster.png', 'notice_sports_day.png', 'notice_lab_rules.png', 'photo_library_desk_sign.png', 'notice_internship_fair.png']
+
+  (attached blank.png: Tesseract read 0 words: '')
+[PASS] A3 (attached blank image; expect refuse)
+  Q: What does this image show?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['attached image (blank.png)', 'commons_diagram_binary_search_flowchart.png', 'commons_photo_cap_computer_programmers_notes.jpg', 'commons_diagram_transformer_architecture.png', 'commons_photo_former_computer_laboratory_tower.jpg', 'commons_screenshot_python_matplotlib_code.jpg']
+
+  (attached notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A4 (attached notice image; expect refuse)
+  Q: What is the capital of France?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['attached image (notice.png)', 'notice_seminar_poster.png', 'notice_sports_day.png', 'notice_lab_rules.png', 'photo_library_desk_sign.png', 'notice_internship_fair.png']
+
+  (attached notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A5 (attached notice image; expect library/october 12/october 13/maintenance)
+  Q: Summarise this image.
+  A: The attached image is a notice.png image with the text "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."
+  cites: ['attached image (notice.png)', 'notice_seminar_poster.png', 'notice_sports_day.png', 'notice_lab_rules.png', 'photo_library_desk_sign.png', 'notice_internship_fair.png']
+
+  (attached notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A6 (attached notice image; expect library)
+  Q: What is written in this picture?
+  A: The text read from the image (OCR) is: "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."
+  cites: ['attached image (notice.png)', 'notice_seminar_poster.png', 'notice_sports_day.png', 'notice_lab_rules.png', 'photo_library_desk_sign.png', 'notice_internship_fair.png']
+
+  (attached shuttle.png: Tesseract read 17 words: 'SHUTTLE TIMETABLE Buses leave the main gate at 8:15 AM and 5:45 PM. No service o')
+[PASS] A7 (attached shuttle image; expect shuttle/bus/8:15/5:45)
+  Q: What does this image say?
+  A: The image says "SHUTTLE TIMETABLE" [1].
+  cites: ['attached image (shuttle.png)', 'commons_photo_cap_computer_programmers_notes.jpg', 'notice_lab_rules.png', 'notice_shuttle_bus.png', 'notice_sports_day.png', 'notice_seminar_poster.png']
+
+  (attached shuttle.png: Tesseract read 17 words: 'SHUTTLE TIMETABLE Buses leave the main gate at 8:15 AM and 5:45 PM. No service o')
+[PASS] A8 (attached shuttle image; expect 8:15/5:45)
+  Q: When do the buses leave?
+  A: The buses leave at 8:15 AM and 5:45 PM [1].
+  cites: ['attached image (shuttle.png)', 'algorithms_ch08_shortest_paths.pdf', 'commons_photo_cap_computer_programmers_notes.jpg', 'algorithms_ch08_shortest_paths.pdf', 'notice_lab_rules.png', 'algorithms_ch08_shortest_paths.pdf']
+
+  (attached shuttle.png: Tesseract read 17 words: 'SHUTTLE TIMETABLE Buses leave the main gate at 8:15 AM and 5:45 PM. No service o')
+[PASS] A9 (attached shuttle image; expect refuse)
+  Q: How much does a bus ticket cost?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['attached image (shuttle.png)', 'algorithms_ch08_shortest_paths.pdf', 'commons_photo_cap_computer_programmers_notes.jpg', 'algorithms_ch03_dynamic_programming.pdf', 'notice_lab_rules.png', 'algorithms_ch08_shortest_paths.pdf']
+
+SUMMARY
+  NOT scoped, names the person: 2/2 as expected   failed: []
+  NOT scoped, says only 'this' (expected to fail): 1/2 as expected   failed: ['U3']
+  attached blank image: 1/1 as expected   failed: []
+  attached notice image: 5/5 as expected   failed: []
+  attached shuttle image: 3/3 as expected   failed: []
+  scoped to the CV: 9/10 as expected   failed: ['S2']

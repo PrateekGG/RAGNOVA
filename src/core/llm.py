@@ -23,19 +23,44 @@ import ollama
 
 from src.core.config import settings
 
+# One Ollama client per (host, client class), reused. A fresh client means a fresh
+# connection, and on Windows a connection to the NAME "localhost" costs about 2.2 s
+# (IPv6 is tried first), against 0.2 s for 127.0.0.1 and 4 ms on a connection that
+# is already open (measured 2026-10-07). The old code built a new client for every
+# answer, so every answer paid that, and the page paid it again on every click for
+# the status check. The class is part of the key so a test that patches
+# `ollama.Client` gets its own client, never a cached real one.
+_clients: dict[tuple[str, type], "ollama.Client"] = {}
+
+
+def ollama_client(host: str | None = None) -> "ollama.Client":
+    """The shared client for `host` (default settings.OLLAMA_HOST)."""
+    host = host or settings.OLLAMA_HOST
+    key = (host, ollama.Client)
+    if key not in _clients:
+        _clients[key] = ollama.Client(host=host)
+    return _clients[key]
+
 
 def generation_options() -> dict:
     """The Ollama `options` for every generation call, in one place (generate()
     and generate_stream() used to each spell them out). `num_gpu` is included
     only when OLLAMA_NUM_GPU is set, so by default Ollama chooses as before."""
+    extra = settings.LLM_THINK_TOKENS if settings.LLM_THINK else 0     # room for the hidden reasoning
     options = {
         "temperature": settings.LLM_TEMPERATURE,
-        "num_predict": settings.LLM_MAX_TOKENS,
-        "num_ctx": settings.LLM_NUM_CTX,
+        "num_predict": settings.LLM_MAX_TOKENS + extra,
+        "num_ctx": settings.LLM_NUM_CTX + extra,
     }
     if settings.OLLAMA_NUM_GPU is not None:
         options["num_gpu"] = settings.OLLAMA_NUM_GPU
     return options
+
+
+def think_kwargs() -> dict:
+    """`think=` for the Ollama call, only when LLM_THINK is set (see config.py). The model's reasoning comes back in
+    a separate `thinking` field, never in `response`, so it is never shown as part of the answer."""
+    return {} if settings.LLM_THINK is None else {"think": settings.LLM_THINK}
 
 
 def generate(prompt: str) -> str:
@@ -56,13 +81,14 @@ def generate(prompt: str) -> str:
     (2048) enough to hold TOP_K retrieved chunks plus prompt scaffolding
     (see settings.LLM_NUM_CTX's docstring for the arithmetic).
     """
-    client = ollama.Client(host=settings.OLLAMA_HOST)
+    client = ollama_client()
     try:
         response = client.generate(
             model=settings.OLLAMA_MODEL,
             prompt=prompt,
             stream=False,
             options=generation_options(),
+            **think_kwargs(),
         )
     except Exception as exc:
         raise RuntimeError(
@@ -88,15 +114,17 @@ def generate_stream(prompt: str) -> Iterator[str]:
     connection error is raised from inside the loop, re-wrapped in the
     same RuntimeError message generate() uses.
     """
-    client = ollama.Client(host=settings.OLLAMA_HOST)
+    client = ollama_client()
     try:
         for part in client.generate(
             model=settings.OLLAMA_MODEL,
             prompt=prompt,
             stream=True,
             options=generation_options(),
+            **think_kwargs(),
         ):
-            yield part["response"]
+            if part["response"]:                    # thinking-only pieces carry an empty response
+                yield part["response"]
     except Exception as exc:
         raise RuntimeError(
             f"Could not reach Ollama at {settings.OLLAMA_HOST} — "

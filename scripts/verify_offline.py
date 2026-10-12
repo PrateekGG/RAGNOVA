@@ -19,8 +19,8 @@ UI calls (src/ui/backend.py, src/pipelines/rag, src/ui/citations.py).
 
 What this proves and what it does not: it proves no step of the checklist
 *needs* the network, and shows every attempt that was made. It does not
-replace the real run (adapter off, through the Streamlit page); that one
-waits for the wired UI. The guard only sees Python's own sockets, so a
+replace the real run (adapter off, through the Streamlit page); the page is
+wired now, so that one only needs a person: docs/human-verification-checklist.md, item 3. The guard only sees Python's own sockets, so a
 native library opening its own connection would escape it.
 """
 

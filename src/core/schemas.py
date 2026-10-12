@@ -44,6 +44,12 @@ Modality = Literal["pdf", "docx", "image", "audio"]
 TEXT_COLLECTION = "text_index"
 IMAGE_COLLECTION = "image_index"
 
+# A third collection (ADR-014), NOT a home for a new kind of chunk: it holds
+# MiniLM vectors of the text read from each image, keyed by the same chunk ids
+# as IMAGE_COLLECTION, so an image can also be found by what it says. No Chunk
+# belongs to it by default (`default_collection()` is unchanged).
+IMAGE_TEXT_COLLECTION = "image_text_index"
+
 
 @dataclass
 class Chunk:

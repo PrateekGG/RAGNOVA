@@ -27,3 +27,7 @@ Thumbs.db
 
 # Local diagnostic / test analysis reports
 reports/analysis_errors_and_warnings.md
+
+# The raw feedback log holds testers' initials and free-text comments (Chapter 12). Only its summary
+# (docs/feedback-log.md, from scripts/summarize_feedback.py) is committed.
+feedback/

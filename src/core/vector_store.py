@@ -27,7 +27,7 @@ import chromadb
 from chromadb.config import Settings as ChromaSettings
 
 from src.core.config import settings
-from src.core.schemas import Chunk, IMAGE_COLLECTION, TEXT_COLLECTION
+from src.core.schemas import Chunk, IMAGE_COLLECTION, IMAGE_TEXT_COLLECTION, TEXT_COLLECTION
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +93,11 @@ def get_text_collection(client: chromadb.ClientAPI):
 
 def get_image_collection(client: chromadb.ClientAPI):
     return _open_collection(client, IMAGE_COLLECTION)
+
+
+def get_image_text_collection(client: chromadb.ClientAPI):
+    """MiniLM vectors of each image's OCR text (ADR-014), same chunk ids as image_index."""
+    return _open_collection(client, IMAGE_TEXT_COLLECTION)
 
 
 def add_chunks(collection, chunks: list[Chunk], embeddings: list[list[float]]) -> None:

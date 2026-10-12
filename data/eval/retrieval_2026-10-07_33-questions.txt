@@ -1,0 +1,41 @@
+Evaluating 33 gold questions at top_k=5...
+
+[T1] HIT  at rank 1  (score=0.424)  — If I don't get my system actually running by evaluation day, how many marks am I giving up?
+[T2] HIT  at rank 2  (score=0.475)  — As an undergrad, how many items can I check out from the library at once, and for how long?
+[T3] HIT  at rank 1  (score=0.458)  — What happens the first time someone gets caught sharing their login with a friend?
+[T4] HIT  at rank 1  (score=0.366)  — What software must students set up if they want to read digital journals from home?
+[T5] HIT  at rank 2  (score=0.374)  — Where will the guide allotment list be announced?
+[T6] HIT  at rank 1  (score=0.380)  — How many people are allowed to work together on this project, at most?
+[T7] HIT  at rank 1  (score=0.383)  — Is there a maximum length for the synopsis, not counting the cover page or references?
+[T8] HIT  at rank 1  (score=0.439)  — If someone misses their individual viva without approval beforehand, what mark do they get for that part?
+[T9] HIT  at rank 1  (score=0.391)  — What happens if part of our submission turns out to be copied from somewhere else, even just a small section?
+[T10] HIT  at rank 2  (score=0.415)  — On a Sunday, what time does the library close?
+[T11] HIT  at rank 1  (score=0.506)  — Can I extend my library loan if nobody else wants that book?
+[T12] HIT  at rank 1  (score=0.592)  — Before I can start using my new institute email account, what do I need to do first?
+[T13] HIT  at rank 1  (score=0.645)  — Am I allowed to download movies or paid software through the campus network without a license?
+[T14] HIT  at rank 5  (score=0.519)  — When only the twenty best passages are kept, how much more often does a learned dense retriever surface the answer than a classic keyword ranker on Natural Questions?
+[T15] HIT  at rank 1  (score=0.584)  — Why is it impractical to find the closest pair among ten thousand sentences by pushing every pair through a cross-encoder, and roughly how long would it take?
+[T16] HIT  at rank 2  (score=0.578)  — How many trainable parameters does the smaller of the two main BERT configurations have?
+[T17] HIT  at rank 1  (score=0.619)  — Where in a long prompt do language models make the best use of a relevant fact, and where does their accuracy fall off?
+[T18] HIT  at rank 1  (score=0.625)  — How many question-answer pairs are in the Stanford reading-comprehension dataset, and how many Wikipedia articles do they come from?
+[T19] HIT  at rank 1  (score=0.627)  — How does the simple retrieval-augmented approach give a language model access to retrieved documents without changing its architecture or training it again?
+[T20] HIT  at rank 3  (score=0.666)  — Among the open CLIP models trained on the two-billion-image dataset, which size reaches the best ImageNet zero-shot accuracy, and what is it?
+[T21] HIT  at rank 1  (score=0.540)  — Which greedy method builds an optimal prefix code by repeatedly merging the two rarest symbols, and who devised it?
+[T22] HIT  at rank 2  (score=0.583)  — Why can't I just replace each undirected edge by two opposite directed edges when some edge weights are negative?
+[T23] HIT  at rank 3  (score=0.651)  — How does the running time of the naive recursive Fibonacci algorithm compare to the size of the Fibonacci number it computes?
+[T24] HIT  at rank 1  (score=0.601)  — Do I need to install one program or two before I can start writing R code in the course?
+[T25] HIT  at rank 1  (score=0.591)  — If I want participants to agree to share their data later, should I promise them that I will delete it afterwards?
+[T26] HIT  at rank 1  (score=0.534)  — How many parameters do the base and large models used as the generative reader have?
+[T27] HIT  at rank 3  (score=0.361)  — How many GPU hours does training on 100 passages take?
+[T28] HIT  at rank 1  (score=0.541)  — Why should a database identifier contain letters as well as numbers?
+[T29] HIT  at rank 1  (score=0.616)  — If I version identifiers record by record, where in the identifier does the version number go?
+[T30] HIT  at rank 1  (score=0.658)  — Do I need any prior knowledge to take the course on governing AI in scientific publishing?
+[T31] HIT  at rank 1  (score=0.395)  — How long is each live online session of that governance course?
+[T32] HIT  at rank 1  (score=0.504)  — Why does backtracking fail on the coin change problem with large inputs, and what replaces it?
+[T33] HIT  at rank 1  (score=0.678)  — Which search method does the maze escape problem use, and what stops it walking in circles?
+
+Recall@5: 1.00
+MRR:       0.84
+
+Add a row to data/README.md's Results log:
+| 2026-10-07 | Ch12 | 1.00 | 0.84 | N/A (text only) | text retrieval, 33 gold questions |

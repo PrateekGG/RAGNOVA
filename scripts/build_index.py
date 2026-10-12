@@ -28,7 +28,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.core.config import settings
-from src.core.vector_store import get_client, get_image_collection, get_text_collection, prune_missing_sources
+from src.core.vector_store import (
+    get_client,
+    get_image_collection,
+    get_image_text_collection,
+    get_text_collection,
+    prune_missing_sources,
+)
 from src.pipelines.audio.index import index_audio_directory
 from src.pipelines.documents.index import index_documents_directory
 from src.pipelines.images.index import index_images_directory
@@ -68,12 +74,16 @@ def main() -> None:
     count = index_audio_directory(AUDIO_DIR)
     print(f"Indexed {count} audio transcript chunks into text_index.")
     count = index_images_directory(IMAGES_DIR)
-    print(f"Indexed {count} images into image_index.")
+    print(f"Indexed {count} images into image_index (and the text read from them into image_text_index).")
 
     # Chunks of files that have been deleted since the last build would otherwise
     # stay searchable and citable (the index only ever added or replaced).
     client = get_client()
-    for name, collection in (("text_index", get_text_collection(client)), ("image_index", get_image_collection(client))):
+    for name, collection in (
+        ("text_index", get_text_collection(client)),
+        ("image_index", get_image_collection(client)),
+        ("image_text_index", get_image_text_collection(client)),
+    ):
         removed = prune_missing_sources(collection, DATA_DIR.parent)
         for source, n in removed.items():
             print(f"Pruned {n} chunk(s) of {source} from {name}: the file no longer exists.")

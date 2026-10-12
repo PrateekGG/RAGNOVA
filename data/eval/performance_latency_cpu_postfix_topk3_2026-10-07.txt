@@ -1,0 +1,28 @@
+MACHINE
+  Windows-11-10.0.26300-SP0  |  Python 3.14.5  |  Intel64 Family 6 Model 183 Stepping 1, GenuineIntel
+  RAM 15.7 GiB
+  Check `ollama ps` for CPU vs GPU inference before quoting the end-to-end figure.
+
+CONFIGURATION OF THIS RUN (so a number can always be traced to its settings)
+  OLLAMA_MODEL=llama3.2:3b  OLLAMA_NUM_GPU=0  TOP_K=3  LLM_MAX_TOKENS=512  LLM_NUM_CTX=4096  CONTEXT_WORDS_PER_CHUNK=0
+  ollama server version: 0.40.0
+
+  prompt cache: defeated, every request is a cold prompt
+
+RETRIEVAL LATENCY (warm)
+  text_index search, top 5, MiniLM:    median       18 ms   p90       19 ms   worst       20 ms   (n=33)
+  retrieve(include_images=True):       median      128 ms   p90      160 ms   worst      167 ms   (n=28)
+  (the second includes CLIP's text encoder, the image search, the ADR-011 gate and the merge)
+
+END-TO-END LATENCY (retrieve + prompt + generate, warm)
+  answer_query, text only:             median     9155 ms   p90    14876 ms   worst    15498 ms   (n=17)
+
+WHERE THE TIME GOES (Ollama's own timings per request; cold prompts)
+  prompt tokens:   median   1362   longest  1916   (n=17)
+  prefill (model reads the prompt):   median   8.28 s   worst  12.63 s
+  answer tokens:   median     32   longest    69
+  generation (model writes it):       median   2.03 s   worst   4.45 s
+  model load:                         median   0.01 s
+  time to first token on the page ~ load + prefill:  median   8.28 s
+  model call, wall clock:             median   9.55 s   p90  14.88 s   worst  16.08 s
+

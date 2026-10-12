@@ -38,6 +38,8 @@ _REQUIRED = {
     "image_to_doc": {"id", "query_image", "expected_sources"},
     "audio_topic": {"id", "clip", "query", "expected_sources"},
     "negatives": {"id", "question"},
+    # Entity lookups (2026-10-11): a separate section so no earlier headline number moves.
+    "entity": {"id", "question", "kind"},
 }
 
 

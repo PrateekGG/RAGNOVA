@@ -1,0 +1,803 @@
+Running 69 gold questions through answer_query(), text + images (include_images=True)...
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|##########| 103/103 [00:00<00:00, 4435.55it/s]
+
+======================================================================
+[T1] If I don't get my system actually running by evaluation day, how many marks am I giving up?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: According to the text, the working prototype demonstrated on evaluation day carries 40% of the total marks.
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.424)
+  [2] data/images/notice_midterm_schedule.png (image)  (score=0.220)
+  [3] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.412)
+  [4] data/documents/acl_bert.pdf, page 6  (score=0.383)
+  [5] data/documents/acl_bert.pdf, page 6  (score=0.367)
+
+======================================================================
+[T2] As an undergrad, how many items can I check out from the library at once, and for how long?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: Undergraduate students may check out up to four books at a time for 14 days. [1]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.591)
+  [2] data/images/photo_library_desk_sign.png (image)  (score=0.276)
+  [3] data/documents/library_hours.pdf, page 1  (score=0.475)
+  [4] data/images/notice_library_fines.png (image)  (score=0.263)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 51  (score=0.312)
+
+======================================================================
+[T3] What happens the first time someone gets caught sharing their login with a friend?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 2
+----------------------------------------------------------------------
+Answer: The first time someone gets caught sharing their login with a friend, their network access will be suspended for a period of two weeks, during which they must complete a short awareness session conducted by the Information Technology department before access is restored. [1]
+Sources:
+  [1] data/documents/it_onboarding.docx, page 2  (score=0.458)
+
+======================================================================
+[T4] What software must students set up if they want to read digital journals from home?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 1
+----------------------------------------------------------------------
+Answer: Students must install the institute's virtual private network (VPN) client, referred to as the VPN, which is available for download from the same self-service portal used for email activation [2].
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.366)
+  [2] data/images/photo_id_card_sample.png (image)  (score=0.250)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.363)
+  [4] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.362)
+  [5] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.358)
+
+======================================================================
+[T5] Where will the guide allotment list be announced?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: The guide allotment list will be announced on the department noticeboard and the student portal, separately from this notice. [2]
+Sources:
+  [1] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.376)
+  [2] data/documents/notice.pdf, page 1  (score=0.374)
+  [3] data/documents/notice.pdf, page 2  (score=0.365)
+  [4] data/documents/notice.pdf, page 2  (score=0.338)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.316)
+
+======================================================================
+[T6] How many people are allowed to work together on this project, at most?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the context, all B.Tech CSE-AIML final year students working in project teams of two or three members are required to submit a project synopsis.
+Sources:
+  [1] data/documents/notice.pdf, page 1  (score=0.380)
+  [2] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.371)
+  [3] data/documents/acl_squad.pdf, page 4  (score=0.325)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 46  (score=0.325)
+  [5] data/documents/notice.pdf, page 2  (score=0.321)
+
+======================================================================
+[T7] Is there a maximum length for the synopsis, not counting the cover page or references?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the context, the synopsis document should not exceed three pages, excluding the cover page and references.
+Sources:
+  [1] data/documents/notice.pdf, page 1  (score=0.383)
+  [2] data/images/screenshot_synopsis_portal.png (image)  (score=0.234)
+  [3] data/documents/notice.pdf, page 2  (score=0.366)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 15  (score=0.320)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 41  (score=0.313)
+
+======================================================================
+[T8] If someone misses their individual viva without approval beforehand, what mark do they get for that part?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: A member who is absent without prior approval from the department will receive a zero for that component regardless of the team's overall performance.
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.439)
+  [2] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.309)
+
+======================================================================
+[T9] What happens if part of our submission turns out to be copied from somewhere else, even just a small section?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: If part of the submission turns out to be copied from somewhere else, even just a small section, the team is referred to the disciplinary committee, independent of how small the copied portion is [1].
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.391)
+
+======================================================================
+[T10] On a Sunday, what time does the library close?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the context, on weekends (including Sundays), the library closes at 6 in the evening. [2]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.552)
+  [2] data/images/photo_library_desk_sign.png (image)  (score=0.234)
+  [3] data/documents/library_hours.pdf, page 1  (score=0.415)
+
+======================================================================
+[T11] Can I extend my library loan if nobody else wants that book?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: Yes, you can renew your library loan once, provided no other student has placed a reservation on the same title through the library portal. [1]
+Sources:
+  [1] data/documents/library_hours.pdf, page 1  (score=0.506)
+  [2] data/images/notice_library_fines.png (image)  (score=0.276)
+  [3] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.365)
+  [4] data/images/photo_library_desk_sign.png (image)  (score=0.232)
+
+======================================================================
+[T12] Before I can start using my new institute email account, what do I need to do first?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 1
+----------------------------------------------------------------------
+Answer: You need to activate your account manually before first use. [1]
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.592)
+  [2] data/images/screenshot_portal_login.png (image)  (score=0.274)
+  [3] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.373)
+  [4] data/images/photo_id_card_sample.png (image)  (score=0.248)
+  [5] data/documents/it_onboarding.docx, page 2  (score=0.372)
+
+======================================================================
+[T13] Am I allowed to download movies or paid software through the campus network without a license?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 2
+----------------------------------------------------------------------
+Answer: You are not allowed to download copyrighted material, including films, television shows, and paid software, without a valid license on the institute network at any time [1].
+Sources:
+  [1] data/documents/it_onboarding.docx, page 2  (score=0.645)
+  [2] data/images/screenshot_vpn_client.png (image)  (score=0.314)
+  [3] data/documents/it_onboarding.docx, page 1  (score=0.451)
+  [4] data/images/screenshot_error_403.png (image)  (score=0.255)
+  [5] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.435)
+
+======================================================================
+[T14] When only the twenty best passages are kept, how much more often does a learned dense retriever surface the answer than a classic keyword ranker on Natural Questions?
+----------------------------------------------------------------------
+Expected: data/documents/acl_dense_passage_retrieval.pdf, page 5
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_dense_passage_retrieval.pdf, page 6  (score=0.576)
+  [2] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.555)
+  [3] data/documents/acl_dense_passage_retrieval.pdf, page 7  (score=0.527)
+  [4] data/documents/acl_lost_in_the_middle.pdf, page 10  (score=0.520)
+  [5] data/documents/acl_dense_passage_retrieval.pdf, page 5  (score=0.519)
+
+======================================================================
+[T15] Why is it impractical to find the closest pair among ten thousand sentences by pushing every pair through a cross-encoder, and roughly how long would it take?
+----------------------------------------------------------------------
+Expected: data/documents/acl_sentence_bert.pdf, page 1
+----------------------------------------------------------------------
+Answer: Finding the closest pair among ten thousand sentences by pushing every pair through a cross-encoder is impractical because it requires n·(n−1)/2 = 49,995,000 inference computations, where n = 10,000 [1]. This would take about 65 hours on a modern V100 GPU [1].
+Sources:
+  [1] data/documents/acl_sentence_bert.pdf, page 1  (score=0.584)
+  [2] data/documents/acl_sentence_bert.pdf, page 8  (score=0.561)
+  [3] data/documents/acl_sentence_bert.pdf, page 2  (score=0.534)
+  [4] data/documents/acl_sentence_bert.pdf, page 1  (score=0.525)
+  [5] data/documents/acl_sentence_bert.pdf, page 8  (score=0.519)
+
+======================================================================
+[T16] How many trainable parameters does the smaller of the two main BERT configurations have?
+----------------------------------------------------------------------
+Expected: data/documents/acl_bert.pdf, page 3
+----------------------------------------------------------------------
+Answer: The smaller of the two main BERT configurations, BERTBASE, has 110M trainable parameters.
+Sources:
+  [1] data/documents/acl_bert.pdf, page 13  (score=0.580)
+  [2] data/documents/acl_bert.pdf, page 3  (score=0.578)
+  [3] data/documents/acl_bert.pdf, page 14  (score=0.568)
+  [4] data/documents/acl_bert.pdf, page 3  (score=0.563)
+  [5] data/documents/acl_bert.pdf, page 6  (score=0.546)
+
+======================================================================
+[T17] Where in a long prompt do language models make the best use of a relevant fact, and where does their accuracy fall off?
+----------------------------------------------------------------------
+Expected: data/documents/acl_lost_in_the_middle.pdf, page 1/2
+----------------------------------------------------------------------
+Answer: According to the text, language models make the best use of a relevant fact when it occurs at the beginning or end of the input context, and their accuracy falls off when they must access relevant information in the middle of long contexts. [2]
+Sources:
+  [1] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.619)
+  [2] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.582)
+  [3] data/documents/acl_in_context_ralm.pdf, page 13  (score=0.577)
+  [4] data/documents/acl_lost_in_the_middle.pdf, page 17  (score=0.549)
+  [5] data/documents/acl_fusion_in_decoder.pdf, page 5  (score=0.549)
+
+======================================================================
+[T18] How many question-answer pairs are in the Stanford reading-comprehension dataset, and how many Wikipedia articles do they come from?
+----------------------------------------------------------------------
+Expected: data/documents/acl_squad.pdf, page 2
+----------------------------------------------------------------------
+Answer: There are 107,785 question-answer pairs in the Stanford reading-comprehension dataset, and they come from 536 Wikipedia articles.
+Sources:
+  [1] data/documents/acl_squad.pdf, page 2  (score=0.625)
+  [2] data/documents/acl_squad.pdf, page 1  (score=0.625)
+  [3] data/documents/acl_squad.pdf, page 2  (score=0.571)
+  [4] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.567)
+  [5] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.566)
+
+======================================================================
+[T19] How does the simple retrieval-augmented approach give a language model access to retrieved documents without changing its architecture or training it again?
+----------------------------------------------------------------------
+Expected: data/documents/acl_in_context_ralm.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the text, the simple retrieval-augmented approach gives a language model access to retrieved documents by prepending grounding documents to the input, without any further training of the LM [4].
+Sources:
+  [1] data/documents/acl_in_context_ralm.pdf, page 1  (score=0.627)
+  [2] data/images/diagram_rag_architecture.png (image)  (score=0.207)
+  [3] data/documents/acl_dense_passage_retrieval.pdf, page 10  (score=0.617)
+  [4] data/documents/acl_in_context_ralm.pdf, page 1  (score=0.602)
+  [5] data/documents/acl_lost_in_the_middle.pdf, page 2  (score=0.594)
+
+======================================================================
+[T20] Among the open CLIP models trained on the two-billion-image dataset, which size reaches the best ImageNet zero-shot accuracy, and what is it?
+----------------------------------------------------------------------
+Expected: data/documents/arxiv_openclip_scaling_laws.pdf, page 2
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/arxiv_openclip_scaling_laws.pdf, page 10  (score=0.672)
+  [2] data/documents/arxiv_openclip_scaling_laws.pdf, page 9  (score=0.666)
+  [3] data/documents/arxiv_openclip_scaling_laws.pdf, page 2  (score=0.666)
+  [4] data/documents/arxiv_openclip_scaling_laws.pdf, page 3  (score=0.646)
+  [5] data/documents/arxiv_openclip_scaling_laws.pdf, page 3  (score=0.645)
+
+======================================================================
+[T21] Which greedy method builds an optimal prefix code by repeatedly merging the two rarest symbols, and who devised it?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch04_greedy.pdf, page 8
+----------------------------------------------------------------------
+Answer: [1] David Huﬀman developed the greedy algorithm to produce an optimal code by repeatedly merging the two least frequent letters and recursing.
+Sources:
+  [1] data/documents/algorithms_ch04_greedy.pdf, page 8  (score=0.540)
+  [2] data/documents/algorithms_ch03_dynamic_programming.pdf, page 30  (score=0.498)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 12  (score=0.483)
+  [4] data/documents/algorithms_ch04_greedy.pdf, page 9  (score=0.465)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 19  (score=0.461)
+
+======================================================================
+[T22] Why can't I just replace each undirected edge by two opposite directed edges when some edge weights are negative?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch08_shortest_paths.pdf, page 3
+----------------------------------------------------------------------
+Answer: [3]
+Sources:
+  [1] data/documents/algorithms_ch08_shortest_paths.pdf, page 2  (score=0.644)
+  [2] data/documents/algorithms_ch08_shortest_paths.pdf, page 3  (score=0.583)
+  [3] data/documents/algorithms_ch08_shortest_paths.pdf, page 3  (score=0.577)
+  [4] data/documents/algorithms_ch08_shortest_paths.pdf, page 17  (score=0.556)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 26  (score=0.506)
+
+======================================================================
+[T23] How does the running time of the naive recursive Fibonacci algorithm compare to the size of the Fibonacci number it computes?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch03_dynamic_programming.pdf, page 3
+----------------------------------------------------------------------
+Answer: The running time of the naive recursive Fibonacci algorithm is exponential in n, and it takes about twice as long as just counting to n to compute Fn.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 8  (score=0.705)
+  [2] data/documents/algorithms_ch03_dynamic_programming.pdf, page 7  (score=0.665)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 3  (score=0.651)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 3  (score=0.580)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 4  (score=0.537)
+
+======================================================================
+[T24] Do I need to install one program or two before I can start writing R code in the course?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_first_steps_to_r.docx, page 1
+----------------------------------------------------------------------
+Answer: [1]
+Sources:
+  [1] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.601)
+  [2] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.571)
+  [3] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.542)
+  [4] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.540)
+  [5] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.523)
+
+======================================================================
+[T25] If I want participants to agree to share their data later, should I promise them that I will delete it afterwards?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_learning_data_ethics.docx, page 1
+----------------------------------------------------------------------
+Answer: [1]
+Sources:
+  [1] data/documents/zenodo_learning_data_ethics.docx, page 1  (score=0.591)
+  [2] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.572)
+  [3] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.564)
+  [4] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.535)
+  [5] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.533)
+
+======================================================================
+[N1] What is the hostel mess menu for Wednesday lunch?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N2] How do I apply for a refund on tuition fees?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N3] Which sorting algorithm does Python's built-in sort use?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch08_shortest_paths.pdf, page 16  (score=0.362)
+  [2] data/documents/algorithms_ch04_greedy.pdf, page 15  (score=0.336)
+  [3] data/documents/algorithms_ch04_greedy.pdf, page 2  (score=0.333)
+  [4] data/documents/algorithms_ch08_shortest_paths.pdf, page 13  (score=0.327)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 17  (score=0.324)
+
+======================================================================
+[N4] What is the boiling point of ethanol?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N5] Show me a photo of a cat sitting on a sofa
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N6] What does the Eiffel Tower look like at night?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N7] What is the fee for the hostel laundry service?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.313)
+
+======================================================================
+[N8] Who won the Turing Award in 2018?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 36  (score=0.325)
+  [2] data/images/photo_lab_door_sign.png (image)  (score=0.216)
+  [3] data/documents/acl_in_context_ralm.pdf, page 16  (score=0.321)
+  [4] data/documents/acl_bert.pdf, page 4  (score=0.307)
+  [5] data/documents/acl_fusion_in_decoder.pdf, page 1  (score=0.305)
+
+======================================================================
+[N9] How much does a ticket for the campus shuttle bus cost?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 40  (score=0.320)
+  [2] data/images/notice_shuttle_bus.png (image)  (score=0.352)
+  [3] data/images/diagram_campus_map.png (image)  (score=0.259)
+
+======================================================================
+[N10] Who won the 100 m sprint at last year's sports day?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_dense_passage_retrieval.pdf, page 8  (score=0.324)
+  [2] data/images/notice_sports_day.png (image)  (score=0.253)
+
+======================================================================
+[N11] What is my attendance percentage in the Operating Systems course?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.413)
+  [2] data/images/screenshot_attendance_portal.png (image)  (score=0.331)
+  [3] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.351)
+  [4] data/images/photo_id_card_sample.png (image)  (score=0.242)
+  [5] data/documents/algorithms_ch04_greedy.pdf, page 3  (score=0.325)
+
+======================================================================
+[N12] Do blood donors get a reward or a certificate at the camp?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/images/notice_blood_donation.png (image)  (score=0.334)
+
+======================================================================
+[N13] How can I raise my mailbox limit to 50 GB?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/images/screenshot_mailbox_quota.png (image)  (score=0.279)
+
+======================================================================
+[N14] Which company at the internship fair offers the highest stipend?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch04_greedy.pdf, page 14  (score=0.324)
+  [2] data/images/notice_internship_fair.png (image)  (score=0.235)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 55  (score=0.317)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 56  (score=0.316)
+  [5] data/documents/algorithms_ch04_greedy.pdf, page 13  (score=0.307)
+
+======================================================================
+[N15] How many credits is the Machine Learning course worth?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.414)
+  [2] data/images/photo_id_card_sample.png (image)  (score=0.246)
+  [3] data/documents/acl_fusion_in_decoder.pdf, page 5  (score=0.349)
+  [4] data/images/photo_lab_door_sign.png (image)  (score=0.241)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.333)
+
+======================================================================
+[N16] What is the name of the college principal?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.309)
+
+======================================================================
+[I1] Where can I see the Wi-Fi authentication screen for campus wireless?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_wifi_setup.png
+----------------------------------------------------------------------
+Answer: [2]
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.559)
+  [2] data/images/screenshot_wifi_setup.png (image)  (score=0.341)
+  [3] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.518)
+  [4] data/images/screenshot_vpn_client.png (image)  (score=0.310)
+  [5] data/documents/it_onboarding.docx, page 2  (score=0.383)
+
+======================================================================
+[I2] Find the diagram showing how ChromaDB and OpenCLIP connect together
+----------------------------------------------------------------------
+Expected: data/images/diagram_rag_architecture.png
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/images/diagram_rag_architecture.png (image)  (score=0.236)
+
+======================================================================
+[I3] What poster shows the upcoming AI and Machine Learning seminar venue?
+----------------------------------------------------------------------
+Expected: data/images/notice_seminar_poster.png
+----------------------------------------------------------------------
+Answer: The poster shows the venue for the upcoming AI and Machine Learning seminar as the Main Auditorium Hall B, AIML Academic Block.
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.473)
+  [2] data/images/photo_lab_door_sign.png (image)  (score=0.306)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.449)
+  [4] data/images/notice_seminar_poster.png (image)  (score=0.251)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.445)
+
+======================================================================
+[I4] Where is the AI & Machine Learning Research Laboratory located and who heads it?
+----------------------------------------------------------------------
+Expected: data/images/photo_lab_door_sign.png
+----------------------------------------------------------------------
+Answer: The AI & Machine Learning Research Laboratory is located in the Academic Block 8 — Room 302. It is headed by Dr. S. Rao (Associate Professor) and supervised by Mr. V. Sharma.
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.514)
+  [2] data/images/photo_lab_door_sign.png (image)  (score=0.300)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.478)
+  [4] data/images/photo_id_card_sample.png (image)  (score=0.286)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.422)
+
+======================================================================
+[I5] Which diagram shows the encoder and decoder stacks with multi-head attention and positional encoding?
+----------------------------------------------------------------------
+Expected: data/images/commons_diagram_transformer_architecture.png
+----------------------------------------------------------------------
+Answer: The diagram that shows the encoder and decoder stacks with multi-head attention and positional encoding is diagram [4].
+Sources:
+  [1] data/documents/acl_lost_in_the_middle.pdf, page 8  (score=0.406)
+  [2] data/images/commons_diagram_transformer_architecture.png (image)  (score=0.299)
+  [3] data/documents/acl_bert.pdf, page 5  (score=0.395)
+  [4] data/images/commons_diagram_transformer_stacked_layers.png (image)  (score=0.235)
+  [5] data/documents/acl_bert.pdf, page 3  (score=0.363)
+
+======================================================================
+[I6] Find the flowchart that explains repeatedly halving a sorted array to look up a key
+----------------------------------------------------------------------
+Expected: data/images/commons_diagram_binary_search_flowchart.png
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 13  (score=0.386)
+  [2] data/images/commons_diagram_binary_search_flowchart.png (image)  (score=0.346)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 14  (score=0.350)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 5  (score=0.346)
+  [5] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.344)
+
+======================================================================
+[I7] Which screenshot shows a statistical programming environment with a spreadsheet-style data viewer?
+----------------------------------------------------------------------
+Expected: data/images/commons_screenshot_rstudio_ide.png
+----------------------------------------------------------------------
+Answer: [4]
+Sources:
+  [1] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.456)
+  [2] data/images/commons_screenshot_matplotlib_figures_code.png (image)  (score=0.328)
+  [3] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.396)
+  [4] data/images/commons_screenshot_rstudio_ide.png (image)  (score=0.327)
+  [5] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.390)
+
+======================================================================
+[I8] Show me a photo of a free Wi-Fi hotspot sign outdoors
+----------------------------------------------------------------------
+Expected: data/images/commons_photo_wifi_hotspot_sign.jpg
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[I9] Which picture shows how much a student pays per day for returning a library book late?
+----------------------------------------------------------------------
+Expected: data/images/notice_library_fines.png or data/images/photo_library_desk_sign.png
+----------------------------------------------------------------------
+Answer: The picture shows that a fine of 2 rupees per day per overdue book is charged for late returns. [2]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.537)
+  [2] data/images/notice_library_fines.png (image)  (score=0.273)
+  [3] data/documents/library_hours.pdf, page 1  (score=0.453)
+  [4] data/images/photo_library_desk_sign.png (image)  (score=0.253)
+
+======================================================================
+[I10] Find the screenshot of a page telling me I am not allowed to open something
+----------------------------------------------------------------------
+Expected: data/images/screenshot_error_403.png
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.323)
+  [2] data/images/screenshot_error_403.png (image)  (score=0.470)
+
+======================================================================
+[I11] Show me the secure remote-access client window that is connected to the library network
+----------------------------------------------------------------------
+Expected: data/images/screenshot_vpn_client.png
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/images/screenshot_vpn_client.png (image)  (score=0.369)
+
+======================================================================
+[I12] Which picture is the schedule that splits project marks between the demo, the report and the viva?
+----------------------------------------------------------------------
+Expected: data/images/notice_midterm_schedule.png
+----------------------------------------------------------------------
+Answer: According to the context, the picture that splits project marks between the demo, the report, and the viva is [4] data/images/notice_midterm_schedule.png.
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.557)
+  [2] data/images/screenshot_synopsis_portal.png (image)  (score=0.273)
+  [3] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.477)
+  [4] data/images/notice_midterm_schedule.png (image)  (score=0.264)
+  [5] data/documents/notice.pdf, page 1  (score=0.391)
+
+======================================================================
+[I13] Find the screenshot of a Python script open in an editor next to a plot window
+----------------------------------------------------------------------
+Expected: data/images/commons_screenshot_python_matplotlib_code.jpg or data/images/commons_screenshot_matplotlib_figures_code.png
+----------------------------------------------------------------------
+Answer: The screenshot of a Python script open in an editor next to a plot window is [1].
+Sources:
+  [1] data/images/commons_screenshot_python_matplotlib_code.jpg (image)  (score=0.327)
+  [2] data/images/commons_screenshot_matplotlib_figures_code.png (image)  (score=0.274)
+  [3] data/images/commons_screenshot_rstudio_ide.png (image)  (score=0.305)
+
+======================================================================
+[I14] Show me a photograph of the building where an early university computer was kept
+----------------------------------------------------------------------
+Expected: data/images/commons_photo_former_computer_laboratory_tower.jpg or data/images/commons_photo_digital_computer_laboratory.jpg
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.339)
+  [2] data/images/photo_campus_building_plaque.png (image)  (score=0.223)
+  [3] data/images/diagram_campus_map.png (image)  (score=0.221)
+
+======================================================================
+[I15] Which building houses the IT help desk and the data centre?
+----------------------------------------------------------------------
+Expected: data/images/diagram_campus_map.png
+----------------------------------------------------------------------
+Answer: The IT help desk and the data centre are housed in Building 4. [4]
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.408)
+  [2] data/images/diagram_campus_map.png (image)  (score=0.218)
+  [3] data/images/photo_library_desk_sign.png (image)  (score=0.204)
+  [4] data/images/photo_campus_building_plaque.png (image)  (score=0.474)
+
+======================================================================
+[I16] What happens the second time someone breaks the laboratory account rules?
+----------------------------------------------------------------------
+Expected: data/images/notice_lab_rules.png
+----------------------------------------------------------------------
+Answer: According to the context, the second violation of the laboratory account rules results in a referral to the institute's disciplinary committee. [2]
+Sources:
+  [1] data/documents/library_hours.pdf, page 1  (score=0.344)
+  [2] data/images/notice_lab_rules.png (image)  (score=0.332)
+  [3] data/documents/notice.pdf, page 2  (score=0.343)
+  [4] data/documents/it_onboarding.docx, page 2  (score=0.323)
+
+======================================================================
+[I17] Which picture shows a student's library barcode and the years their ID is valid?
+----------------------------------------------------------------------
+Expected: data/images/photo_id_card_sample.png
+----------------------------------------------------------------------
+Answer: The picture that shows a student's library barcode and the years their ID is valid is [4] data/images/photo_id_card_sample.png.
+Sources:
+  [1] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.334)
+  [2] data/images/photo_lab_door_sign.png (image)  (score=0.209)
+  [3] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.301)
+  [4] data/images/photo_id_card_sample.png (image)  (score=0.217)
+  [5] data/images/photo_library_desk_sign.png (image)  (score=0.221)
+
+======================================================================
+[I18] Which floor of Academic Block B has the department office?
+----------------------------------------------------------------------
+Expected: data/images/photo_campus_building_plaque.png
+----------------------------------------------------------------------
+Answer: According to the context, the department office is located on the Ground Floor of Academic Block B.
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.321)
+  [2] data/images/photo_campus_building_plaque.png (image)  (score=0.298)
+  [3] data/documents/algorithms_ch04_greedy.pdf, page 13  (score=0.304)
+  [4] data/images/diagram_campus_map.png (image)  (score=0.263)
+  [5] data/images/notice_shuttle_bus.png (image)  (score=0.241)
+
+======================================================================
+[I19] What should I do before using the single sign-on page for the first time?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_portal_login.png
+----------------------------------------------------------------------
+Answer: You should activate your account before first use [1].
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.308)
+  [2] data/images/screenshot_portal_login.png (image)  (score=0.309)
+
+======================================================================
+[I20] How many students can be on a project team, according to the submission portal?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_synopsis_portal.png
+----------------------------------------------------------------------
+Answer: According to the submission portal, a project team can consist of 2 or 3 students. [2]
+Sources:
+  [1] data/documents/notice.pdf, page 1  (score=0.519)
+  [2] data/images/screenshot_synopsis_portal.png (image)  (score=0.332)
+  [3] data/documents/notice.pdf, page 2  (score=0.467)
+  [4] data/images/notice_midterm_schedule.png (image)  (score=0.269)
+  [5] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.453)
+
+======================================================================
+[I21] Which window shows the address of the gateway I connect to for the digital library?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_vpn_client.png
+----------------------------------------------------------------------
+Answer: The window that shows the address of the gateway you connect to for the digital library is the "Remote Access to Campus Digital Library Gateway" field, which is located on the screenshot of the VPN client.
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.345)
+  [2] data/images/screenshot_vpn_client.png (image)  (score=0.323)
+
+======================================================================
+[I22] Which screenshot shows a free-fall simulation script open in Visual Studio Code?
+----------------------------------------------------------------------
+Expected: data/images/commons_screenshot_python_matplotlib_code.jpg
+----------------------------------------------------------------------
+Answer: The screenshot shows a free-fall simulation script open in Visual Studio Code. [1]
+Sources:
+  [1] data/images/commons_screenshot_python_matplotlib_code.jpg (image)  (score=0.314)
+
+======================================================================
+[I23] When is the annual sports day, and where do I register for the races?
+----------------------------------------------------------------------
+Expected: data/images/notice_sports_day.png
+----------------------------------------------------------------------
+Answer: The annual sports day is on Friday, 14 November, and you can register for the races at the Sports Office, Ground Floor, Administrative Block.
+Sources:
+  [1] data/images/notice_sports_day.png (image)  (score=0.319)
+
+======================================================================
+[I24] What time does the last shuttle bus leave the Academic Block in the evening?
+----------------------------------------------------------------------
+Expected: data/images/notice_shuttle_bus.png
+----------------------------------------------------------------------
+Answer: According to the context, the last bus from the Academic Block leaves at 6:30 PM.
+Sources:
+  [1] data/documents/algorithms_ch08_shortest_paths.pdf, page 33  (score=0.476)
+  [2] data/images/notice_shuttle_bus.png (image)  (score=0.392)
+  [3] data/documents/algorithms_ch08_shortest_paths.pdf, page 33  (score=0.457)
+  [4] data/images/diagram_campus_map.png (image)  (score=0.236)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 34  (score=0.419)
+
+======================================================================
+[I25] How much attendance do I need before I am allowed to sit the exams?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_attendance_portal.png
+----------------------------------------------------------------------
+Answer: You need an overall attendance of at least 75% to be eligible for exams. [2]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.425)
+  [2] data/images/screenshot_attendance_portal.png (image)  (score=0.314)
+  [3] data/documents/library_hours.pdf, page 1  (score=0.418)
+  [4] data/images/notice_shuttle_bus.png (image)  (score=0.216)
+  [5] data/documents/algorithms_ch04_greedy.pdf, page 3  (score=0.343)
+
+======================================================================
+[I26] Where is the blood donation camp being held, and from what time?
+----------------------------------------------------------------------
+Expected: data/images/notice_blood_donation.png
+----------------------------------------------------------------------
+Answer: The blood donation camp is being held at the Health Centre, next to the Central Library. It will take place from 10:00 AM to 4:00 PM. [1]
+Sources:
+  [1] data/images/notice_blood_donation.png (image)  (score=0.305)
+
+======================================================================
+[I27] Why does my mailbox show a warning, and what should I delete?
+----------------------------------------------------------------------
+Expected: data/images/screenshot_mailbox_quota.png
+----------------------------------------------------------------------
+Answer: Your mailbox shows a warning because it is almost full, with 14.2 GB of used space out of a total capacity of 15 GB, which is 95% full [1]. To avoid receiving new mail, you should delete large attachments and empty the Trash and Spam folders [1].
+Sources:
+  [1] data/images/screenshot_mailbox_quota.png (image)  (score=0.308)
+
+======================================================================
+[I28] What should I wear and bring to the internship fair?
+----------------------------------------------------------------------
+Expected: data/images/notice_internship_fair.png
+----------------------------------------------------------------------
+Answer: You should wear formal clothes [1] and bring 5 printed copies of your resume and your student ID card [1].
+Sources:
+  [1] data/images/notice_internship_fair.png (image)  (score=0.251)
+
+======================================================================
+TALLIES (automatic; a person still judges whether each answer is right)
+  text rows answered (not refused):        23/25
+  negatives refused:                       16/16   (N1-N8: 8/8, held-out N9+: 8/8)
+  negatives that were answered instead:    none
+  image questions: expected image cited:   26/28   (I1-I14: 12/14, held-out I15+: 14/14)
+  image questions answered (not refused):  22/28
+  image questions NOT citing the image:    ['I8', 'I14']
+
+======================================================================
+Rate each answer 1-5 by hand (docs/ROADMAP.md's Ch10 bar), then add a row to data/README.md's Results log, e.g.:
+| 2026-10-07 | Ch10 | - | - | - | Answer-quality check, 41 questions (T + N rows), human-rated 1-5: <fill in average and notes> |

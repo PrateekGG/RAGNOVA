@@ -524,6 +524,128 @@ def generate_all_images():
     )
 
 
+def generate_heldout_images():
+    """Six more text-bearing images (2026-10-07), made so that part of the held-out
+    evaluation set (gold rows I23-I28 and their near-miss negatives) uses images the
+    OCR-channel design never saw. Topics deliberately avoid anything the older
+    negative controls ask about (hostel menu, laundry, fees, refunds). Each image
+    states some facts and leaves others out on purpose (no bus fare, no race
+    results, no per-course attendance, no blood-donation reward, no mailbox-raise
+    procedure, no stipends): the gold set's near-miss negatives ask for exactly those.
+
+    Run on its own with `--heldout-only`: that regenerates only these six files, not
+    the audio, whose hashes key the transcript cache (ADR-013).
+    """
+    IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+
+    create_image(
+        "notice_sports_day.png",
+        680, 420, (255, 251, 235),
+        "Annual Sports Day — Notice",
+        [
+            ("Annual Inter-Department Sports Day", [
+                "Date: Friday, 14 November",
+                "Venue: Main Ground, behind the Student Hostels",
+                "Events: 100 m sprint, 4 x 100 m relay, long jump, shot put",
+                "Registration: Sports Office, Ground Floor, Administrative Block",
+                "Registration closes: 5 November, 4:00 PM",
+                "Each student may enter at most two individual events.",
+                "Bring your student ID card and wear sports shoes.",
+            ])
+        ],
+        border_color=(202, 138, 4),
+        badge="SPORTS OFFICE"
+    )
+
+    create_image(
+        "notice_shuttle_bus.png",
+        680, 400, (240, 253, 244),
+        "Campus Shuttle Bus — Timetable",
+        [
+            ("Route A: Student Hostels and Academic Block", [
+                "First bus from the Hostels: 7:30 AM",
+                "Buses run every 30 minutes until 6:00 PM",
+                "Last bus from the Academic Block: 6:30 PM",
+                "Pick-up point: Main Gate bus shelter",
+                "No service on Sundays and public holidays",
+            ]),
+            ("Please note", [
+                "Show your student ID card to the driver.",
+            ]),
+        ],
+        border_color=(22, 163, 74),
+        badge="TRANSPORT"
+    )
+
+    create_image(
+        "screenshot_attendance_portal.png",
+        680, 400, (248, 250, 252),
+        "Student Portal — Attendance Summary",
+        [
+            ("Overall Attendance: 78%", [
+                "Minimum required for exam eligibility: 75%",
+                "A shortage of up to 10% can be condoned with a medical certificate.",
+                "Condonation requests go to the Head of Department.",
+                "Status: ELIGIBLE for end-semester examinations",
+            ])
+        ],
+        border_color=(203, 213, 225),
+        badge="ATTENDANCE"
+    )
+
+    create_image(
+        "notice_blood_donation.png",
+        680, 400, (254, 242, 242),
+        "Blood Donation Camp — Notice",
+        [
+            ("Voluntary Blood Donation Camp", [
+                "Date: 20 October",
+                "Time: 10:00 AM to 4:00 PM",
+                "Venue: Health Centre, next to the Central Library",
+                "Who can donate: students aged 18 and above, weight above 50 kg",
+                "Bring your student ID card and eat a light meal beforehand.",
+            ])
+        ],
+        border_color=(220, 38, 38),
+        badge="HEALTH CENTRE"
+    )
+
+    create_image(
+        "screenshot_mailbox_quota.png",
+        680, 400, (255, 247, 237),
+        "Institute Mail — Storage Warning",
+        [
+            ("Your mailbox is almost full", [
+                "Used: 14.2 GB of 15 GB (95%)",
+                "You may stop receiving new mail when the limit is reached.",
+                "Delete large attachments and empty the Trash and Spam folders.",
+                "Archive old mail to a folder on your own computer.",
+                "Contact the IT Help Desk if the warning continues.",
+            ])
+        ],
+        border_color=(234, 88, 12),
+        badge="MAIL"
+    )
+
+    create_image(
+        "notice_internship_fair.png",
+        680, 420, (239, 246, 255),
+        "Internship and Placement Fair — Notice",
+        [
+            ("Internship and Placement Fair", [
+                "Date: 3 December, 9:30 AM to 4:30 PM",
+                "Venue: Main Auditorium",
+                "Dress code: formal clothes",
+                "Bring: 5 printed copies of your resume and your student ID card",
+                "Open to final-year and pre-final-year students",
+                "Pre-register at the Training and Placement Cell",
+            ])
+        ],
+        border_color=(37, 99, 235),
+        badge="PLACEMENT CELL"
+    )
+
+
 def _normalize_wav_to_16k_mono(filepath: Path) -> None:
     """Normalize WAV file to standard 16-bit PCM, 16000 Hz, single-channel mono.
 
@@ -720,8 +842,13 @@ def generate_all_audio():
 
 
 def main():
+    if "--heldout-only" in sys.argv:
+        print(f"Generating only the six held-out images under {IMAGES_DIR}...")
+        generate_heldout_images()
+        return
     print(f"Generating multimodal corpus under {DATA_DIR}...")
     generate_all_images()
+    generate_heldout_images()
     generate_all_audio()
     print("\nMultimodal corpus generation complete.")
 

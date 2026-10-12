@@ -1,0 +1,159 @@
+Running 12 gold questions through answer_query(), text only...
+
+======================================================================
+[T26] How many parameters do the base and large models used as the generative reader have?
+----------------------------------------------------------------------
+Expected: data/documents/acl_fusion_in_decoder.pdf, page 4
+----------------------------------------------------------------------
+Answer: The base model used as the generative reader has 110M parameters, and the large model used as the generative reader has 340M parameters. [3]
+Sources:
+  [1] data/documents/acl_fusion_in_decoder.pdf, page 4  (score=0.534)
+  [2] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.472)
+  [3] data/documents/acl_bert.pdf, page 8  (score=0.450)
+  [4] data/documents/acl_fusion_in_decoder.pdf, page 1  (score=0.441)
+  [5] data/documents/acl_fusion_in_decoder.pdf, page 2  (score=0.440)
+
+======================================================================
+[T27] How many GPU hours does training on 100 passages take?
+----------------------------------------------------------------------
+Expected: data/documents/acl_fusion_in_decoder.pdf, page 5
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/arxiv_openclip_scaling_laws.pdf, page 20  (score=0.431)
+  [2] data/documents/arxiv_openclip_scaling_laws.pdf, page 19  (score=0.389)
+  [3] data/documents/acl_fusion_in_decoder.pdf, page 5  (score=0.361)
+  [4] data/documents/arxiv_openclip_scaling_laws.pdf, page 4  (score=0.340)
+  [5] data/documents/arxiv_openclip_scaling_laws.pdf, page 36  (score=0.331)
+
+======================================================================
+[T28] Why should a database identifier contain letters as well as numbers?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1
+----------------------------------------------------------------------
+Answer: [3]
+Sources:
+  [1] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.541)
+  [2] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.513)
+  [3] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.494)
+  [4] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.447)
+  [5] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 2  (score=0.406)
+
+======================================================================
+[T29] If I version identifiers record by record, where in the identifier does the version number go?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_ten_simple_rules_identifiers.docx, page 2
+----------------------------------------------------------------------
+Answer: [1]
+Sources:
+  [1] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 2  (score=0.616)
+  [2] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 2  (score=0.403)
+  [3] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.391)
+  [4] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 1  (score=0.352)
+  [5] data/documents/zenodo_ten_simple_rules_identifiers.docx, page 2  (score=0.321)
+
+======================================================================
+[T30] Do I need any prior knowledge to take the course on governing AI in scientific publishing?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_ai_governance_syllabus.docx, page 1
+----------------------------------------------------------------------
+Answer: [2]
+Sources:
+  [1] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.658)
+  [2] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.643)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.609)
+  [4] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.555)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.526)
+
+======================================================================
+[T31] How long is each live online session of that governance course?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_ai_governance_syllabus.docx, page 1
+----------------------------------------------------------------------
+Answer: 2. For 2.5-3 hours each day, an online session will be held beginning at 14:00 UTC with a shared curriculum where all the nodes will come together, be provided one or two additional international/cross-border discussions and share their discussions and findings from that day. [1]
+Sources:
+  [1] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.395)
+  [2] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.392)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.379)
+  [4] data/documents/algorithms_ch04_greedy.pdf, page 3  (score=0.373)
+  [5] data/documents/algorithms_ch04_greedy.pdf, page 19  (score=0.371)
+
+======================================================================
+[T32] Why does backtracking fail on the coin change problem with large inputs, and what replaces it?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_cpp_solved_problems.docx, page 1
+----------------------------------------------------------------------
+Answer: Backtracking fails on the coin change problem with large inputs because the original method is $O(k^N)$ (exponential), [1]. For $S=1000$, backtracking will fail (Time Limit Exceeded), [1]. Instead, a C++ Implementation (Dynamic Programming) is used, which replaces backtracking with an iterative approach to update the DP table, [1].
+Sources:
+  [1] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.504)
+  [2] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.386)
+  [3] data/documents/algorithms_ch04_greedy.pdf, page 23  (score=0.359)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 27  (score=0.341)
+  [5] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.335)
+
+======================================================================
+[T33] Which search method does the maze escape problem use, and what stops it walking in circles?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_cpp_solved_problems.docx, page 1
+----------------------------------------------------------------------
+Answer: The search method used in the maze escape problem is depth-first search, but it is memoized, as mentioned in [4]. However, the context does not provide information on how the memoization is implemented.
+
+The problem prevents infinite loops (walking in circles) by marking cells as "visited" as they are stepped on and unmarking them when backtracking, or keeping them marked if only one path is needed [1].
+Sources:
+  [1] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.678)
+  [2] data/documents/zenodo_cpp_solved_problems.docx, page 1  (score=0.560)
+  [3] data/documents/algorithms_ch08_shortest_paths.pdf, page 32  (score=0.485)
+  [4] data/documents/algorithms_ch08_shortest_paths.pdf, page 6  (score=0.451)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 6  (score=0.399)
+
+======================================================================
+[N17] What is the boiling point of mercury?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N18] Which team won the cricket world cup in 2011?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N19] What is the registration fee for the course on governing AI in scientific publishing?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.605)
+  [2] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.583)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.561)
+  [4] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.535)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.519)
+
+======================================================================
+[N20] How many layers does the T5 model used as the generative reader have?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_fusion_in_decoder.pdf, page 4  (score=0.474)
+  [2] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.333)
+  [3] data/documents/acl_lost_in_the_middle.pdf, page 2  (score=0.325)
+  [4] data/documents/acl_bert.pdf, page 8  (score=0.316)
+  [5] data/documents/acl_lost_in_the_middle.pdf, page 13  (score=0.316)
+
+======================================================================
+TALLIES (automatic; a person still judges whether each answer is right)
+  text rows answered (not refused):        7/8   (held-out text 7/8)
+  negatives refused:                       4/4   (held-out text 4/4)
+  negatives that were answered instead:    none
+
+======================================================================
+Rate each answer 1-5 by hand (docs/ROADMAP.md's Ch10 bar), then add a row to data/README.md's Results log, e.g.:
+| 2026-10-07 | Ch10 | - | - | - | Answer-quality check, 12 questions (T + N rows), human-rated 1-5: <fill in average and notes> |

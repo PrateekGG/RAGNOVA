@@ -64,6 +64,14 @@ def citation_views(chunks: list[Chunk]) -> list[CitationView]:
     return views
 
 
+def cited_views(views: list[CitationView], cited: set[int]) -> list[CitationView]:
+    """The views whose number the answer cites, keeping their numbers (so "[2]" still matches "[2] notice.png").
+    All of them when the answer cites none in range: then there is no way to tell which were used, and hiding
+    every source would hide what the answer came from."""
+    used = [v for v in views if v.number in cited]
+    return used or views
+
+
 def _short_provenance(chunk: Chunk) -> str:
     """format_provenance() with just the file name instead of the full
     relative path — the full path is still one click away (download)."""

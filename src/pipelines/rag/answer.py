@@ -16,6 +16,9 @@ from PIL import Image
 from src.core.config import settings
 from src.core.llm import generate, generate_stream
 from src.core.schemas import Chunk
+from src.pipelines.rag.context import trim_chunks
+from src.pipelines.rag.followup import resolve as resolve_follow_up
+from src.pipelines.rag.lexical import content_tokens
 from src.pipelines.rag.prompt import build_prompt
 from src.pipelines.rag.retrieve import filter_by_floor, retrieve
 
@@ -27,6 +30,14 @@ NOT_ENOUGH_INFO = (
     "I don't have enough information in the indexed documents to answer that."
 )
 
+
+def is_refusal(answer: str) -> bool:
+    """The answer opens with the refusal sentence, as the model actually types it: small models mangle the
+    apostrophe ("I don' have", "I don' t have", a curly ’) or write "do not". Letters only, so spacing and
+    punctuation do not matter; the words that follow "I do(n't)" must be the refusal's own."""
+    letters = re.sub(r"[^a-z]", "", answer.lower())
+    return letters.startswith("ido") and "haveenoughinformationintheindexeddocuments" in letters[:60]
+
 # Stands in for the question when the user attached only an image (no
 # typed words, no readable text in the picture) — Chapter 11's UI allows
 # that, and "Question: " followed by nothing gives the model no task.
@@ -34,6 +45,16 @@ IMAGE_ONLY_QUESTION = (
     "The user attached an image without a written question. Say what the "
     "context shows that relates to it."
 )
+
+
+# Stands in for a question with no subject of its own ("explain", "summarize?") when files are picked under "Answer
+# from": the files are the subject, but "Question: explain" alone gave the model no task and it refused (2026-10-11).
+SCOPED_BARE_QUESTION = (
+    'The user wrote "{query}" about the files they chose. Explain what the context from those files covers: '
+    "give its key points."
+)
+# Words that ask for a kind of answer and name no subject, on top of lexical's filler ("explain", "tell", "more").
+_ASK_ONLY_WORDS = frozenset("summarize summarise summary overview brief briefly elaborate simplify simply short".split())
 
 
 @dataclass
@@ -92,12 +113,75 @@ def _filter_relevant(chunks: list[Chunk]) -> list[Chunk]:
     return filter_by_floor(chunks, settings.MIN_RELEVANCE_SCORE)
 
 
+def _for_prompt(chunks: list[Chunk], query: str) -> list[Chunk]:
+    """What the model is shown: the retrieved chunks, shortened when
+    CONTEXT_WORDS_PER_CHUNK is set (context.py). Only the prompt changes; the
+    caller keeps citing the full chunks."""
+    return trim_chunks(chunks, query, settings.CONTEXT_WORDS_PER_CHUNK)
+
+
+def _gather(
+    query: str,
+    top_k: int | None,
+    client,
+    include_images: bool,
+    query_image: Image.Image | None,
+    sources: list[str] | None,
+    attachments: list[Chunk] | None,
+    search_query: str | None = None,
+) -> list[Chunk]:
+    """Everything the model may be shown, in citation order: the user's
+    attachments first (they put them there; nothing filters them), then what
+    retrieval found for the question as typed. The attachment's text is NOT added
+    to the retrieval query: tried both ways on 2026-10-10 it made no difference to
+    9 synthetic rows (9/9 each) and, on 4 questions about two real screenshots,
+    gluing it on brought in unrelated corpus chunks and gave 0 usable answers
+    against 2 without (one run each of a stochastic model; ADR-016)."""
+    found = retrieve(
+        search_query or query, top_k=top_k, client=client,
+        include_images=include_images, query_image=query_image, sources=sources,
+    )
+    return [*(attachments or []), *found]
+
+
+def search_question(query: str, history: list[tuple[str, str]] | None, attachments: list[Chunk] | None = None,
+                    sources: list[str] | None = None) -> str:
+    """What `query` is searched with: itself, or, for a follow-up, followup.resolve()'s question. The page stores it
+    with the turn so the next follow-up builds on it ("tell me more", then "more")."""
+    return _follow_up(query, history, attachments, sources)[0]
+
+
+def _follow_up(query, history, attachments, sources=None) -> tuple[str, list[tuple[str, str]] | None]:
+    """(question to search with, earlier exchange for the prompt or None). An attached image is what "this" means,
+    so a question with an attachment is never treated as a follow-up; with files picked under "Answer from", "it" means
+    those files, so only a question with no words of its own ("tell me more") is one."""
+    if not history or attachments or not query.strip():
+        return query, None
+    if sources and content_tokens(query):
+        return query, None
+    search = resolve_follow_up(query, history[-1][0])
+    return search, (history[-1:] if search != query else None)
+
+
+def _prompt(query: str, relevant: list[Chunk], history, sources: list[str] | None = None) -> str:
+    question = query or IMAGE_ONLY_QUESTION
+    if sources and not history and query.strip() and set(content_tokens(query)) <= _ASK_ONLY_WORDS:
+        question = SCOPED_BARE_QUESTION.format(query=query.strip())
+    return build_prompt(
+        question, _for_prompt(relevant, query),
+        settings.PROMPT_WHO_WHAT_RULE, settings.PROMPT_DETAIL_RULE, history, sources,
+    )
+
+
 def answer_query(
     query: str,
     top_k: int | None = None,
     client=None,
     include_images: bool = False,
     query_image: Image.Image | None = None,
+    sources: list[str] | None = None,
+    attachments: list[Chunk] | None = None,
+    history: list[tuple[str, str]] | None = None,
 ) -> RagAnswer:
     """Answer `query` using only relevant retrieved chunks.
 
@@ -113,18 +197,26 @@ def answer_query(
     `include_images` / `query_image` (Chapter 12) add image_index to the
     search, merged by rank (ADR-007) — see retrieve(). Both default off,
     so Chapter 10's CLI and tests behave exactly as before.
+
+    `sources` limits the search to the files the user picked (retrieve() says
+    what that changes). `attachments` are items the user attached to this
+    question (attachments.py): shown to the model first, cited like any chunk,
+    never filtered, so an answer can come from them alone.
+
+    `history` is the earlier conversation, [(search question, answer)] oldest first (the page passes the last
+    exchange). Only a follow-up ("tell me more", "who made it?") uses it: followup.py builds the question to
+    search with, and the prompt shows the exchange so the model knows what "it" is. A question that stands on its
+    own is handled exactly as without it.
     """
-    relevant = retrieve(
-        query, top_k=top_k, client=client,
-        include_images=include_images, query_image=query_image,
-    )
+    search_query, prompt_history = _follow_up(query, history, attachments, sources)
+    relevant = _gather(query, top_k, client, include_images, query_image, sources, attachments, search_query)
 
     if not relevant:
         return RagAnswer(
             query=query, answer=NOT_ENOUGH_INFO, citations=[], model=settings.OLLAMA_MODEL
         )
 
-    prompt = build_prompt(query or IMAGE_ONLY_QUESTION, relevant)
+    prompt = _prompt(query, relevant, prompt_history, sources)
     check_prompt_fits(prompt)
     answer_text = generate(prompt)
     check_citations(answer_text, relevant, query)
@@ -140,6 +232,9 @@ def stream_answer(
     client=None,
     include_images: bool = False,
     query_image: Image.Image | None = None,
+    sources: list[str] | None = None,
+    attachments: list[Chunk] | None = None,
+    history: list[tuple[str, str]] | None = None,
 ) -> tuple[list[Chunk], Iterator[str]]:
     """answer_query(), split in two for the Chapter 11 UI: retrieval runs
     now and its chunks come back straight away (so sources can be drawn
@@ -151,13 +246,11 @@ def stream_answer(
     check_citations() on the joined text when the stream ends — it can't
     run here, because the full answer doesn't exist yet.
     """
-    relevant = retrieve(
-        query, top_k=top_k, client=client,
-        include_images=include_images, query_image=query_image,
-    )
+    search_query, prompt_history = _follow_up(query, history, attachments, sources)
+    relevant = _gather(query, top_k, client, include_images, query_image, sources, attachments, search_query)
     if not relevant:
         return [], iter([NOT_ENOUGH_INFO])
-    prompt = build_prompt(query or IMAGE_ONLY_QUESTION, relevant)
+    prompt = _prompt(query, relevant, prompt_history, sources)
     check_prompt_fits(prompt)
     return relevant, generate_stream(prompt)
 

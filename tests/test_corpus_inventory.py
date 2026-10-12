@@ -4,7 +4,8 @@ Verifies that:
   - data/images/ has >= 10 valid image files readable by PIL
   - data/audio/ has >= 3 valid .wav audio files with valid header and duration
   - data/documents/ has the required starter documents
-  - src/app.py exists and contains the required TODO hook and query processing logic
+  - src/app.py exists, is wired to the live pipeline (the Task 4 TODO is closed), and keeps its
+    canned query_processing path for explicit demo use
 """
 
 from __future__ import annotations
@@ -89,13 +90,15 @@ def test_no_corpus_file_is_an_unresolved_git_lfs_pointer():
     )
 
 
-def test_app_scaffold_present_and_has_todo():
+def test_app_is_wired_to_the_live_pipeline_and_keeps_the_canned_path():
+    # Task 4 shipped a scaffold carrying a "TODO: to wire the real call here" marker.
+    # The page is wired to the real pipeline now (PR #10), so the marker must be gone:
+    # a stale TODO is a claim that the page still fakes its answers.
     assert APP_FILE.exists(), "src/app.py does not exist"
     content = APP_FILE.read_text(encoding="utf-8")
-    assert "# TODO: to wire the real call here" in content, (
-        "src/app.py missing explicit '# TODO: to wire the real call here' marker"
-    )
-    assert "process_query" in content, "src/app.py missing process_query function"
+    assert "# TODO: to wire the real call here" not in content, "stale TODO: the page is wired"
+    assert "stream_answer(" in content, "src/app.py does not call the live pipeline"
+    assert "def process_query" in content, "the canned demo path (process_query) was removed"
 
 
 def test_app_process_query_mock_and_citations():

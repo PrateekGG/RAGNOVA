@@ -1,0 +1,10 @@
+scripts/evaluate_entity_questions.py --regression V5, 2026-10-11. INFORMATIONAL ONLY: stage 1 named no winner, so by the declared rule stage 2 is not required; it was run for V5 (the variant with the highest score, tie-break winner among the three at 20/23) to show what switching it on would cost on the older rows.
+The script's closing line ('may be adopted') applies only to a stage-1 winner; there was none.
+
+model llama3.2:3b; older rows: T1-T33, N1-N20, I1-I28 (may only veto)
+
+V0: text substantive 28, negatives refused 20, images answered and cited 21, TOTAL 69
+V5: text substantive 29, negatives refused 20, images answered and cited 21, TOTAL 70
+older negatives V0 refused that V5 answers: none
+older positives V0 got that V5 lost: ['I13', 'T13']
+RESULT: not vetoed. V5 may be adopted (ADR + .env.example default).

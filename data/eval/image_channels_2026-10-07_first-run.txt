@@ -1,0 +1,58 @@
+floors: image 0.2, confident 0.3, agreement 0.3, text 0.3; top_k=5
+positives: 14 held-out + 14 regression;  negatives: 8 held-out + 10 regression
+
+=== Which search finds the correct image in its top 5 (before any gate) ===
+row   set         CLIP  text
+I1    regression   yes   yes
+I2    regression   yes   yes
+I3    regression   yes   yes
+I4    regression   yes   yes
+I5    regression   yes   yes
+I6    regression   yes   yes
+I7    regression   yes   yes
+I8    regression   yes     -
+I9    regression   yes   yes
+I10   regression     -   yes
+I11   regression   yes   yes
+I12   regression   yes   yes
+I13   regression   yes   yes
+I14   regression   yes     -
+I15   held-out     yes   yes
+I16   held-out     yes   yes
+I17   held-out     yes   yes
+I18   held-out     yes   yes
+I19   held-out     yes   yes
+I20   held-out     yes   yes
+I21   held-out     yes   yes
+I22   held-out     yes   yes
+I23   held-out     yes   yes
+I24   held-out     yes   yes
+I25   held-out     yes   yes
+I26   held-out     yes   yes
+I27   held-out     yes   yes
+I28   held-out     yes   yes
+
+=== Variants ===
+variant   | held-out: kept/14  R@5/14  refused/8  k+r | regression: kept/14  R@5/14  refused/10
+G0        |               14      14           1   15 |                 11      10             9
+F0        |               14      14           1   15 |                 11      11             9
+F1@0.55   |               14      14           1   15 |                 11      11             9
+F1@0.50   |               14      14           1   15 |                 11      11             9
+F1@0.45   |               14      14           1   15 |                 12      12             9
+F2@0.55   |               14      14           1   15 |                 11      11             9
+F2@0.50   |               14      14           1   15 |                 11      11             9
+F2@0.45   |               14      14           1   15 |                 11      11             9
+
+=== Rows whose outcome differs from G0 (kept = correct image survives the gate; leak = an image survives) ===
+F0        I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F1@0.55   I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F1@0.50   I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F1@0.45   I3 kept=True rank=4 (G0: kept=True rank=None); I10 kept=True rank=2 (G0: kept=False rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F2@0.55   I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F2@0.50   I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+F2@0.45   I3 kept=True rank=4 (G0: kept=True rank=None); N11 leak: ['screenshot_attendance_portal.png', 'photo_id_card_sample.png', 'photo_campus_building_plaque.png']
+
+=== Adoption rule (fixed before this was run) ===
+G0 held-out k+r = 15;  a variant needs k+r >= 17, no loss on kept/refused/R@5 held-out, and none on the regression rows
+qualifying variants: none
+RULE SAYS: NOT adopted (tested, not adopted)

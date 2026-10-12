@@ -1,0 +1,16 @@
+# RAGNova runs on one machine and works offline. Read when `streamlit run src/app.py`
+# is started from the project root.
+
+[server]
+# Streamlit binds to every network interface by default: anyone on the same Wi-Fi
+# could open the app and upload files into the corpus. It also prints an "External URL",
+# which it only knows by looking up the machine's public IP on the internet.
+address = "127.0.0.1"
+# Without this, the first launch on a machine with no ~/.streamlit/credentials.toml stops at an
+# "enter your email" prompt and never starts listening (seen on 2026-10-07). It also means the
+# browser is not opened for you: open the URL printed in the terminal, http://127.0.0.1:8501.
+headless = true
+
+[browser]
+# No usage statistics sent from the app.
+gatherUsageStats = false

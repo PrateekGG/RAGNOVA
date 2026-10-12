@@ -1,0 +1,61 @@
+Same 9 attached-image rows, plus 4 questions about two REAL screenshots (not committed; they are the user's own), with the OCR text glued onto the retrieval query (600 chars) versus not (0). llama3.2:3b, one run each of a stochastic model.
+Rows marked [read] have no pre-declared check; the answers are the evidence.
+
+
+######## RETRIEVAL_EXTRA_CHARS = 600
+[PASS] A1 blocks=4 Q: When does the library reopen?
+   A: 'The library reopens on October 13 at 9 AM. [1]'
+[PASS] A2 blocks=3 Q: What does this image say?
+   A: 'The image says "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM." [1]'
+[PASS] A3 blocks=1 Q: What does this image show?
+   A: "I don't have enough information in the indexed documents to answer that."
+[PASS] A4 blocks=6 Q: What is the capital of France?
+   A: "I don't have enough information in the indexed documents to answer that."
+[PASS] A5 blocks=5 Q: Summarise this image.
+   A: "The image is a notice about the library's maintenance. It states that the library is closed on October 12 and reopens on October 13 at 9 AM."
+[PASS] A6 blocks=4 Q: What is written in this picture?
+   A: 'The text read from the image (OCR) is: "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."'
+[PASS] A7 blocks=6 Q: What does this image say?
+   A: 'The image says "SHUTTLE TIMETABLE".'
+[PASS] A8 blocks=5 Q: When do the buses leave?
+   A: 'According to the context, buses leave the main gate at 8:15 AM and 5:45 PM. [1]'
+[PASS] A9 blocks=5 Q: How much does a bus ticket cost?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 3:0 blocks=6 Q: What does this image say?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 3:1 blocks=6 Q: What is this image about?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 4:0 blocks=2 Q: What does this image say?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 4:1 blocks=2 Q: What is this image about?
+   A: "I don't have enough information in the indexed documents to answer that."
+synthetic rows passing the pre-declared check: 9/9
+
+######## RETRIEVAL_EXTRA_CHARS = 0
+[PASS] A1 blocks=6 Q: When does the library reopen?
+   A: 'The library reopens on October 13 at 9 AM. [1]'
+[PASS] A2 blocks=1 Q: What does this image say?
+   A: 'The image says "LIBRARY NOTICE" and contains the text: "The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM." [1]'
+[PASS] A3 blocks=1 Q: What does this image show?
+   A: "I don't have enough information in the indexed documents to answer that."
+[PASS] A4 blocks=1 Q: What is the capital of France?
+   A: "I don't have enough information in the indexed documents to answer that."
+[PASS] A5 blocks=1 Q: Summarise this image.
+   A: 'The image shows a notice from the library stating that it is closed on October 12 for maintenance, and it will reopen on October 13 at 9 AM.'
+[PASS] A6 blocks=1 Q: What is written in this picture?
+   A: 'The text "LIBRARY NOTICE" is written in this picture, and it contains the following information: The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM. [1]'
+[PASS] A7 blocks=1 Q: What does this image say?
+   A: 'The image says "SHUTTLE TIMETABLE". [1]'
+[PASS] A8 blocks=6 Q: When do the buses leave?
+   A: 'The buses leave at 8:15 AM and 5:45 PM. [1]'
+[PASS] A9 blocks=5 Q: How much does a bus ticket cost?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 3:0 blocks=1 Q: What does this image say?
+   A: 'The image says "% Ask questions in plain language across your documents, screenshots, and audio recordings — 100% offline." [1]'
+[read] 3:1 blocks=2 Q: What is this image about?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 4:0 blocks=1 Q: What does this image say?
+   A: "I don't have enough information in the indexed documents to answer that."
+[read] 4:1 blocks=2 Q: What is this image about?
+   A: 'The image [1] is about Modernizing Express: Architecture, Workflows, and Edge-Native Integration.'
+synthetic rows passing the pre-declared check: 9/9

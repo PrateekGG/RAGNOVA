@@ -1,0 +1,33 @@
+scripts/probe_attachment_lookalikes.py, 2026-10-10. Rule was declared in the script and committed (003b2b3) before this run: switch to B only if B has >= 3 more complete answers than A out of 12 and no more refusals.
+Caveat: repeats of the same row often return the identical answer, so the 3 repeats are not independent; the effective sample is the 4 rows.
+
+model llama3.2:3b, TOP_K 5; 4 rows x 3 repeats x 2 variants
+
+[A] A2 #1 partial  blocks=6  'The image says "LIBRARY NOTICE".'
+[A] A2 #2 partial  blocks=6  'The image says "LIBRARY NOTICE".'
+[A] A2 #3 partial  blocks=6  'The image says "LIBRARY NOTICE".'
+[B] A2 #1 partial  blocks=1  'The image says "LIBRARY NOTICE". [1]'
+[B] A2 #2 COMPLETE blocks=1  'The image says "LIBRARY NOTICE" and contains the text: "The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM." [1]'
+[B] A2 #3 COMPLETE blocks=1  'The image says "LIBRARY NOTICE" and contains the text: "The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM." [1]'
+[A] A5 #1 COMPLETE blocks=6  'The image is a notice.png image with the text "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."'
+[A] A5 #2 COMPLETE blocks=6  'The image is a notice.png image with the text "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."'
+[A] A5 #3 COMPLETE blocks=6  'The attached image is a notice.png image with the text "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 a'
+[B] A5 #1 COMPLETE blocks=1  'The image shows a notice from the library stating that it is closed on October 12 for maintenance and will reopen on October 13 at 9 AM. [1]'
+[B] A5 #2 COMPLETE blocks=1  'The image shows a notice from the library stating that it is closed on October 12 for maintenance and will reopen on October 13 at 9 AM. [1]'
+[B] A5 #3 COMPLETE blocks=1  'The image shows a notice from the library stating that it is closed on October 12 for maintenance and will reopen on October 13 at 9 AM. [1]'
+[A] A6 #1 COMPLETE blocks=6  'The text read from the image (OCR) is: "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."'
+[A] A6 #2 COMPLETE blocks=6  'The text read from the image (OCR) is: "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM." [1]'
+[A] A6 #3 COMPLETE blocks=6  'The text read from the image (OCR) is: "LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens on October 13 at 9 AM."'
+[B] A6 #1 partial  blocks=1  'The text "LIBRARY NOTICE" is written in this picture, [1].'
+[B] A6 #2 partial  blocks=1  'The text "LIBRARY NOTICE" is written in this picture, [1].'
+[B] A6 #3 partial  blocks=1  'The text "LIBRARY NOTICE" is written in this picture, [1].'
+[A] A7 #1 COMPLETE blocks=6  'The image says "SHUTTLE TIMETABLE" and lists the buses leaving the main gate at 8:15 AM and 5:45 PM, with no service on Sundays. [1]'
+[A] A7 #2 partial  blocks=6  'The image says "SHUTTLE TIMETABLE" [1].'
+[A] A7 #3 COMPLETE blocks=6  'The image says "SHUTTLE TIMETABLE" and lists the buses leaving the main gate at 8:15 AM and 5:45 PM, with no service on Sundays. [1]'
+[B] A7 #1 partial  blocks=1  'The image says "SHUTTLE TIMETABLE". [1]'
+[B] A7 #2 partial  blocks=1  'The image says "SHUTTLE TIMETABLE".'
+[B] A7 #3 partial  blocks=1  'The image says "SHUTTLE TIMETABLE". [1]'
+
+A (page as is, look-alikes searched): complete 8/12, refused 0
+B (attachment text only):             complete 5/12, refused 0
+rule (B needs +3 complete and no more refusals): KEEP the page as it is

@@ -1,0 +1,472 @@
+Running 41 gold questions through answer_query(), text only...
+
+======================================================================
+[T1] If I don't get my system actually running by evaluation day, how many marks am I giving up?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: According to [2], the working prototype demonstrated on evaluation day carries 40 percent of the total marks.
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.424)
+  [2] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.412)
+  [3] data/documents/acl_bert.pdf, page 6  (score=0.383)
+  [4] data/documents/acl_bert.pdf, page 6  (score=0.367)
+  [5] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.334)
+
+======================================================================
+[T2] As an undergrad, how many items can I check out from the library at once, and for how long?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: As an undergraduate student, you can check out up to four books at a time for 14 days. [1]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.591)
+  [2] data/documents/library_hours.pdf, page 1  (score=0.475)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 51  (score=0.312)
+  [4] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.304)
+
+======================================================================
+[T3] What happens the first time someone gets caught sharing their login with a friend?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 2
+----------------------------------------------------------------------
+Answer: The first time someone gets caught sharing their login with a friend, their network access will be suspended for a period of two weeks, during which they must complete a short awareness session conducted by the Information Technology department before access is restored. [1]
+Sources:
+  [1] data/documents/it_onboarding.docx, page 2  (score=0.458)
+
+======================================================================
+[T4] What software must students set up if they want to read digital journals from home?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 1
+----------------------------------------------------------------------
+Answer: Students must install the Institute's virtual private network (VPN) client if they want to read digital journals from home. [1]
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.366)
+  [2] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.363)
+  [3] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.362)
+  [4] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.358)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.337)
+
+======================================================================
+[T5] Where will the guide allotment list be announced?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: The guide allotment list will be announced on the department noticeboard and the student portal. [2]
+Sources:
+  [1] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.376)
+  [2] data/documents/notice.pdf, page 1  (score=0.374)
+  [3] data/documents/notice.pdf, page 2  (score=0.365)
+  [4] data/documents/notice.pdf, page 2  (score=0.338)
+  [5] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.316)
+
+======================================================================
+[T6] How many people are allowed to work together on this project, at most?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to [1], B.Tech CSE-AIML final year students working in project teams of two or three members are required to submit a project synopsis.
+Sources:
+  [1] data/documents/notice.pdf, page 1  (score=0.380)
+  [2] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.371)
+  [3] data/documents/acl_squad.pdf, page 4  (score=0.325)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 46  (score=0.325)
+  [5] data/documents/notice.pdf, page 2  (score=0.321)
+
+======================================================================
+[T7] Is there a maximum length for the synopsis, not counting the cover page or references?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the context, the synopsis document should not exceed three pages, excluding the cover page and references. [1]
+Sources:
+  [1] data/documents/notice.pdf, page 1  (score=0.383)
+  [2] data/documents/notice.pdf, page 2  (score=0.366)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 15  (score=0.320)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 41  (score=0.313)
+  [5] data/documents/acl_squad.pdf, page 6  (score=0.303)
+
+======================================================================
+[T8] If someone misses their individual viva without approval beforehand, what mark do they get for that part?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: A member who is absent without prior approval from the department will receive a zero for that component regardless of the team's overall performance. [1]
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.439)
+  [2] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.309)
+
+======================================================================
+[T9] What happens if part of our submission turns out to be copied from somewhere else, even just a small section?
+----------------------------------------------------------------------
+Expected: data/documents/notice.pdf, page 2
+----------------------------------------------------------------------
+Answer: If part of our submission turns out to be copied from somewhere else, even just a small section, it will be referred to the disciplinary committee. [1]
+Sources:
+  [1] data/documents/notice.pdf, page 2  (score=0.391)
+
+======================================================================
+[T10] On a Sunday, what time does the library close?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to the context, on weekends, the library closes at 6 in the evening. [2]
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.552)
+  [2] data/documents/library_hours.pdf, page 1  (score=0.415)
+
+======================================================================
+[T11] Can I extend my library loan if nobody else wants that book?
+----------------------------------------------------------------------
+Expected: data/documents/library_hours.pdf, page 1
+----------------------------------------------------------------------
+Answer: Yes, renewal of an existing loan is permitted once, provided no other student has placed a reservation on the same title through the library portal. [1]
+Sources:
+  [1] data/documents/library_hours.pdf, page 1  (score=0.506)
+  [2] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.365)
+
+======================================================================
+[T12] Before I can start using my new institute email account, what do I need to do first?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 1
+----------------------------------------------------------------------
+Answer: You need to activate your institute email account manually before first use.
+Sources:
+  [1] data/documents/it_onboarding.docx, page 1  (score=0.592)
+  [2] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.373)
+  [3] data/documents/it_onboarding.docx, page 2  (score=0.372)
+
+======================================================================
+[T13] Am I allowed to download movies or paid software through the campus network without a license?
+----------------------------------------------------------------------
+Expected: data/documents/it_onboarding.docx, page 2
+----------------------------------------------------------------------
+Answer: No, you are not allowed to download copyrighted material, including films, television shows, and paid software, without a valid license on the institute network at any time [1].
+Sources:
+  [1] data/documents/it_onboarding.docx, page 2  (score=0.645)
+  [2] data/documents/it_onboarding.docx, page 1  (score=0.451)
+  [3] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.435)
+  [4] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.344)
+  [5] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.343)
+
+======================================================================
+[T14] When only the twenty best passages are kept, how much more often does a learned dense retriever surface the answer than a classic keyword ranker on Natural Questions?
+----------------------------------------------------------------------
+Expected: data/documents/acl_dense_passage_retrieval.pdf, page 5
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_dense_passage_retrieval.pdf, page 6  (score=0.576)
+  [2] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.555)
+  [3] data/documents/acl_dense_passage_retrieval.pdf, page 7  (score=0.527)
+  [4] data/documents/acl_lost_in_the_middle.pdf, page 10  (score=0.520)
+  [5] data/documents/acl_dense_passage_retrieval.pdf, page 5  (score=0.519)
+
+======================================================================
+[T15] Why is it impractical to find the closest pair among ten thousand sentences by pushing every pair through a cross-encoder, and roughly how long would it take?
+----------------------------------------------------------------------
+Expected: data/documents/acl_sentence_bert.pdf, page 1
+----------------------------------------------------------------------
+Answer: It is impractical to find the closest pair among ten thousand sentences by pushing every pair through a cross-encoder because it requires n·(n−1)/2 = 49,995,000 inference computations, which is a large number of computations. [1] This is roughly equivalent to 65 hours of computation time, as mentioned in [4].
+Sources:
+  [1] data/documents/acl_sentence_bert.pdf, page 1  (score=0.584)
+  [2] data/documents/acl_sentence_bert.pdf, page 8  (score=0.561)
+  [3] data/documents/acl_sentence_bert.pdf, page 2  (score=0.534)
+  [4] data/documents/acl_sentence_bert.pdf, page 1  (score=0.525)
+  [5] data/documents/acl_sentence_bert.pdf, page 8  (score=0.519)
+
+======================================================================
+[T16] How many trainable parameters does the smaller of the two main BERT configurations have?
+----------------------------------------------------------------------
+Expected: data/documents/acl_bert.pdf, page 3
+----------------------------------------------------------------------
+Answer: According to [2], the smaller of the two main BERT configurations, BERTBASE, has 110M total parameters.
+Sources:
+  [1] data/documents/acl_bert.pdf, page 13  (score=0.580)
+  [2] data/documents/acl_bert.pdf, page 3  (score=0.578)
+  [3] data/documents/acl_bert.pdf, page 14  (score=0.568)
+  [4] data/documents/acl_bert.pdf, page 3  (score=0.563)
+  [5] data/documents/acl_bert.pdf, page 6  (score=0.546)
+
+======================================================================
+[T17] Where in a long prompt do language models make the best use of a relevant fact, and where does their accuracy fall off?
+----------------------------------------------------------------------
+Expected: data/documents/acl_lost_in_the_middle.pdf, page 1/2
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.619)
+  [2] data/documents/acl_lost_in_the_middle.pdf, page 1  (score=0.582)
+  [3] data/documents/acl_in_context_ralm.pdf, page 13  (score=0.577)
+  [4] data/documents/acl_lost_in_the_middle.pdf, page 17  (score=0.549)
+  [5] data/documents/acl_fusion_in_decoder.pdf, page 5  (score=0.549)
+
+======================================================================
+[T18] How many question-answer pairs are in the Stanford reading-comprehension dataset, and how many Wikipedia articles do they come from?
+----------------------------------------------------------------------
+Expected: data/documents/acl_squad.pdf, page 2
+----------------------------------------------------------------------
+Answer: According to the context, SQuAD contains 107,785 question-answer pairs, and these pairs come from 536 Wikipedia articles.
+Sources:
+  [1] data/documents/acl_squad.pdf, page 2  (score=0.625)
+  [2] data/documents/acl_squad.pdf, page 1  (score=0.625)
+  [3] data/documents/acl_squad.pdf, page 2  (score=0.571)
+  [4] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.567)
+  [5] data/documents/acl_dense_passage_retrieval.pdf, page 4  (score=0.566)
+
+======================================================================
+[T19] How does the simple retrieval-augmented approach give a language model access to retrieved documents without changing its architecture or training it again?
+----------------------------------------------------------------------
+Expected: data/documents/acl_in_context_ralm.pdf, page 1
+----------------------------------------------------------------------
+Answer: According to [3], the simple retrieval-augmented approach gives a language model access to retrieved documents without changing its architecture or training it again by concatenating the retrieved documents with the input to the model.
+Sources:
+  [1] data/documents/acl_in_context_ralm.pdf, page 1  (score=0.627)
+  [2] data/documents/acl_dense_passage_retrieval.pdf, page 10  (score=0.617)
+  [3] data/documents/acl_in_context_ralm.pdf, page 1  (score=0.602)
+  [4] data/documents/acl_lost_in_the_middle.pdf, page 2  (score=0.594)
+  [5] data/documents/acl_in_context_ralm.pdf, page 3  (score=0.590)
+
+======================================================================
+[T20] Among the open CLIP models trained on the two-billion-image dataset, which size reaches the best ImageNet zero-shot accuracy, and what is it?
+----------------------------------------------------------------------
+Expected: data/documents/arxiv_openclip_scaling_laws.pdf, page 2
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/arxiv_openclip_scaling_laws.pdf, page 10  (score=0.672)
+  [2] data/documents/arxiv_openclip_scaling_laws.pdf, page 9  (score=0.666)
+  [3] data/documents/arxiv_openclip_scaling_laws.pdf, page 2  (score=0.666)
+  [4] data/documents/arxiv_openclip_scaling_laws.pdf, page 3  (score=0.646)
+  [5] data/documents/arxiv_openclip_scaling_laws.pdf, page 3  (score=0.645)
+
+======================================================================
+[T21] Which greedy method builds an optimal prefix code by repeatedly merging the two rarest symbols, and who devised it?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch04_greedy.pdf, page 8
+----------------------------------------------------------------------
+Answer: David Huﬀman developed the greedy algorithm to build an optimal prefix code by repeatedly merging the two least frequent letters. [1]
+Sources:
+  [1] data/documents/algorithms_ch04_greedy.pdf, page 8  (score=0.540)
+  [2] data/documents/algorithms_ch03_dynamic_programming.pdf, page 30  (score=0.498)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 12  (score=0.483)
+  [4] data/documents/algorithms_ch04_greedy.pdf, page 9  (score=0.465)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 19  (score=0.461)
+
+======================================================================
+[T22] Why can't I just replace each undirected edge by two opposite directed edges when some edge weights are negative?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch08_shortest_paths.pdf, page 3
+----------------------------------------------------------------------
+Answer: You can't replace each undirected edge by two opposite directed edges when some edge weights are negative because this would transform any negative edge into a short negative cycle [2].
+Sources:
+  [1] data/documents/algorithms_ch08_shortest_paths.pdf, page 2  (score=0.644)
+  [2] data/documents/algorithms_ch08_shortest_paths.pdf, page 3  (score=0.583)
+  [3] data/documents/algorithms_ch08_shortest_paths.pdf, page 3  (score=0.577)
+  [4] data/documents/algorithms_ch08_shortest_paths.pdf, page 17  (score=0.556)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 26  (score=0.506)
+
+======================================================================
+[T23] How does the running time of the naive recursive Fibonacci algorithm compare to the size of the Fibonacci number it computes?
+----------------------------------------------------------------------
+Expected: data/documents/algorithms_ch03_dynamic_programming.pdf, page 3
+----------------------------------------------------------------------
+Answer: The running time of the naive recursive Fibonacci algorithm is exponential in n, [4]. The size of the Fibonacci number it computes is approximately nlog10 φ ⇡n/5 decimal digits long, or nlog2 φ ⇡2n/3 bits, [1].
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 8  (score=0.705)
+  [2] data/documents/algorithms_ch03_dynamic_programming.pdf, page 7  (score=0.665)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 3  (score=0.651)
+  [4] data/documents/algorithms_ch03_dynamic_programming.pdf, page 3  (score=0.580)
+  [5] data/documents/algorithms_ch03_dynamic_programming.pdf, page 4  (score=0.537)
+
+======================================================================
+[T24] Do I need to install one program or two before I can start writing R code in the course?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_first_steps_to_r.docx, page 1
+----------------------------------------------------------------------
+Answer: You need to install R before you install RStudio. [2]
+Sources:
+  [1] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.601)
+  [2] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.571)
+  [3] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.542)
+  [4] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.540)
+  [5] data/documents/zenodo_first_steps_to_r.docx, page 1  (score=0.523)
+
+======================================================================
+[T25] If I want participants to agree to share their data later, should I promise them that I will delete it afterwards?
+----------------------------------------------------------------------
+Expected: data/documents/zenodo_learning_data_ethics.docx, page 1
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/zenodo_learning_data_ethics.docx, page 1  (score=0.591)
+  [2] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.572)
+  [3] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.564)
+  [4] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.535)
+  [5] data/documents/zenodo_learning_data_ethics.docx, page 2  (score=0.533)
+
+======================================================================
+[N1] What is the hostel mess menu for Wednesday lunch?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N2] How do I apply for a refund on tuition fees?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N3] Which sorting algorithm does Python's built-in sort use?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch08_shortest_paths.pdf, page 16  (score=0.362)
+  [2] data/documents/algorithms_ch04_greedy.pdf, page 15  (score=0.336)
+  [3] data/documents/algorithms_ch04_greedy.pdf, page 2  (score=0.333)
+  [4] data/documents/algorithms_ch08_shortest_paths.pdf, page 13  (score=0.327)
+  [5] data/documents/algorithms_ch08_shortest_paths.pdf, page 17  (score=0.324)
+
+======================================================================
+[N4] What is the boiling point of ethanol?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N5] Show me a photo of a cat sitting on a sofa
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N6] What does the Eiffel Tower look like at night?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N7] What is the fee for the hostel laundry service?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.313)
+
+======================================================================
+[N8] Who won the Turing Award in 2018?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 36  (score=0.325)
+  [2] data/documents/acl_in_context_ralm.pdf, page 16  (score=0.321)
+  [3] data/documents/acl_bert.pdf, page 4  (score=0.307)
+  [4] data/documents/acl_fusion_in_decoder.pdf, page 1  (score=0.305)
+  [5] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.304)
+
+======================================================================
+[N9] How much does a ticket for the campus shuttle bus cost?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch03_dynamic_programming.pdf, page 40  (score=0.320)
+
+======================================================================
+[N10] Who won the 100 m sprint at last year's sports day?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/acl_dense_passage_retrieval.pdf, page 8  (score=0.324)
+
+======================================================================
+[N11] What is my attendance percentage in the Operating Systems course?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/hod_project_announcement.wav, 0s–33s  (score=0.413)
+  [2] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.351)
+  [3] data/documents/algorithms_ch04_greedy.pdf, page 3  (score=0.325)
+  [4] data/documents/it_onboarding.docx, page 2  (score=0.302)
+
+======================================================================
+[N12] Do blood donors get a reward or a certificate at the camp?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N13] How can I raise my mailbox limit to 50 GB?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources: (none — below relevance threshold, no LLM call made)
+
+======================================================================
+[N14] Which company at the internship fair offers the highest stipend?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/documents/algorithms_ch04_greedy.pdf, page 14  (score=0.324)
+  [2] data/documents/algorithms_ch03_dynamic_programming.pdf, page 55  (score=0.317)
+  [3] data/documents/algorithms_ch03_dynamic_programming.pdf, page 56  (score=0.316)
+  [4] data/documents/algorithms_ch04_greedy.pdf, page 13  (score=0.307)
+  [5] data/documents/algorithms_ch04_greedy.pdf, page 19  (score=0.304)
+
+======================================================================
+[N15] How many credits is the Machine Learning course worth?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/lab_assistant_briefing.wav, 0s–26s  (score=0.414)
+  [2] data/documents/acl_fusion_in_decoder.pdf, page 5  (score=0.349)
+  [3] data/documents/zenodo_ai_governance_syllabus.docx, page 1  (score=0.333)
+  [4] data/audio/library_orientation_excerpt.wav, 0s–28s  (score=0.332)
+  [5] data/documents/arxiv_openclip_scaling_laws.pdf, page 8  (score=0.320)
+
+======================================================================
+[N16] What is the name of the college principal?
+----------------------------------------------------------------------
+Expected: refusal (not covered by the corpus)
+----------------------------------------------------------------------
+Answer: I don't have enough information in the indexed documents to answer that.
+Sources:
+  [1] data/audio/it_helpdesk_wifi_instructions.wav, 0s–34s  (score=0.309)
+
+======================================================================
+TALLIES (automatic; a person still judges whether each answer is right)
+  text rows answered (not refused):        21/25   (earlier 21/25)
+  negatives refused:                       16/16   (earlier 8/8, held-out image 8/8)
+  negatives that were answered instead:    none
+
+======================================================================
+Rate each answer 1-5 by hand (docs/ROADMAP.md's Ch10 bar), then add a row to data/README.md's Results log, e.g.:
+| 2026-10-07 | Ch10 | - | - | - | Answer-quality check, 41 questions (T + N rows), human-rated 1-5: <fill in average and notes> |

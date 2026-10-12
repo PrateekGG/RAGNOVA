@@ -76,6 +76,8 @@ Maintain two separate ChromaDB collections — `text_index` (384-d) and `image_i
 - The corpus grows to a scale where maintaining two HNSW indexes becomes a memory problem
   (not expected below ~10⁶ segments).
 
+**Note (2026-10-07):** a third collection, `image_text_index`, now exists (ADR-014): MiniLM vectors of each image's OCR text under the same ids as `image_index`. It does not change this decision: CLIP vectors and text vectors still never share a collection, and the third holds *text* vectors for *images*, keyed so the two image searches can be fused. It is written always and read only when `IMAGE_TEXT_SEARCH` is on (off by default).
+
 ---
 
 *Citation [13] refers to Liang et al., "Mind the Gap: Understanding the Modality Gap in

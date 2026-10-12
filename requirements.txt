@@ -44,7 +44,8 @@ posthog==5.4.0                   # chromadb's telemetry client; chromadb 0.5.23 
                                    # argument but 3 were given". Nothing is sent either way (see
                                    # src/core/vector_store.py: telemetry is switched off); this just
                                    # stops the error spam. Found 2026-10-05.
-ollama==0.4.4                     # Python client for the local LLM API (ADR-002)
+ollama==0.6.3                     # Python client for the local LLM API (ADR-002). 0.4.4 until 2026-10-11:
+                                   # it cannot pass `think`, which thinking models (gemma4) need (LLM_THINK).
 
 # --- Vision pipeline (Track B, Chapter 8) -----------------------------------
 open-clip-torch==2.29.0           # CLIP embeddings (ADR-003, cross-modal search)

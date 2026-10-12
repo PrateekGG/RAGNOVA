@@ -1,0 +1,104 @@
+scripts/check_scoped_sources.py, FIRST RUN, 2026-10-10, before the 'this image' prompt note (llama3.2:3b on GPU, scratch copy of chroma_db without any personal file).
+Rows A5-A9 and U3-U4 did not exist yet; they were added after this run (A2 failed, U1/U2 did not discriminate). Kept as the before-fix record.
+
+model llama3.2:3b, TOP_K 5, CV indexed as 1 chunk(s), scope ['<tmp>/maya_cv.pdf']
+
+[PASS] S1 (scoped to the CV; expect maya fernandes)
+  Q: Who is this person?
+  A: Maya Fernandes. [1]
+  cites: ['maya_cv.pdf']
+
+[FAIL] S2 (scoped to the CV; expect python/bike/crop/westbridge)
+  Q: What is in this document?
+  A: The document appears to be a resume or CV, as it includes information about the author's education, skills, projects, and contact information.
+  cites: ['maya_cv.pdf']
+
+[PASS] S3 (scoped to the CV; expect python)
+  Q: What skills are listed?
+  A: The skills listed are Python, SQL, Tableau, scikit-learn, and Git. [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] S4 (scoped to the CV; expect bike/crop)
+  Q: Which projects are mentioned?
+  A: The two projects mentioned are:
+
+1. Campus Bike Share Analytics (2025)
+2. Crop Disease Classifier (2024)
+  cites: ['maya_cv.pdf']
+
+[PASS] S5 (scoped to the CV; expect maya.fernandes@example.org)
+  Q: What is the email address?
+  A: maya.fernandes@example.org [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] S6 (scoped to the CV; expect westbridge)
+  Q: Where did they study?
+  A: They studied at Westbridge Institute of Technology. [2]
+  cites: ['maya_cv.pdf']
+
+[PASS] SN1 (scoped to the CV; expect refuse)
+  Q: What is the capital of France?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN2 (scoped to the CV; expect refuse)
+  Q: How many marks does the working prototype carry?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN3 (scoped to the CV; expect refuse)
+  Q: What is the campus Wi-Fi network name?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] SN4 (scoped to the CV; expect refuse)
+  Q: Who won the 2018 football World Cup?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['maya_cv.pdf']
+
+[PASS] U1 (NOT scoped: the old behaviour; expect maya fernandes)
+  Q: Who is Maya Fernandes?
+  A: Maya Fernandes is a final-year data science student who builds dashboards and small machine-learning tools. [1]
+  cites: ['maya_cv.pdf']
+
+[PASS] U2 (NOT scoped: the old behaviour; expect python)
+  Q: What skills are listed in Maya Fernandes's CV?
+  A: Maya Fernandes's CV lists the following skills: Python, SQL, Tableau, scikit-learn, and Git. [1]
+  cites: ['maya_cv.pdf', 'acl_in_context_ralm.pdf']
+
+  (attached library_notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A1 (attached notice image; expect 9)
+  Q: When does the library reopen?
+  A: The library reopens on October 13 at 9 AM. [1]
+  cites: ['attached image (library_notice.png)', 'library_orientation_excerpt.wav', 'photo_library_desk_sign.png', 'library_hours.pdf']
+
+  (attached library_notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[FAIL] A2 (attached notice image; expect library)
+  Q: What does this image say?
+  A: The image says: 
+
+- Circulation Desk — Borrowing & Returns 
+- Undergraduate Quota: 4 books for 14 days 
+- Late Return Fine: Rs 2.00 per day per overdue book 
+- Overdue Fine Cap: Maximum Rs 200 per ttle 
+- After-Hours Drop Box: Located beside Ground Floor Main Exit 
+- Digital Resource Centre: Floor 2 (WiFi and Workstations)
+  cites: ['attached image (library_notice.png)', 'library_orientation_excerpt.wav', 'photo_library_desk_sign.png']
+
+  (attached photo.png: Tesseract read 0 words: '')
+[PASS] A3 (attached blank image; expect refuse)
+  Q: What does this image show?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['attached image (photo.png)']
+
+  (attached library_notice.png: Tesseract read 19 words: 'LIBRARY NOTICE The library is closed on October 12 for maintenance. It reopens o')
+[PASS] A4 (attached notice image; expect refuse)
+  Q: What is the capital of France?
+  A: I don't have enough information in the indexed documents to answer that.
+  cites: ['attached image (library_notice.png)', 'library_orientation_excerpt.wav', 'photo_library_desk_sign.png', 'library_hours.pdf', 'notice_library_fines.png', 'zenodo_ai_governance_syllabus.docx']
+
+SUMMARY
+  NOT scoped: the old behaviour: 2/2 as expected   failed: []
+  attached blank image: 1/1 as expected   failed: []
+  attached notice image: 2/3 as expected   failed: ['A2']
+  scoped to the CV: 9/10 as expected   failed: ['S2']

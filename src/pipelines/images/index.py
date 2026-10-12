@@ -11,23 +11,32 @@ side uses (src/core/vector_store.py), into the image collection.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 
+from src.core.config import settings
 from src.core.schemas import Chunk
 from src.core.text_normalize import normalize_text
-from src.core.vector_store import get_client, get_image_collection, replace_source_chunks
+from src.core.vector_store import (
+    get_client,
+    get_image_collection,
+    get_image_text_collection,
+    replace_source_chunks,
+)
 from src.pipelines.images.ingest import SUPPORTED_EXTENSIONS, ImageIngestionPipeline
 from src.pipelines.images.models import ImageChunk
 
 
-def index_image_files(paths: list[str | Path], client=None, pipeline=None) -> int:
-    """Ingest the given image files and upsert them into image_index.
-    Returns how many were indexed. Unreadable files are skipped by the
+def index_image_files(paths: list[str | Path], client=None, pipeline=None, embed_texts_fn=None) -> int:
+    """Ingest the given image files and upsert them into image_index, and the
+    MiniLM vectors of the text read from them into image_text_index (ADR-014).
+    Returns how many images were indexed. Unreadable files are skipped by the
     pipeline itself (Chapter 8's per-file try/except), not here.
 
     `pipeline` defaults to a real ImageIngestionPipeline (Tesseract + CLIP);
     tests pass one built with a fake embedder so they run without
-    downloading CLIP's weights.
+    downloading CLIP's weights. `embed_texts_fn` defaults to MiniLM
+    (src.core.embeddings.embed_texts) and is injected the same way.
     """
     if not paths:
         return 0
@@ -52,7 +61,37 @@ def index_image_files(paths: list[str | Path], client=None, pipeline=None) -> in
         group_vectors.append(image_chunk.embedding)
     for source, (group_chunks, group_vectors) in by_source.items():
         replace_source_chunks(collection, source, group_chunks, group_vectors)
+    index_ocr_text(chunks, client=client, embed_texts_fn=embed_texts_fn)
     return len(chunks)
+
+
+def index_ocr_text(chunks: list[Chunk], client=None, embed_texts_fn=None) -> int:
+    """Write the OCR text of already-built image chunks into image_text_index
+    (ADR-014): one MiniLM vector per image that has readable text, under the
+    SAME chunk id as its image_index chunk so the two searches can be fused.
+
+    Every source in `chunks` is replaced, including an image whose text is now
+    empty, so a re-index whose OCR changed (or found nothing) cannot leave the
+    old text searchable (vector_store.replace_source_chunks). An image with no
+    readable text gets no vector here: a photo is found by CLIP or not at all.
+    Returns how many images got a text vector.
+    """
+    client = client or get_client()
+    collection = get_image_text_collection(client)
+    with_text = [c for c in chunks if c.text.strip()]
+    vectors: list[list[float]] = []
+    if with_text:
+        if embed_texts_fn is None:
+            from src.core.embeddings import embed_texts as embed_texts_fn
+        vectors = embed_texts_fn([c.text for c in with_text])
+    by_source: dict[str, tuple[list[Chunk], list[list[float]]]] = {c.source: ([], []) for c in chunks}
+    for chunk, vector in zip(with_text, vectors):
+        group_chunks, group_vectors = by_source[chunk.source]
+        group_chunks.append(replace(chunk, embedding_model=settings.TEXT_EMBEDDING_MODEL))
+        group_vectors.append(vector)
+    for source, (group_chunks, group_vectors) in by_source.items():
+        replace_source_chunks(collection, source, group_chunks, group_vectors)
+    return len(with_text)
 
 
 def index_images_directory(

@@ -5,6 +5,9 @@ Whisper's word error rate, each as median AND worst case (never best case).
 
 Run with:  python scripts/benchmark_performance.py            (needs `ollama serve` for the end-to-end part)
            python scripts/benchmark_performance.py --no-llm   (everything except end-to-end latency)
+           python scripts/benchmark_performance.py --latency-only
+                                                              (retrieval + end-to-end + where the time goes;
+                                                               skips the indexing and Whisper sections)
 (after scripts/build_index.py; set CHROMA_PERSIST_DIR to benchmark a scratch index)
 
 READ THIS BEFORE QUOTING ANY NUMBER. What the numbers do and do not mean:
@@ -103,8 +106,79 @@ def retrieval_latency(gold: dict) -> None:
 def end_to_end_latency(gold: dict) -> None:
     print("END-TO-END LATENCY (retrieve + prompt + generate, warm)")
     from src.pipelines.rag import answer_query
-    questions = [(r["question"],) for r in gold["text"][::2]]       # every other question, 13 of 25
+    questions = [(r["question"],) for r in gold["text"][::2]]       # every other question (17 of the 33 text questions)
     print("  answer_query, text only:            ", _stats(_timed(lambda q: answer_query(q), questions)))
+    print()
+
+
+def install_cold_prompts() -> None:
+    """Make every measured request a COLD prompt. Ollama's runner keeps the KV cache of recent
+    prompts, so asking the same prompt twice (or two prompts that share their start, such as the
+    same retrieved chunks) skips the model's reading of it: on CPU a ~1800-token prompt costs about
+    12 s the first time and 0.08 s the second (measured 2026-10-07 with Ollama's own timings). A
+    new question normally retrieves different chunks, so cold is what a person waits for. A unique
+    marker at the very start of the prompt defeats prefix reuse entirely; it adds about 8 tokens."""
+    import uuid
+
+    from src.pipelines.rag import answer as answer_module
+    real_build_prompt = answer_module.build_prompt
+    answer_module.build_prompt = lambda query, chunks: f"[request {uuid.uuid4().hex[:8]}]\n" + real_build_prompt(query, chunks)
+
+
+def generation_breakdown(gold: dict) -> None:
+    """Where an answer's time goes, from Ollama's own accounting of each request: reading the prompt
+    (prefill), writing the answer, loading the model. Time to first token on the chat page is about
+    load + prefill. Same 13 questions as end_to_end_latency(), cold prompts (install_cold_prompts)."""
+    print("WHERE THE TIME GOES (Ollama's own timings per request; cold prompts)")
+    from src.core.config import settings
+    from src.core.llm import generation_options, ollama_client
+    from src.pipelines.rag import answer as answer_module
+    from src.pipelines.rag.retrieve import retrieve
+    client = ollama_client()
+    questions = [r["question"] for r in gold["text"][::2]]
+
+    def one(question: str) -> dict:
+        relevant = retrieve(question)
+        prompt = answer_module.build_prompt(question, answer_module._for_prompt(relevant, question))
+        started = time.perf_counter()
+        reply = client.generate(model=settings.OLLAMA_MODEL, prompt=prompt, options=generation_options())
+        return {
+            "prompt_tokens": reply["prompt_eval_count"], "prefill": reply["prompt_eval_duration"] / 1e9,
+            "gen_tokens": reply["eval_count"], "gen": reply["eval_duration"] / 1e9,
+            "load": reply["load_duration"] / 1e9, "wall": time.perf_counter() - started,
+        }
+
+    one(questions[0])                                # warm-up, discarded
+    runs = [one(q) for q in questions]
+
+    def med(key: str) -> float:
+        return statistics.median(r[key] for r in runs)
+
+    print(f"  prompt tokens:   median {med('prompt_tokens'):6.0f}   longest {max(r['prompt_tokens'] for r in runs):5d}   (n={len(runs)})")
+    print(f"  prefill (model reads the prompt):   median {med('prefill'):6.2f} s   worst {max(r['prefill'] for r in runs):6.2f} s")
+    print(f"  answer tokens:   median {med('gen_tokens'):6.0f}   longest {max(r['gen_tokens'] for r in runs):5d}")
+    print(f"  generation (model writes it):       median {med('gen'):6.2f} s   worst {max(r['gen'] for r in runs):6.2f} s")
+    print(f"  model load:                         median {med('load'):6.2f} s")
+    print(f"  time to first token on the page ~ load + prefill:  median "
+          f"{statistics.median(r['load'] + r['prefill'] for r in runs):6.2f} s")
+    print(f"  model call, wall clock:             median {med('wall'):6.2f} s   p90 "
+          f"{sorted(r['wall'] for r in runs)[min(len(runs) - 1, int(0.9 * len(runs)))]:6.2f} s   worst {max(r['wall'] for r in runs):6.2f} s")
+    print()
+
+
+def configuration() -> None:
+    from src.core.config import settings
+    print("CONFIGURATION OF THIS RUN (so a number can always be traced to its settings)")
+    print(f"  OLLAMA_MODEL={settings.OLLAMA_MODEL}  OLLAMA_NUM_GPU={settings.OLLAMA_NUM_GPU}  TOP_K={settings.TOP_K}  "
+          f"LLM_MAX_TOKENS={settings.LLM_MAX_TOKENS}  LLM_NUM_CTX={settings.LLM_NUM_CTX}  "
+          f"CONTEXT_WORDS_PER_CHUNK={getattr(settings, 'CONTEXT_WORDS_PER_CHUNK', 'n/a')}")
+    try:
+        import json
+        import urllib.request
+        with urllib.request.urlopen(f"{settings.OLLAMA_HOST}/api/version", timeout=5) as response:
+            print(f"  ollama server version: {json.load(response)['version']}")
+    except Exception as exc:                                  # a missing server is reported where it matters, in the e2e section
+        print(f"  ollama server version: unknown ({type(exc).__name__})")
     print()
 
 
@@ -189,12 +263,23 @@ def whisper_wer(transcripts: dict[str, str]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-llm", action="store_true", help="skip the end-to-end latency (needs Ollama)")
+    parser.add_argument("--allow-prompt-cache", action="store_true",
+                        help="do NOT defeat Ollama's prompt cache (shows the warm, repeated-prompt case)")
+    parser.add_argument("--latency-only", action="store_true",
+                        help="retrieval, end-to-end and streamed latency only; skip indexing throughput and Whisper")
     args = parser.parse_args()
     gold = load_gold_set()
+    if not args.allow_prompt_cache:
+        install_cold_prompts()
     machine()
+    configuration()
+    print(f"  prompt cache: {'ALLOWED (warm case)' if args.allow_prompt_cache else 'defeated, every request is a cold prompt'}\n")
     retrieval_latency(gold)
     if not args.no_llm:
         end_to_end_latency(gold)
+        generation_breakdown(gold)
+    if args.latency_only:
+        return
     transcripts = indexing_throughput()
     whisper_wer(transcripts)
 
