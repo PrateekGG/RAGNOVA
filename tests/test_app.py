@@ -90,10 +90,10 @@ def _live_answer(text: str, calls: list | None = None):
     )
 
     def fake(query, top_k=None, client=None, include_images=False, query_image=None, sources=None, attachments=None,
-             history=None):
+             history=None, earlier_attachments=None):
         if calls is not None:
             calls.append({"query": query, "sources": sources, "attachments": attachments, "query_image": query_image,
-                          "history": history})
+                          "history": history, "earlier_attachments": earlier_attachments})
         return [chunk], iter([word + " " for word in text.split(" ")])
 
     return fake

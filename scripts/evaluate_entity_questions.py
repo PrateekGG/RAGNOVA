@@ -121,8 +121,9 @@ ERRORS: list[str] = []
 
 def ask(question: str, **kwargs):
     """answer_query, retried when the model server fails. A question that still fails gets an empty answer
-    with no citations, which no rule counts as correct (not a refusal, no keyword, no source), so an error
-    can only lower a variant's score; every error is listed at the end."""
+    with no citations, which no rule counts as correct (not a refusal, no keyword, no source), and is listed
+    at the end. A run with any such failure decides nothing (stage 1 and stage 2 both say INCOMPLETE): a
+    failure on a V0 negative would lower the baseline a variant is compared against."""
     for attempt in range(1, ASK_ATTEMPTS + 1):
         try:
             return answer_query(question, **kwargs)
@@ -182,6 +183,11 @@ def stage1(only: list[str] | None = None) -> int:
     print(f"{'variant':44} {'pos':>5} {'neg':>5} {'score':>6}   vs V0")
     for variant, r in results.items():
         print(f"{describe(variant):44} {r['pos']:>2}/{n_pos} {r['neg']:>3}/{n_neg} {r['score']:>4}/{len(gold)}   {r['score'] - base['score']:+d}")
+    if ERRORS:
+        print(f"\nRESULT: INCOMPLETE. {len(ERRORS)} request(s) failed on the model server (listed below), so the scores "
+              "above are not a fair comparison: a failed question counts as wrong for whichever variant it hit. "
+              "Nothing is decided; fix the server and run again.")
+        return 1
     candidates = [v for v, r in results.items() if v != "V0" and r["score"] >= base["score"] + REQUIRED_GAIN and r["neg"] >= base["neg"]]
     print(f"\ncandidates (SCORE >= V0 + {REQUIRED_GAIN} and negatives refused >= V0's {base['neg']}): {candidates or 'none'}")
     if not candidates:
@@ -223,6 +229,10 @@ def stage2(winner: str) -> int:
     lost = sorted((base["substantive"] - won["substantive"]) | (base["images"] - won["images"]))
     print(f"older negatives V0 refused that {winner} answers: {newly_answered or 'none'}")
     print(f"older positives V0 got that {winner} lost: {lost or 'none'}")
+    if ERRORS:
+        print(f"RESULT: INCOMPLETE. {len(ERRORS)} request(s) failed on the model server (listed below); "
+              "no veto decision. Fix the server and run again.")
+        return 1
     vetoed = won["total"] <= base["total"] - REGRESSION_TOLERANCE or bool(newly_answered)
     print("RESULT:", f"VETOED. {winner} is tested, not adopted." if vetoed else f"not vetoed.")
     print("Only the variant that stage 1 named WINNER may be adopted (with an ADR and the .env.example line changed to a default). "

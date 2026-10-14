@@ -695,16 +695,22 @@ if user_prompt:
     # The last answered exchange, for follow-ups ("tell me more"): (what that turn searched with, its answer).
     # Read before this question is appended; a turn that failed or was refused gives no history.
     history = None
+    earlier_attachments = None
     past = st.session_state.messages
     if len(past) >= 2 and past[-1]["role"] == "assistant" and past[-2]["role"] == "user":
         last_answer = past[-1]
         if last_answer.get("engine") == "live" and not last_answer.get("error") \
                 and not is_refusal(last_answer["content"]):
             history = [(past[-2].get("search") or past[-2]["content"], last_answer["content"])]
+            # A screenshot asked about last turn is not in the index: "tell me more" is answered from it again.
+            earlier_attachments = past[-2].get("attachments") or None
 
+    search = search_question(user_prompt, history, attachments, focus or None)
     st.session_state.messages.append(new_message(
-        "user", content=user_prompt, image_note=image_note,
-        search=search_question(user_prompt, history, attachments, focus or None),
+        "user", content=user_prompt, image_note=image_note, search=search,
+        # What this turn is answered from besides the index, so a follow-up to it can be answered from it too: its
+        # own attachment, or the earlier one a follow-up ("tell me more") carries on with.
+        attachments=attachments or (earlier_attachments if search != user_prompt else None),
     ))
     with st.chat_message("user"):
         st.markdown(user_prompt)
@@ -728,6 +734,7 @@ if user_prompt:
                         sources=focus or None,
                         attachments=attachments,
                         history=history,
+                        earlier_attachments=earlier_attachments,
                     )
                     answer_text = st.write_stream(token_stream)
 

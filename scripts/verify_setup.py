@@ -100,8 +100,20 @@ def check_ollama_generates() -> bool:
 def check_embedding_model() -> bool:
     print("[4/4] Checking sentence-transformers can load the embedding model ...")
     try:
+        import sys
+        from pathlib import Path
+
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent))     # this script is run from scripts/
+        from src.core.compat import tolerate_blocked_sklearn
+
+        tolerate_blocked_sklearn()          # Windows may block scikit-learn's optional native module (src/core/compat.py)
         from sentence_transformers import SentenceTransformer
-    except ImportError:
+    except ImportError as error:
+        if "Application Control" in str(error):
+            # Not a missing package: Windows (Smart App Control) refused a native file.
+            print(f"      BLOCKED — Windows refused to load a library: {error}")
+            print("      Wait a minute and run this again; if it keeps happening see docs/human-verification-checklist.md section 1.")
+            return False
         print("      SKIPPED — sentence-transformers not installed yet.")
         print("      Fix: pip install -r requirements.txt")
         return False

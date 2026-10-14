@@ -89,15 +89,21 @@ def _plain_words(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", _POSSESSIVE.sub("", text.lower()))
 
 
-def _bigrams(text: str) -> frozenset[tuple[str, str]]:
-    words = _plain_words(text)
-    return frozenset(zip(words, words[1:]))
+def _spaced_words(text: str) -> str:
+    return f" {' '.join(_plain_words(text))} "
 
 
 def name_phrase_pairs(query: str) -> list[tuple[str, str]]:
-    """The word pairs a name with a title or initials pins down: "Dr. S. Sharma" -> [("dr", "s"), ("s", "sharma")],
-    "Mr Sharma" -> [("mr", "sharma")]. [] when the question has no title and no dotted initial."""
-    pairs: list[tuple[str, str]] = []
+    """The word pairs inside the question's name phrases: "Dr. S. Sharma" -> [("dr", "s"), ("s", "sharma")]."""
+    return [pair for phrase in name_phrases(query) for pair in zip(phrase, phrase[1:])]
+
+
+def name_phrases(query: str) -> list[tuple[str, ...]]:
+    """The names a title, initials or capitals pin down, each as the words that must stand together in a chunk:
+    "Dr. S. Sharma" -> [("dr", "s", "sharma")], "Mr Sharma" -> [("mr", "sharma")], "Alex Smith" -> [("alex", "smith")].
+    Checked as whole phrases, not pair by pair: "Dr. S. Rao and Mr. S. Sharma" holds both pairs of "Dr. S. Sharma"
+    but not the name. [] when the question has no title, no dotted initial and no capitalised full name."""
+    phrases: list[tuple[str, ...]] = []
     words = [(m.group(1), bool(m.group(2))) for m in _WORD_DOT.finditer(_POSSESSIVE.sub("", query.lower()))]
     i = 0
     while i < len(words):
@@ -119,20 +125,24 @@ def name_phrase_pairs(query: str) -> list[tuple[str, str]]:
                 j += 1
             break
         if len(phrase) >= 2:
-            pairs += list(zip(phrase, phrase[1:]))
+            phrases.append(tuple(phrase))
         i = j if j > i + 1 else i + 1
-    return pairs + [p for p in _capitalised_name_pairs(query) if p not in pairs]
+    return phrases + [p for p in _capitalised_names(query) if not any(_contains(q, p) for q in phrases)]
+
+
+def _contains(phrase: tuple[str, ...], part: tuple[str, ...]) -> bool:
+    return f" {' '.join(part)} " in f" {' '.join(phrase)} "
 
 
 _NAME_WORD = re.compile(r"[A-Z][a-z]+")
 _EDGE_PUNCT = ".,;:!?\"'()[]“”‘’"
 
 
-def _capitalised_name_pairs(query: str) -> list[tuple[str, str]]:
+def _capitalised_names(query: str) -> list[tuple[str, ...]]:
     """Runs of two or more capitalised words, as typed: "Who is Alex Smith?" -> [("alex", "smith")]. A word with other
     punctuation inside it, a common word ("Who", "Tell", "About") or anything else ends a run, so "What is
     Fusion-in-Decoder?" and an all-lowercase question give []."""
-    pairs: list[tuple[str, str]] = []
+    names: list[tuple[str, ...]] = []
     run: list[str] = []
     for raw in query.split() + [""]:
         bare = _POSSESSIVE.sub("", raw)
@@ -143,9 +153,9 @@ def _capitalised_name_pairs(query: str) -> list[tuple[str, str]]:
             if bare.rstrip(_EDGE_PUNCT) == bare:
                 continue        # nothing between this word and the next but a space: the name may go on
         if len(run) >= 2:
-            pairs += list(zip(run, run[1:]))
+            names.append(tuple(run))
         run = []
-    return pairs
+    return names
 
 
 @dataclass(frozen=True)
@@ -154,7 +164,7 @@ class Entry:
     source: str
     collection: str          # "text" or "image": which ChromaDB collection holds the chunk
     tokens: frozenset[str]
-    bigrams: frozenset[tuple[str, str]] = frozenset()
+    words: str = ""          # the chunk's words in order, space-separated with a space at each end, for name phrases
 
 
 class LexicalIndex:
@@ -166,7 +176,7 @@ class LexicalIndex:
         self._files: dict[str, set[str]] = {}
         for chunk_id, source, collection, text in rows:
             tokens = frozenset(tokenize(text))
-            self.entries.append(Entry(chunk_id, source, collection, tokens, _bigrams(text)))
+            self.entries.append(Entry(chunk_id, source, collection, tokens, _spaced_words(text)))
             for token in tokens:
                 self._files.setdefault(token, set()).add(source)
 
@@ -192,8 +202,8 @@ def admit(query: str, index: LexicalIndex, max_df: int = 2, min_coverage: float 
     required = distinctive if mode == "distinctive" else known
     if len(required) / (len(required) + len(unknown)) < min_coverage:
         return []
-    pairs = name_phrase_pairs(query)
-    matches = [e for e in index.entries if all(t in e.tokens for t in required) and all(p in e.bigrams for p in pairs)]
+    phrases = [f" {' '.join(p)} " for p in name_phrases(query)]
+    matches = [e for e in index.entries if all(t in e.tokens for t in required) and all(p in e.words for p in phrases)]
     matches.sort(key=lambda e: len(e.tokens))
     return matches[:limit]
 
@@ -254,7 +264,10 @@ def _index_for(client) -> LexicalIndex:
     from src.core.vector_store import get_image_collection, get_text_collection
 
     text_collection, image_collection = get_text_collection(client), get_image_collection(client)
-    key = (id(client), text_collection.count(), image_collection.count())
+    # A new client object is made per call when none is passed (lexical_hits and fix_spelling each make one), so the
+    # key is the database's path, not the object: keyed by id() the index was rebuilt twice for every question.
+    where = getattr(client, "_identifier", "") or id(client)
+    key = (where, text_collection.count(), image_collection.count())
     if key not in _cache:
         _cache.clear()
         rows = []

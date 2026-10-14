@@ -15,7 +15,12 @@ either track expects.
 
 from __future__ import annotations
 
-from sentence_transformers import SentenceTransformer
+from src.core.compat import tolerate_blocked_sklearn
+
+# sentence-transformers imports scikit-learn, whose optional native accelerator Windows may block (compat.py).
+tolerate_blocked_sklearn()
+
+from sentence_transformers import SentenceTransformer  # noqa: E402  (after the line above on purpose)
 
 from src.core.config import settings
 

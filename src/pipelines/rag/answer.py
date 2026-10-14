@@ -36,7 +36,11 @@ def is_refusal(answer: str) -> bool:
     apostrophe ("I don' have", "I don' t have", a curly ’) or write "do not". Letters only, so spacing and
     punctuation do not matter; the words that follow "I do(n't)" must be the refusal's own."""
     letters = re.sub(r"[^a-z]", "", answer.lower())
-    return letters.startswith("ido") and "haveenoughinformationintheindexeddocuments" in letters[:60]
+    return _REFUSAL_LETTERS.match(letters) is not None
+
+
+# "I don't" / "I don' t" / "I don’t" -> idont, "I don' have" -> idon, "I do not" -> idonot; never "I do have".
+_REFUSAL_LETTERS = re.compile(r"ido(?:nt|n|not)haveenoughinformationintheindexeddocuments")
 
 # Stands in for the question when the user attached only an image (no
 # typed words, no readable text in the picture) — Chapter 11's UI allows
@@ -163,12 +167,21 @@ def _follow_up(query, history, attachments, sources=None) -> tuple[str, list[tup
     return search, (history[-1:] if search != query else None)
 
 
-def _prompt(query: str, relevant: list[Chunk], history, sources: list[str] | None = None) -> str:
+def _plan(query, history, attachments, earlier_attachments, sources):
+    """(question to search with, earlier exchange for the prompt or None, attachments to show)."""
+    search_query, prompt_history = _follow_up(query, history, attachments, sources)
+    if prompt_history and not attachments and earlier_attachments:
+        attachments = list(earlier_attachments)
+    return search_query, prompt_history, attachments
+
+
+def _prompt(query: str, relevant: list[Chunk], history, sources: list[str] | None = None,
+            search_query: str | None = None) -> str:
     question = query or IMAGE_ONLY_QUESTION
     if sources and not history and query.strip() and set(content_tokens(query)) <= _ASK_ONLY_WORDS:
         question = SCOPED_BARE_QUESTION.format(query=query.strip())
     return build_prompt(
-        question, _for_prompt(relevant, query),
+        question, _for_prompt(relevant, search_query or query),
         settings.PROMPT_WHO_WHAT_RULE, settings.PROMPT_DETAIL_RULE, history, sources,
     )
 
@@ -182,6 +195,7 @@ def answer_query(
     sources: list[str] | None = None,
     attachments: list[Chunk] | None = None,
     history: list[tuple[str, str]] | None = None,
+    earlier_attachments: list[Chunk] | None = None,
 ) -> RagAnswer:
     """Answer `query` using only relevant retrieved chunks.
 
@@ -206,9 +220,11 @@ def answer_query(
     `history` is the earlier conversation, [(search question, answer)] oldest first (the page passes the last
     exchange). Only a follow-up ("tell me more", "who made it?") uses it: followup.py builds the question to
     search with, and the prompt shows the exchange so the model knows what "it" is. A question that stands on its
-    own is handled exactly as without it.
+    own is handled exactly as without it. `earlier_attachments` are the attachments of that earlier turn: a
+    follow-up with no attachment of its own ("tell me more" after "what does this screenshot say?") is answered
+    from them again, since a screenshot that is not indexed cannot be found by searching.
     """
-    search_query, prompt_history = _follow_up(query, history, attachments, sources)
+    search_query, prompt_history, attachments = _plan(query, history, attachments, earlier_attachments, sources)
     relevant = _gather(query, top_k, client, include_images, query_image, sources, attachments, search_query)
 
     if not relevant:
@@ -216,7 +232,7 @@ def answer_query(
             query=query, answer=NOT_ENOUGH_INFO, citations=[], model=settings.OLLAMA_MODEL
         )
 
-    prompt = _prompt(query, relevant, prompt_history, sources)
+    prompt = _prompt(query, relevant, prompt_history, sources, search_query)
     check_prompt_fits(prompt)
     answer_text = generate(prompt)
     check_citations(answer_text, relevant, query)
@@ -235,6 +251,7 @@ def stream_answer(
     sources: list[str] | None = None,
     attachments: list[Chunk] | None = None,
     history: list[tuple[str, str]] | None = None,
+    earlier_attachments: list[Chunk] | None = None,
 ) -> tuple[list[Chunk], Iterator[str]]:
     """answer_query(), split in two for the Chapter 11 UI: retrieval runs
     now and its chunks come back straight away (so sources can be drawn
@@ -246,11 +263,11 @@ def stream_answer(
     check_citations() on the joined text when the stream ends — it can't
     run here, because the full answer doesn't exist yet.
     """
-    search_query, prompt_history = _follow_up(query, history, attachments, sources)
+    search_query, prompt_history, attachments = _plan(query, history, attachments, earlier_attachments, sources)
     relevant = _gather(query, top_k, client, include_images, query_image, sources, attachments, search_query)
     if not relevant:
         return [], iter([NOT_ENOUGH_INFO])
-    prompt = _prompt(query, relevant, prompt_history, sources)
+    prompt = _prompt(query, relevant, prompt_history, sources, search_query)
     check_prompt_fits(prompt)
     return relevant, generate_stream(prompt)
 
